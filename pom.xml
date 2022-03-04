@@ -63,7 +63,7 @@
         <maven-source-plugin.version>3.2.0</maven-source-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
-        <maven-compiler-plugin.version>3.9.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.10.0</maven-compiler-plugin.version>
         <maven-help-plugin.version>3.2.0</maven-help-plugin.version>
         <maven-install-plugin.version>3.0.0-M1</maven-install-plugin.version>
         <build.timestamp.formatted>${maven.build.timestamp}</build.timestamp.formatted>
@@ -72,8 +72,8 @@
             files. These will be expanded by the maven build as soon as the resources 
             plugin processes all contents of the configured resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
-        <guava.version>31.0.1-jre</guava.version>
-        <mockito.version>4.2.0</mockito.version>
+        <guava.version>31.1-jre</guava.version>
+        <mockito.version>4.3.1</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <spotbugs.plugin.version>4.5.3.0</spotbugs.plugin.version>
         <spotbugs.version>4.5.3</spotbugs.version>
@@ -82,11 +82,14 @@
         <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
         <assertj.version>3.22.0</assertj.version>
         <logback.version>1.2.10</logback.version>
-        <equalsverifier.version>3.8.2</equalsverifier.version>
-        <arch.unit.version>0.22.0</arch.unit.version>
-        <!-- Currently no custom options are set but we need to define this 
-            variable anyway, so that it gets replaced with 'empty' upon runtime. -->
-        <custom.jvm.options></custom.jvm.options>
+        <equalsverifier.version>3.9</equalsverifier.version>
+        <arch.unit.version>0.23.1</arch.unit.version>
+        <custom.jvm.options>
+            --enable-native-access=ALL-UNNAMED
+            --add-modules=ALL-SYSTEM,jdk.incubator.foreign
+            --add-opens=java.base/java.util=ALL-UNNAMED
+            --add-opens java.base/java.lang=ALL-UNNAMED
+        </custom.jvm.options>
     </properties>
 
     <dependencyManagement>
@@ -308,6 +311,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
+                    <configuration>
+                        <archive>
+                            <manifestEntries>
+                                <Automatic-Module-Name>com.itemis.fluffyj.memory</Automatic-Module-Name>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -315,6 +325,10 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <release>${java.version}</release>
+                        <compilerArgs>
+                            <compilerArg>--add-modules</compilerArg>
+                            <compilerArg>jdk.incubator.foreign</compilerArg>
+                        </compilerArgs>
                     </configuration>
                 </plugin>
                 <plugin>
