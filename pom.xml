@@ -84,11 +84,12 @@
         <logback.version>1.2.10</logback.version>
         <equalsverifier.version>3.9</equalsverifier.version>
         <arch.unit.version>0.23.1</arch.unit.version>
+        <fluffyj.version>1.8.1</fluffyj.version>
         <custom.jvm.options>
             --enable-native-access=ALL-UNNAMED
             --add-modules=ALL-SYSTEM,jdk.incubator.foreign
             --add-opens=java.base/java.util=ALL-UNNAMED
-            --add-opens java.base/java.lang=ALL-UNNAMED
+            --add-opens=java.base/java.lang=ALL-UNNAMED
         </custom.jvm.options>
     </properties>
 
@@ -112,6 +113,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.itemis</groupId>
+                <artifactId>fluffyj</artifactId>
+                <version>${fluffyj.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
             <dependency>
@@ -186,6 +192,10 @@
                 JSR-305 -->
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.itemis</groupId>
+            <artifactId>fluffyj</artifactId>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -283,14 +293,6 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
                     <version>${maven-source-plugin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <goals>
-                                <goal>jar</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>com.github.spotbugs</groupId>
@@ -382,13 +384,18 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- Try to avoid concurrency issues as much as possible. -->
-                    <!-- This will have a negative impact on memory consumption 
-                        an build speed. -->
-                    <reuseForks>false</reuseForks>
+                    <!-- 
+                        When specifying <reuseForks>false</reuseForks>, 
+                        the tests run directly in the mvn JVM. This means, the argLine cannot be 
+                        passed to some JVM, because it is already running. The solution is to use 
+                        MAVEN_OPTS="\-\-add-modules .. mvn clean verify".
+                    -->
+                    <reuseForks>true</reuseForks>
+                    <forkCount>1</forkCount>
                     <!-- $argLine is 'injected' by JaCoCo and contains instructions 
                         to setup its agent -->
-                    <argLine>${argLine} ${custom.jvm.options}</argLine>
+                    <argLine>${argLine}</argLine>
+                    <argLine>${custom.jvm.options}</argLine>
                 </configuration>
             </plugin>
             <plugin>
