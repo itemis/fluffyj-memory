@@ -81,7 +81,7 @@
         <jacoco.plugin.version>0.8.7</jacoco.plugin.version>
         <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
         <assertj.version>3.22.0</assertj.version>
-        <logback.version>1.2.10</logback.version>
+        <logback.version>1.2.11</logback.version>
         <equalsverifier.version>3.9</equalsverifier.version>
         <arch.unit.version>0.23.1</arch.unit.version>
         <fluffyj.version>1.8.1</fluffyj.version>
