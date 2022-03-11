@@ -6,4 +6,8 @@ public final class FluffyMemory {
         return new FluffyMemorySegmentBuilder();
     }
 
+    public static FluffyMemoryPointerBuilder pointer() {
+        return new FluffyMemoryPointerBuilder();
+    }
+
 }

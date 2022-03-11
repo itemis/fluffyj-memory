@@ -2,7 +2,6 @@ package com.itemis.fluffyj.memory;
 
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 import static jdk.incubator.foreign.MemorySegment.allocateNative;
-import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemorySegment;
@@ -18,18 +17,6 @@ public class LongSegment {
 
     private final MemorySegment backingSeg;
     private final ResourceScope scope;
-
-    public LongSegment() {
-        this(DEFAULT_VALUE);
-    }
-
-    public LongSegment(long initialValue) {
-        this(initialValue, globalScope());
-    }
-
-    public LongSegment(ResourceScope scope) {
-        this(DEFAULT_VALUE, scope);
-    }
 
     public LongSegment(long initialValue, ResourceScope scope) {
         this(allocateNative(JAVA_LONG, scope));
@@ -52,5 +39,4 @@ public class LongSegment {
     public MemoryAddress address() {
         return backingSeg.address();
     }
-
 }

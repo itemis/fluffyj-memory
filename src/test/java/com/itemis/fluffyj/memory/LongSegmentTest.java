@@ -3,9 +3,11 @@ package com.itemis.fluffyj.memory;
 import static com.itemis.fluffyj.memory.LongSegment.DEFAULT_VALUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.itemis.fluffyj.memory.tests.MemoryScopedTest;
+
 import org.junit.jupiter.api.Test;
 
-class LongSegmentTest {
+class LongSegmentTest extends MemoryScopedTest {
 
     @Test
     void getValue_returns_a_value() {
@@ -24,7 +26,7 @@ class LongSegmentTest {
     @Test
     void constructor_sets_initial_value_correctly() {
         long expectedValue = 123L;
-        var underTest = new LongSegment(expectedValue);
+        var underTest = new LongSegment(expectedValue, scope);
 
         assertThat(underTest.getValue()).isEqualTo(expectedValue);
     }
@@ -37,6 +39,6 @@ class LongSegmentTest {
     }
 
     private LongSegment buildDefault() {
-        return new LongSegment();
+        return new LongSegment(LongSegment.DEFAULT_VALUE, scope);
     }
 }
