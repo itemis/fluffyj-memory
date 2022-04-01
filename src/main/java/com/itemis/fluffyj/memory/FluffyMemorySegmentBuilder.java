@@ -1,18 +1,14 @@
 package com.itemis.fluffyj.memory;
 
-import jdk.incubator.foreign.MemorySegment;
+import com.itemis.fluffyj.memory.internal.LongSegment;
 
 public final class FluffyMemorySegmentBuilder {
 
-    public FluffyMemoryLongSegmentBuilder ofLong() {
-        return new FluffyMemoryLongSegmentBuilder(LongSegment.DEFAULT_VALUE);
+    public FluffyMemorySegmentAllocator<Long> ofLong() {
+        return new FluffyMemorySegmentAllocator<Long>(LongSegment.DEFAULT_VALUE);
     }
 
-    public FluffyMemoryLongSegmentBuilder ofLong(long initialValue) {
-        return new FluffyMemoryLongSegmentBuilder(initialValue);
-    }
-
-    public FluffyMemorySegmentWrapper wrap(MemorySegment nativeSeg) {
-        return new FluffyMemorySegmentWrapper(nativeSeg);
+    public FluffyMemorySegmentAllocator<Long> of(long initialValue) {
+        return new FluffyMemorySegmentAllocator<Long>(initialValue);
     }
 }

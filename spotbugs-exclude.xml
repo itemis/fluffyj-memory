@@ -1,23 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <FindBugsFilter>
     <!-- The whole point of the foreign memory API is to directly deal with memory that could be changed from elsewhere.
-    Thus we need to suppress the following findings. -->
-    <Match>
-        <Class name="com.itemis.fluffyj.memory.LongSegment" />
-        <!-- This is a constructor match -->
-        <Method name="&lt;init&gt;" params="jdk.incubator.foreign.MemorySegment" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
-    <Match>
-        <Class name="com.itemis.fluffyj.memory.PointerOfLong" />
-        <!-- This is a constructor match -->
-        <Method name="&lt;init&gt;" params="jdk.incubator.foreign.MemoryAddress, jdk.incubator.foreign.ResourceScope" />
-        <Bug pattern="EI_EXPOSE_REP2" />
-    </Match>
+    Thus we need to suppress findings about storing mutable state. -->
     <Match>
         <Class name="com.itemis.fluffyj.memory.FluffyMemorySegmentWrapper" />
         <!-- This is a constructor match -->
         <Method name="&lt;init&gt;" params="jdk.incubator.foreign.MemorySegment" />
+        <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="com.itemis.fluffyj.memory.internal.FluffyPointerImpl" />
+        <!-- This is a constructor match -->
+        <Method name="&lt;init&gt;" params="jdk.incubator.foreign.MemoryAddress,jdk.incubator.foreign.MemoryLayout,jdk.incubator.foreign.ResourceScope" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
 </FindBugsFilter>

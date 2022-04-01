@@ -1,5 +1,8 @@
 package com.itemis.fluffyj.memory;
 
+import com.itemis.fluffyj.memory.api.FluffySegment;
+import com.itemis.fluffyj.memory.internal.LongSegment;
+
 import jdk.incubator.foreign.MemorySegment;
 
 public class FluffyMemorySegmentWrapper {
@@ -10,7 +13,7 @@ public class FluffyMemorySegmentWrapper {
         this.nativeSegment = nativeSegment;
     }
 
-    public LongSegment asLong() {
+    public FluffySegment<Long> asLong() {
         return new LongSegment(nativeSegment);
     }
 }

@@ -85,6 +85,7 @@
         <equalsverifier.version>3.10</equalsverifier.version>
         <arch.unit.version>0.23.1</arch.unit.version>
         <fluffyj.version>1.8.1</fluffyj.version>
+        <fluffyj.tests.version>1.3.1</fluffyj.tests.version>
         <custom.jvm.options>
             --enable-native-access=ALL-UNNAMED
             --add-modules=ALL-SYSTEM,jdk.incubator.foreign
@@ -119,61 +120,58 @@
                 <artifactId>fluffyj</artifactId>
                 <version>${fluffyj.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.itemis</groupId>
+                <artifactId>fluffyj.tests</artifactId>
+                <version>${fluffyj.tests.version}</version>
+            </dependency>
             <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5 -->
             <dependency>
                 <groupId>com.tngtech.archunit</groupId>
                 <artifactId>archunit-junit5</artifactId>
                 <version>${arch.unit.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
                 <version>${mockito.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest -->
             <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>hamcrest</artifactId>
                 <version>${hamcrest.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.assertj/assertj-core -->
             <dependency>
                 <groupId>org.assertj</groupId>
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
-                <scope>test</scope>
             </dependency>
             <!-- https://mvnrepository.com/artifact/nl.jqno.equalsverifier/equalsverifier -->
             <dependency>
                 <groupId>nl.jqno.equalsverifier</groupId>
                 <artifactId>equalsverifier</artifactId>
                 <version>${equalsverifier.version}</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -199,6 +197,11 @@
         </dependency>
 
         <!-- Test Dependencies -->
+        <dependency>
+            <groupId>com.itemis</groupId>
+            <artifactId>fluffyj.tests</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
@@ -272,15 +275,11 @@
                             <configuration>
                                 <rules>
                                     <rule>
-                                        <element>CLASS</element>
-                                        <excludes>
-                                            <exclude>*Test</exclude>
-                                        </excludes>
                                         <limits>
                                             <limit>
                                                 <counter>LINE</counter>
                                                 <value>COVEREDRATIO</value>
-                                                <minimum>80%</minimum>
+                                                <minimum>100%</minimum>
                                             </limit>
                                         </limits>
                                     </rule>
@@ -381,6 +380,10 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
@@ -394,13 +397,8 @@
                     <forkCount>1</forkCount>
                     <!-- $argLine is 'injected' by JaCoCo and contains instructions 
                         to setup its agent -->
-                    <argLine>${argLine}</argLine>
-                    <argLine>${custom.jvm.options}</argLine>
+                    <argLine>@{argLine} @{custom.jvm.options}</argLine>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
