@@ -12,6 +12,8 @@ import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.ResourceScope;
 
 /**
+ * Default implementation of a generic pointer.
+ *
  * @param <T> - Type of data this pointer points to.
  */
 public abstract class FluffyPointerImpl<T> implements FluffyPointer<T> {
@@ -20,12 +22,24 @@ public abstract class FluffyPointerImpl<T> implements FluffyPointer<T> {
     private final MemoryLayout dereferencedMemoryLayout;
     private final ResourceScope scope;
 
+    /**
+     * @param addressPointedTo - The address this pointer will point to.
+     * @param dereferencedMemoryLayout - The {@link MemoryLayout} of the segment this pointer points
+     *        to.
+     * @param scope - The scope to attach this pointer to. If the scope is closed, the pointer will
+     *        not be alive anymore.
+     */
     public FluffyPointerImpl(MemoryAddress addressPointedTo, MemoryLayout dereferencedMemoryLayout, ResourceScope scope) {
         this.addressSeg = new LongSegment(addressPointedTo.toRawLongValue(), globalScope());
         this.dereferencedMemoryLayout = dereferencedMemoryLayout;
         this.scope = scope;
     }
 
+    /**
+     * @param rawDereferencedValue - A read only {@link ByteBuffer} that contains the bytes of the
+     *        segment this pointer points to.
+     * @return The correctly typed value of the segment this pointer points to.
+     */
     protected abstract T typedDereference(ByteBuffer rawDereferencedValue);
 
     @Override

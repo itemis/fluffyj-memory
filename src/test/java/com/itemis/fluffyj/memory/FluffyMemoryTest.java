@@ -125,7 +125,7 @@ class FluffyMemoryTest extends MemoryScopedTest {
     @Test
     void pointer_of_address_points_to_address() {
         MemoryAddress expectedAddress = allocateLongSeg().address();
-        FluffyPointer<Long> underTest = allocatePointer(expectedAddress);
+        FluffyPointer<?> underTest = allocatePointer(expectedAddress);
 
         assertThat(underTest.getValue()).isEqualTo(expectedAddress);
     }
@@ -163,7 +163,7 @@ class FluffyMemoryTest extends MemoryScopedTest {
         return pointer().to(toHere).allocate();
     }
 
-    private FluffyPointer<Long> allocatePointer(MemoryAddress toHere) {
+    private FluffyPointer<?> allocatePointer(MemoryAddress toHere) {
         return pointer().to(toHere).allocate();
     }
 
