@@ -13,7 +13,7 @@ var nativeSegValue = FluffyMemory.wrap(nativeSeg).asLong().getValue();
 
 ```
 var nativeAddress = someNativeCode.getPtr();
-var value = FluffyMemory.pointer().<Long>to(nativeAddress).allocate().dereference();
+var value = FluffyMemory.pointer().to(nativeAddress).asLong().allocate().dereference();
 ```
 
 

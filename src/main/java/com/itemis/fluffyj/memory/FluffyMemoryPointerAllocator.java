@@ -18,13 +18,6 @@ public class FluffyMemoryPointerAllocator<T> {
     private final MemoryAddress initialValue;
 
     /**
-     * Prepare to allocate a null pointer.
-     */
-    public FluffyMemoryPointerAllocator() {
-        initialValue = null;
-    }
-
-    /**
      * Prepare to allocate a pointer to {@code toHere}.
      *
      * @param toHere - The constructed pointer will point to the address of this segment.

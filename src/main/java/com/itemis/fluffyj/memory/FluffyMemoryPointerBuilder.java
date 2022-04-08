@@ -10,14 +10,6 @@ import jdk.incubator.foreign.MemoryAddress;
 public class FluffyMemoryPointerBuilder {
 
     /**
-     * @return A {@link FluffyMemoryPointerAllocator} instance that is able to allocate pointers to
-     *         {@link Long Longs}.
-     */
-    public FluffyMemoryPointerAllocator<Long> toLong() {
-        return new FluffyMemoryPointerAllocator<Long>();
-    }
-
-    /**
      * @param <T> - Type of data the pointer should point to.
      * @param toHere - The resulting pointer will point to this segment's address.
      * @return A {@link FluffyMemoryPointerAllocator} instance that is able to allocate pointers to
@@ -33,7 +25,19 @@ public class FluffyMemoryPointerBuilder {
      * @return A {@link FluffyMemoryPointerAllocator} instance that is able to allocate pointers to
      *         data of type {@code T}.
      */
-    public <T> FluffyMemoryPointerAllocator<T> to(MemoryAddress address) {
-        return new FluffyMemoryPointerAllocator<T>(address);
+    public FluffyMemoryTypedPointerBuilder to(MemoryAddress address) {
+        return new FluffyMemoryTypedPointerBuilder(address);
+    }
+
+    public static final class FluffyMemoryTypedPointerBuilder {
+        private final MemoryAddress address;
+
+        public FluffyMemoryTypedPointerBuilder(MemoryAddress address) {
+            this.address = address;
+        }
+
+        public FluffyMemoryPointerAllocator<Long> asLong() {
+            return new FluffyMemoryPointerAllocator<Long>(address);
+        }
     }
 }

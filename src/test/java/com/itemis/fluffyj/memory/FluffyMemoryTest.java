@@ -19,6 +19,7 @@ import com.itemis.fluffyj.memory.tests.MemoryScopedTest;
 import org.junit.jupiter.api.Test;
 
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.MemoryLayouts;
 import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
@@ -141,6 +142,15 @@ class FluffyMemoryTest extends MemoryScopedTest {
         assertThat(underTest.isAlive()).isFalse();
     }
 
+    @Test
+    void pointer_from_address_to_long_can_be_dereferenced_as_long() {
+        var nativeSeg = MemorySegment.allocateNative(MemoryLayouts.JAVA_LONG, scope);
+        nativeSeg.asByteBuffer().putLong(LONG_VAL);
+        var underTest = pointer().to(nativeSeg.address()).asLong().allocate(scope);
+
+        assertThat(underTest.dereference()).isEqualTo(LONG_VAL);
+    }
+
     private MemorySegment allocateNativeSeg(long initialValue) {
         var result = MemorySegment.allocateNative(JAVA_LONG, scope);
         result.asByteBuffer().putLong(LONG_VAL);
@@ -156,7 +166,7 @@ class FluffyMemoryTest extends MemoryScopedTest {
     }
 
     private FluffyPointer<Long> allocateNullPointerOfLong(ResourceScope scope) {
-        return pointer().toLong().allocate(scope);
+        return pointer().to(NULL).asLong().allocate(scope);
     }
 
     private FluffyPointer<Long> allocatePointer(FluffySegment<Long> toHere) {
@@ -164,7 +174,7 @@ class FluffyMemoryTest extends MemoryScopedTest {
     }
 
     private FluffyPointer<?> allocatePointer(MemoryAddress toHere) {
-        return pointer().to(toHere).allocate();
+        return pointer().to(toHere).asLong().allocate();
     }
 
 }
