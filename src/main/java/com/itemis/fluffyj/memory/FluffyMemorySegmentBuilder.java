@@ -1,30 +1,25 @@
 package com.itemis.fluffyj.memory;
 
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import com.itemis.fluffyj.memory.internal.LongSegment;
 
+/**
+ * Intermediate segment creation stage.
+ */
 public final class FluffyMemorySegmentBuilder {
 
-    private long initialLongValue = LongSegment.DEFAULT_VALUE;
-
-    public FluffyMemorySegmentBuilder ofLong() {
-        return this;
+    /**
+     * @return A {@link FluffyMemorySegmentAllocator} instance that is able to allocate segments
+     *         that hold data of type {@link Long}.
+     */
+    public FluffyMemorySegmentAllocator<Long> ofLong() {
+        return new FluffyMemorySegmentAllocator<Long>(LongSegment.DEFAULT_VALUE);
     }
 
-    public FluffyMemorySegmentBuilder ofLong(long initialValue) {
-        initialLongValue = initialValue;
-        return this;
-    }
-
-    public LongSegment allocate() {
-        return allocate(ResourceScope.globalScope());
-    }
-
-    public LongSegment allocate(ResourceScope scope) {
-        return new LongSegment(initialLongValue, scope);
-    }
-
-    public LongSegment from(MemorySegment nativeSeg) {
-        return new LongSegment(nativeSeg);
+    /**
+     * @return A {@link FluffyMemorySegmentAllocator} instance that is able to allocate segments
+     *         that hold the provided {@code initialValue}.
+     */
+    public FluffyMemorySegmentAllocator<Long> of(long initialValue) {
+        return new FluffyMemorySegmentAllocator<Long>(initialValue);
     }
 }
