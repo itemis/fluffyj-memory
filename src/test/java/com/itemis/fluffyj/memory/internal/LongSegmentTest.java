@@ -45,6 +45,14 @@ class LongSegmentTest extends MemoryScopedTest {
         assertThat(underTest.isAlive()).isTrue();
     }
 
+    @Test
+    void contained_type_returns_type() {
+        Long initialValue = 123L;
+        var underTest = new LongSegment(initialValue, scope);
+
+        assertThat(underTest.getContainedType()).isEqualTo(initialValue.getClass());
+    }
+
     private FluffySegment<Long> buildDefault() {
         return new LongSegment(LongSegment.DEFAULT_VALUE, scope);
     }

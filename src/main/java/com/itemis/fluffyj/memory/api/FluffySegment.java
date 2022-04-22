@@ -27,4 +27,17 @@ public interface FluffySegment<T> {
      * The correctly typed value that this segment holds.
      */
     T getValue();
+
+    /**
+     * Convenience method to be used when casting things to the type of this segment's data is
+     * required.
+     *
+     * @return The type of data this segment holds.
+     */
+    Class<T> getContainedType();
+
+    /**
+     * @return The size of this segment in bytes.
+     */
+    int byteSize();
 }

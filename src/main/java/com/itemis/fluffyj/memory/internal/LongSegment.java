@@ -48,4 +48,18 @@ public class LongSegment extends FluffySegmentImpl<Long> {
     protected Long getTypedValue(ByteBuffer rawValue) {
         return rawValue.getLong();
     }
+
+    @Override
+    public Class<Long> getContainedType() {
+        return Long.class;
+    }
+
+    @Override
+    public int byteSize() {
+        long result = MY_LAYOUT.byteSize();
+        if (result > Integer.MAX_VALUE) {
+            throw new RuntimeException("Segment size is larger than " + Integer.MAX_VALUE + " bytes.");
+        }
+        return (int) result;
+    }
 }

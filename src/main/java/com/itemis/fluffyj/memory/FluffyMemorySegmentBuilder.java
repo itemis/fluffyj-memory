@@ -22,4 +22,12 @@ public final class FluffyMemorySegmentBuilder {
     public FluffyMemorySegmentAllocator<Long> of(long initialValue) {
         return new FluffyMemorySegmentAllocator<Long>(initialValue);
     }
+
+    /**
+     * @return A {@link FluffyMemorySegmentAllocator} instance that is able to allocate segments
+     *         that hold the provided {@code initialValue}.
+     */
+    public FluffyMemorySegmentAllocator<byte[]> of(byte[] initialValue) {
+        return new FluffyMemorySegmentAllocator<byte[]>(initialValue);
+    }
 }

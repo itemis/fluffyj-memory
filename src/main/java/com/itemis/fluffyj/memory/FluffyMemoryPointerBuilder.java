@@ -24,6 +24,17 @@ public final class FluffyMemoryPointerBuilder {
 
     /**
      * @param <T> - Type of data the pointer should point to.
+     * @param toHere - The resulting pointer will point to this segment's address.
+     * @return A {@link FluffyMemoryPointerAllocator} instance that is able to allocate pointers to
+     *         data of type {@code T}.
+     */
+    public <T> FluffyMemoryArrayPointerAllocator<T> toArray(FluffySegment<T> toHere) {
+        requireNonNull(toHere, "toHere");
+        return new FluffyMemoryArrayPointerAllocator<>(toHere);
+    }
+
+    /**
+     * @param <T> - Type of data the pointer should point to.
      * @param address - The resulting pointer will point to this address.
      * @return A {@link FluffyMemoryPointerAllocator} instance that is able to allocate pointers to
      *         data of type {@code T}.
@@ -42,7 +53,14 @@ public final class FluffyMemoryPointerBuilder {
         }
 
         public FluffyMemoryPointerAllocator<Long> asLong() {
-            return new FluffyMemoryPointerAllocator<Long>(address);
+            return new FluffyMemoryPointerAllocator<Long>(address, Long.class);
+        }
+
+        /**
+         * @param byteCount - The number of bytes of the array the pointer shall point to.
+         */
+        public FluffyMemoryArrayPointerAllocator<byte[]> asBlob(int byteCount) {
+            return new FluffyMemoryArrayPointerAllocator<byte[]>(address, byteCount, byte[].class);
         }
     }
 }
