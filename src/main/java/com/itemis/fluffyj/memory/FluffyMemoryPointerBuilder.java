@@ -1,5 +1,7 @@
 package com.itemis.fluffyj.memory;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itemis.fluffyj.memory.api.FluffySegment;
 
 import jdk.incubator.foreign.MemoryAddress;
@@ -7,7 +9,7 @@ import jdk.incubator.foreign.MemoryAddress;
 /**
  * Intermediate pointer creation helper.
  */
-public class FluffyMemoryPointerBuilder {
+public final class FluffyMemoryPointerBuilder {
 
     /**
      * @param <T> - Type of data the pointer should point to.
@@ -16,6 +18,7 @@ public class FluffyMemoryPointerBuilder {
      *         data of type {@code T}.
      */
     public <T> FluffyMemoryPointerAllocator<T> to(FluffySegment<T> toHere) {
+        requireNonNull(toHere, "toHere");
         return new FluffyMemoryPointerAllocator<T>(toHere);
     }
 
@@ -26,6 +29,7 @@ public class FluffyMemoryPointerBuilder {
      *         data of type {@code T}.
      */
     public FluffyMemoryTypedPointerBuilder to(MemoryAddress address) {
+        requireNonNull(address, "address");
         return new FluffyMemoryTypedPointerBuilder(address);
     }
 
@@ -33,6 +37,7 @@ public class FluffyMemoryPointerBuilder {
         private final MemoryAddress address;
 
         public FluffyMemoryTypedPointerBuilder(MemoryAddress address) {
+            requireNonNull(address, "address");
             this.address = address;
         }
 

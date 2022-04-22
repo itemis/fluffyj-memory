@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
@@ -61,18 +62,23 @@ class PointerOfLongTest extends MemoryScopedTest {
 
     @Test
     void when_closing_scope_pointer_is_not_alive_anymore() {
-        FluffyPointer<Long> underTest = null;
+        var underTest = buildDefault();
 
-        underTest = buildDefault();
         tearDownScope();
         assertThat(underTest.isAlive()).isFalse();
+    }
+
+    @Test
+    void typedDereference_from_null_yields_npe() {
+        var underTest = buildDefault();
+        assertNullArgNotAccepted(() -> underTest.typedDereference(null), "rawDereferencedValue");
     }
 
     private FluffySegment<Long> buildSegment(long initialVal) {
         return new LongSegment(initialVal, scope);
     }
 
-    private FluffyPointer<Long> buildDefault() {
+    private PointerOfLong buildDefault() {
         return new PointerOfLong(MemoryAddress.NULL, scope);
     }
 }

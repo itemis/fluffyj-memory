@@ -1,5 +1,7 @@
 package com.itemis.fluffyj.memory;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
 
@@ -8,7 +10,7 @@ import jdk.incubator.foreign.MemorySegment;
 /**
  * Helps with wrapping "untyped" off heap memory areas ("segments") into {@link FluffySegment}s.
  */
-public class FluffyMemorySegmentWrapper {
+public final class FluffyMemorySegmentWrapper {
 
     private final MemorySegment nativeSegment;
 
@@ -18,6 +20,7 @@ public class FluffyMemorySegmentWrapper {
      * @param nativeSegment - This segment will be wrapped.
      */
     public FluffyMemorySegmentWrapper(MemorySegment nativeSegment) {
+        requireNonNull(nativeSegment, "nativeSegment");
         this.nativeSegment = nativeSegment;
     }
 

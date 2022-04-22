@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
@@ -30,7 +31,7 @@ public class LongSegment extends FluffySegmentImpl<Long> {
      *        the new segment will not be alive anymore.
      */
     public LongSegment(long initialValue, ResourceScope scope) {
-        super(ByteBuffer.allocate((int) MY_LAYOUT.byteSize()).putLong(initialValue).array(), MY_LAYOUT, scope);
+        super(ByteBuffer.allocate((int) MY_LAYOUT.byteSize()).putLong(initialValue).array(), MY_LAYOUT, requireNonNull(scope, "scope"));
     }
 
     /**

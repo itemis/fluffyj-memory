@@ -4,6 +4,7 @@ import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertIsStaticHelper;
+import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
 import static jdk.incubator.foreign.MemoryAddress.NULL;
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 import static jdk.incubator.foreign.ResourceScope.globalScope;
@@ -149,6 +150,11 @@ class FluffyMemoryTest extends MemoryScopedTest {
         var underTest = pointer().to(nativeSeg.address()).asLong().allocate(scope);
 
         assertThat(underTest.dereference()).isEqualTo(LONG_VAL);
+    }
+
+    @Test
+    void wrap_null_yields_npe() {
+        assertNullArgNotAccepted(() -> wrap(null), "nativeSeg");
     }
 
     private MemorySegment allocateNativeSeg(long initialValue) {

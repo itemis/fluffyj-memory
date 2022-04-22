@@ -1,5 +1,7 @@
 package com.itemis.fluffyj.memory;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itemis.fluffyj.exceptions.InstantiationNotPermittedException;
 import com.itemis.fluffyj.memory.api.FluffySegment;
 
@@ -35,6 +37,7 @@ public final class FluffyMemory {
      * @param nativeSeg - The raw {@link MemorySegment} to wrap.
      */
     public static FluffyMemorySegmentWrapper wrap(MemorySegment nativeSeg) {
+        requireNonNull(nativeSeg, "nativeSeg");
         return new FluffyMemorySegmentWrapper(nativeSeg);
     }
 

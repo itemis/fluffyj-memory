@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory;
 
+import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
@@ -13,13 +14,14 @@ import jdk.incubator.foreign.ResourceScope;
  *
  * @param <T> - The type of data the segment should hold.
  */
-public class FluffyMemorySegmentAllocator<T> {
+public final class FluffyMemorySegmentAllocator<T> {
     private final T initialValue;
 
     /**
      * @param initialValue - The allocated segment will hold this value.
      */
     public FluffyMemorySegmentAllocator(T initialValue) {
+        requireNonNull(initialValue, "initialValue");
         this.initialValue = initialValue;
     }
 
@@ -37,6 +39,8 @@ public class FluffyMemorySegmentAllocator<T> {
     // safety via tests
     @SuppressWarnings("unchecked")
     public FluffySegment<T> allocate(ResourceScope scope) {
+        requireNonNull(scope, "scope");
+
         FluffySegment<T> result = null;
         if (this.initialValue instanceof Long) {
             result = (FluffySegment<T>) new LongSegment((Long) initialValue, scope);

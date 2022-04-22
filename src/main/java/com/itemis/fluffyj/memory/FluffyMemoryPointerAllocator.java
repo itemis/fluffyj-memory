@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory;
 
+import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
@@ -14,7 +15,7 @@ import jdk.incubator.foreign.ResourceScope;
  *
  * @param <T> - The type of data the allocated pointer points to.
  */
-public class FluffyMemoryPointerAllocator<T> {
+public final class FluffyMemoryPointerAllocator<T> {
     private final MemoryAddress initialValue;
 
     /**
@@ -23,6 +24,7 @@ public class FluffyMemoryPointerAllocator<T> {
      * @param toHere - The constructed pointer will point to the address of this segment.
      */
     public FluffyMemoryPointerAllocator(FluffySegment<T> toHere) {
+        requireNonNull(toHere, "toHere");
         initialValue = toHere.address();
     }
 
@@ -32,6 +34,7 @@ public class FluffyMemoryPointerAllocator<T> {
      * @param toHere - The constructed pointer will point to this address.
      */
     public FluffyMemoryPointerAllocator(MemoryAddress address) {
+        requireNonNull(address, "address");
         initialValue = address;
     }
 
@@ -55,6 +58,7 @@ public class FluffyMemoryPointerAllocator<T> {
     // to will be interpreted as T which may be false but does not cause any error.
     @SuppressWarnings("unchecked")
     public FluffyPointer<T> allocate(ResourceScope scope) {
+        requireNonNull(scope, "scope");
         return (FluffyPointer<T>) (initialValue == null ? new PointerOfLong(MemoryAddress.NULL, scope) : new PointerOfLong(initialValue, scope));
     }
 }
