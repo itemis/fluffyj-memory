@@ -4,7 +4,7 @@ import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.itemis.fluffyj.memory.api.FluffySegment;
+import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.tests.MemoryScopedTest;
 
 import org.junit.jupiter.api.Test;
@@ -13,7 +13,7 @@ import jdk.incubator.foreign.MemoryAddress;
 
 class PointerOfBlobTest extends MemoryScopedTest {
 
-    private static final byte[] BYTE_ARRAY = new byte[] {1, 2, 3};
+    private static final Byte[] BYTE_ARRAY = new Byte[] {1, 2, 3};
 
     @Test
     void getValue_returns_a_value() {
@@ -76,7 +76,7 @@ class PointerOfBlobTest extends MemoryScopedTest {
         return buildPointer(blob);
     }
 
-    private PointerOfBlob buildPointer(FluffySegment<byte[]> seg) {
+    private PointerOfBlob buildPointer(FluffyVectorSegment<Byte> seg) {
         return new PointerOfBlob(seg.address(), BYTE_ARRAY.length, scope);
     }
 

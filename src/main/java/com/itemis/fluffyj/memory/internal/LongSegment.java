@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
+import com.itemis.fluffyj.memory.internal.impl.FluffyScalarSegmentImpl;
 
 import java.nio.ByteBuffer;
 
@@ -14,7 +15,7 @@ import jdk.incubator.foreign.ResourceScope;
 /**
  * A {@link FluffySegment} that holds a {@link Long}.
  */
-public class LongSegment extends FluffySegmentImpl<Long> {
+public class LongSegment extends FluffyScalarSegmentImpl<Long> {
 
     private static final MemoryLayout MY_LAYOUT = JAVA_LONG;
     /**
@@ -52,10 +53,5 @@ public class LongSegment extends FluffySegmentImpl<Long> {
     @Override
     public Class<Long> getContainedType() {
         return Long.class;
-    }
-
-    @Override
-    public int byteSize() {
-        return (int) MY_LAYOUT.byteSize();
     }
 }

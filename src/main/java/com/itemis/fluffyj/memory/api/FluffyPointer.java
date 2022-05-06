@@ -7,10 +7,8 @@ import jdk.incubator.foreign.ResourceScope;
 /**
  * Provides convenience methods that help with working with {@link MemorySegment}s that hold
  * addresses to other segments.
- *
- * @param <T> - The kind of data that is accessible via this pointer.
  */
-public interface FluffyPointer<T> {
+public interface FluffyPointer {
 
     /**
      * @see ResourceScope#isAlive()
@@ -24,13 +22,7 @@ public interface FluffyPointer<T> {
     MemoryAddress address();
 
     /**
-     * @return The value that this pointer points to interpreted as type {@code T}.
-     */
-    T dereference();
-
-    /**
      * @see #address()
      */
     MemoryAddress getValue();
-
 }

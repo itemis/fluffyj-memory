@@ -2,7 +2,9 @@ package com.itemis.fluffyj.memory;
 
 import static java.util.Objects.requireNonNull;
 
+import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffySegment;
+import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.internal.BlobSegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
 
@@ -26,14 +28,24 @@ public final class FluffyMemorySegmentWrapper {
     }
 
     /**
-     * @return A view of the native segment interpreted as {@link FluffySegment} of {@link Long}.
-     *         The constructed {@link FluffySegment} will have the same scope as the native segment.
+     * @return A view of the native segment interpreted as {@link FluffyScalarSegment} of
+     *         {@code type}. The constructed {@link FluffyScalarSegment} will have the same scope as
+     *         the native segment.
      */
-    public FluffySegment<Long> asLong() {
-        return new LongSegment(nativeSegment);
+    // The cast is indeed unsafe. We need to make sure with good test coverage.
+    @SuppressWarnings("unchecked")
+    public <T> FluffyScalarSegment<? extends T> as(Class<? extends T> type) {
+        return (FluffyScalarSegment<? extends T>) new LongSegment(nativeSegment);
     }
 
-    public FluffySegment<byte[]> asBlob() {
-        return new BlobSegment(nativeSegment);
+    /**
+     * @return A view of the native segment interpreted as {@link FluffyVectorSegment} of
+     *         {@code type}. The constructed {@link FluffyVectorSegment} will have the same scope as
+     *         the native segment.
+     */
+    // The cast is indeed unsafe. We need to make sure with good test coverage.
+    @SuppressWarnings("unchecked")
+    public <T> FluffyVectorSegment<? extends T> asArray(Class<? extends T[]> type) {
+        return (FluffyVectorSegment<? extends T>) new BlobSegment(nativeSegment);
     }
 }

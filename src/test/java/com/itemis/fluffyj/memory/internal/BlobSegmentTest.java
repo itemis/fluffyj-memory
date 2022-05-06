@@ -3,14 +3,14 @@ package com.itemis.fluffyj.memory.internal;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.itemis.fluffyj.memory.api.FluffySegment;
+import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.tests.MemoryScopedTest;
 
 import org.junit.jupiter.api.Test;
 
 class BlobSegmentTest extends MemoryScopedTest {
 
-    private static final byte[] BYTE_ARRAY = new byte[] {1, 2, 3};
+    private static final Byte[] BYTE_ARRAY = new Byte[] {1, 2, 3};
 
     @Test
     void constructor_with_null_scope_yields_npe() {
@@ -21,7 +21,7 @@ class BlobSegmentTest extends MemoryScopedTest {
     void getValue_returns_a_value() {
         var underTest = buildDefault();
 
-        assertThat(underTest.getValue()).isInstanceOf(byte[].class);
+        assertThat(underTest.getValue()).isInstanceOf(Byte[].class);
     }
 
     @Test
@@ -46,7 +46,7 @@ class BlobSegmentTest extends MemoryScopedTest {
         assertThat(underTest.getContainedType()).isEqualTo(initialValue.getClass());
     }
 
-    private FluffySegment<byte[]> buildDefault() {
+    private FluffyVectorSegment<Byte> buildDefault() {
         return new BlobSegment(BYTE_ARRAY, scope);
     }
 }

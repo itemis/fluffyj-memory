@@ -5,13 +5,9 @@ import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
 /**
- * A representation of an allocated area of off heap memory. Unlike {@link MemorySegment},
- * implementations of this class provide a way to access the segment's contents in a type safe
- * fashion.
- *
- * @param <T> - Type of data this segment holds.
+ * A representation of an allocated area of off heap memory.
  */
-public interface FluffySegment<T> {
+public interface FluffySegment {
 
     /**
      * @see MemorySegment#address()
@@ -22,22 +18,4 @@ public interface FluffySegment<T> {
      * @see ResourceScope#isAlive()
      */
     boolean isAlive();
-
-    /**
-     * The correctly typed value that this segment holds.
-     */
-    T getValue();
-
-    /**
-     * Convenience method to be used when casting things to the type of this segment's data is
-     * required.
-     *
-     * @return The type of data this segment holds.
-     */
-    Class<T> getContainedType();
-
-    /**
-     * @return The size of this segment in bytes.
-     */
-    int byteSize();
 }
