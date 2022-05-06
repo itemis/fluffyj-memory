@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
+import com.itemis.fluffyj.memory.internal.BlobSegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
 
 import jdk.incubator.foreign.ResourceScope;
@@ -44,6 +45,8 @@ public final class FluffyMemorySegmentAllocator<T> {
         FluffySegment<T> result = null;
         if (this.initialValue instanceof Long) {
             result = (FluffySegment<T>) new LongSegment((Long) initialValue, scope);
+        } else if (this.initialValue instanceof byte[]) {
+            result = (FluffySegment<T>) new BlobSegment((byte[]) initialValue, scope);
         }
         return result;
     }

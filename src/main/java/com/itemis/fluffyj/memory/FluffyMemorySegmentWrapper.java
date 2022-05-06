@@ -3,6 +3,7 @@ package com.itemis.fluffyj.memory;
 import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
+import com.itemis.fluffyj.memory.internal.BlobSegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
 
 import jdk.incubator.foreign.MemorySegment;
@@ -30,5 +31,9 @@ public final class FluffyMemorySegmentWrapper {
      */
     public FluffySegment<Long> asLong() {
         return new LongSegment(nativeSegment);
+    }
+
+    public FluffySegment<byte[]> asBlob() {
+        return new BlobSegment(nativeSegment);
     }
 }

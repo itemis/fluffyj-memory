@@ -2,6 +2,7 @@ package com.itemis.fluffyj.memory.internal;
 
 import static com.itemis.fluffyj.memory.internal.LongSegment.DEFAULT_VALUE;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
+import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
@@ -31,18 +32,24 @@ class LongSegmentTest extends MemoryScopedTest {
     }
 
     @Test
-    void constructor_sets_initial_value_correctly() {
-        long expectedValue = 123L;
-        FluffySegment<Long> underTest = new LongSegment(expectedValue, scope);
-
-        assertThat(underTest.getValue()).isEqualTo(expectedValue);
-    }
-
-    @Test
     void a_new_segment_is_alive() {
         FluffySegment<Long> underTest = buildDefault();
 
         assertThat(underTest.isAlive()).isTrue();
+    }
+
+    @Test
+    void contained_type_returns_type() {
+        Long initialValue = 123L;
+        var underTest = new LongSegment(initialValue, scope);
+
+        assertThat(underTest.getContainedType()).isEqualTo(initialValue.getClass());
+    }
+
+    @Test
+    void byteSize_returns_long_byte_count() {
+        var underTest = buildDefault();
+        assertThat(underTest.byteSize()).isEqualTo(JAVA_LONG.byteSize());
     }
 
     private FluffySegment<Long> buildDefault() {

@@ -5,18 +5,19 @@ import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffySegment;
-import com.itemis.fluffyj.memory.internal.PointerOfLong;
+import com.itemis.fluffyj.memory.internal.PointerOfBlob;
 
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.ResourceScope;
 
 /**
- * Helps with allocating pointers to off heap memory areas.
+ * Helps with allocating pointers to off heap memory areas that hold arrays.
  *
  * @param <T> - The type of data the allocated pointer points to.
  */
-public final class FluffyMemoryPointerAllocator<T> {
+public final class FluffyMemoryArrayPointerAllocator<T> {
     private final MemoryAddress initialValue;
+    private final int byteCount;
     // Will be used as soon as there are multiple types of segments to allocate.
     @SuppressWarnings("unused")
     private final Class<T> type;
@@ -26,9 +27,10 @@ public final class FluffyMemoryPointerAllocator<T> {
      *
      * @param toHere - The constructed pointer will point to the address of this segment.
      */
-    public FluffyMemoryPointerAllocator(FluffySegment<T> toHere) {
+    public FluffyMemoryArrayPointerAllocator(FluffySegment<T> toHere) {
         requireNonNull(toHere, "toHere");
         initialValue = toHere.address();
+        byteCount = toHere.byteSize();
         type = toHere.getContainedType();
     }
 
@@ -38,9 +40,10 @@ public final class FluffyMemoryPointerAllocator<T> {
      * @param toHere - The constructed pointer will point to this address.
      * @param typeOfData - Type of data the segment the provided address points to.
      */
-    public FluffyMemoryPointerAllocator(MemoryAddress address, Class<T> typeOfData) {
-        initialValue = requireNonNull(address, "address");
-        type = requireNonNull(typeOfData, "typeOfData");
+    public FluffyMemoryArrayPointerAllocator(MemoryAddress address, int byteCount, Class<T> typeOfData) {
+        this.initialValue = requireNonNull(address, "address");
+        this.byteCount = byteCount;
+        this.type = requireNonNull(typeOfData, "typeOfData");
     }
 
     /**
@@ -59,10 +62,12 @@ public final class FluffyMemoryPointerAllocator<T> {
      * @return A new {@link FluffyPointer} instance.
      */
     // The cast is indeed unsafe but it won't produce any ClassCastExceptions since the value the
-    // pointer points to will be interpreted as T which may be false but does not cause any error.
+    // pointer points to will be interpreted as T anyway which may be false but does not cause any
+    // error.
     @SuppressWarnings("unchecked")
     public FluffyPointer<T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
-        return (FluffyPointer<T>) new PointerOfLong(initialValue, scope);
+
+        return (FluffyPointer<T>) new PointerOfBlob(initialValue, byteCount, scope);
     }
 }

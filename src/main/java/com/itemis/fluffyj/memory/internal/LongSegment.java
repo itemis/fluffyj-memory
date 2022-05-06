@@ -48,4 +48,14 @@ public class LongSegment extends FluffySegmentImpl<Long> {
     protected Long getTypedValue(ByteBuffer rawValue) {
         return rawValue.getLong();
     }
+
+    @Override
+    public Class<Long> getContainedType() {
+        return Long.class;
+    }
+
+    @Override
+    public int byteSize() {
+        return (int) MY_LAYOUT.byteSize();
+    }
 }
