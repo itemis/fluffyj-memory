@@ -56,10 +56,6 @@ public class LongSegment extends FluffySegmentImpl<Long> {
 
     @Override
     public int byteSize() {
-        long result = MY_LAYOUT.byteSize();
-        if (result > Integer.MAX_VALUE) {
-            throw new RuntimeException("Segment size is larger than " + Integer.MAX_VALUE + " bytes.");
-        }
-        return (int) result;
+        return (int) MY_LAYOUT.byteSize();
     }
 }

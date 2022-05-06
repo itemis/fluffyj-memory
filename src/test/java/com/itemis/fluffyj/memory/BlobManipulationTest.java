@@ -140,6 +140,14 @@ class BlobManipulationTest extends MemoryScopedTest {
         assertThat(underTest.isAlive()).isFalse();
     }
 
+    @Test
+    void pointer_from_address_to_blob_can_be_dereferenced_as_blob() {
+        var nativeSeg = allocateNativeSeg(BYTE_ARRAY);
+        var underTest = pointer().to(nativeSeg.address()).asBlob(BYTE_ARRAY.length).allocate(scope);
+
+        assertThat(underTest.dereference()).isEqualTo(BYTE_ARRAY);
+    }
+
     private FluffySegment<byte[]> allocateSeg() {
         return segment().of(BYTE_ARRAY).allocate();
     }

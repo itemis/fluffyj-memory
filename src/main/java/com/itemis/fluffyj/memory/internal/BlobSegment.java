@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.MemoryLayout.sequenceLayout;
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_BYTE;
 
@@ -11,7 +12,7 @@ import jdk.incubator.foreign.ResourceScope;
 public class BlobSegment extends FluffySegmentImpl<byte[]> {
 
     public BlobSegment(byte[] initialValue, ResourceScope scope) {
-        super(initialValue, sequenceLayout(initialValue.length, JAVA_BYTE), scope);
+        super(initialValue, sequenceLayout(initialValue.length, JAVA_BYTE), requireNonNull(scope, "scope"));
     }
 
     public BlobSegment(MemorySegment backingSeg) {

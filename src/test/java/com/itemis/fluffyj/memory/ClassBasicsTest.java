@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory;
 
+import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertFinal;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertIsStaticHelper;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
@@ -62,5 +63,10 @@ class ClassBasicsTest {
     void to_null_addr_yields_npe() {
         var underTest = new FluffyMemoryPointerBuilder();
         assertNullArgNotAccepted(() -> underTest.to((MemoryAddress) null), "address");
+    }
+
+    @Test
+    void wrap_null_yields_npe() {
+        assertNullArgNotAccepted(() -> wrap(null), "nativeSeg");
     }
 }
