@@ -398,6 +398,9 @@
                     <!-- $argLine is 'injected' by JaCoCo and contains instructions 
                         to setup its agent -->
                     <argLine>@{argLine} @{custom.jvm.options}</argLine>
+                    <parallel>all</parallel>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
                 </configuration>
             </plugin>
             <plugin>

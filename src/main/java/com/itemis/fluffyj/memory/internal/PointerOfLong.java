@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
+import com.itemis.fluffyj.memory.internal.impl.FluffyScalarPointerImpl;
 
 import java.nio.ByteBuffer;
 
@@ -13,7 +14,7 @@ import jdk.incubator.foreign.ResourceScope;
 /**
  * A {@link FluffyPointer} that points to a segment that holds a {@link Long}.
  */
-public class PointerOfLong extends FluffyPointerImpl<Long> {
+public class PointerOfLong extends FluffyScalarPointerImpl<Long> {
 
     /**
      * Allocate a new pointer.
@@ -22,7 +23,7 @@ public class PointerOfLong extends FluffyPointerImpl<Long> {
      * @param scope - Attach the new pointer to this scope.
      */
     public PointerOfLong(MemoryAddress addressPointedTo, ResourceScope scope) {
-        super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_LONG, requireNonNull(scope, "scope"));
+        super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_LONG.byteSize(), requireNonNull(scope, "scope"));
     }
 
     @Override

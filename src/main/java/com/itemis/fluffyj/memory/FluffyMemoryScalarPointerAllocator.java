@@ -4,7 +4,8 @@ import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
-import com.itemis.fluffyj.memory.api.FluffySegment;
+import com.itemis.fluffyj.memory.api.FluffyScalarPointer;
+import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.internal.PointerOfLong;
 
 import jdk.incubator.foreign.MemoryAddress;
@@ -15,18 +16,18 @@ import jdk.incubator.foreign.ResourceScope;
  *
  * @param <T> - The type of data the allocated pointer points to.
  */
-public final class FluffyMemoryPointerAllocator<T> {
+public final class FluffyMemoryScalarPointerAllocator<T> {
     private final MemoryAddress initialValue;
     // Will be used as soon as there are multiple types of segments to allocate.
     @SuppressWarnings("unused")
-    private final Class<T> type;
+    private final Class<? extends T> type;
 
     /**
      * Prepare to allocate a pointer to {@code toHere}.
      *
      * @param toHere - The constructed pointer will point to the address of this segment.
      */
-    public FluffyMemoryPointerAllocator(FluffySegment<T> toHere) {
+    public FluffyMemoryScalarPointerAllocator(FluffyScalarSegment<? extends T> toHere) {
         requireNonNull(toHere, "toHere");
         initialValue = toHere.address();
         type = toHere.getContainedType();
@@ -38,7 +39,7 @@ public final class FluffyMemoryPointerAllocator<T> {
      * @param toHere - The constructed pointer will point to this address.
      * @param typeOfData - Type of data the segment the provided address points to.
      */
-    public FluffyMemoryPointerAllocator(MemoryAddress address, Class<T> typeOfData) {
+    public FluffyMemoryScalarPointerAllocator(MemoryAddress address, Class<? extends T> typeOfData) {
         initialValue = requireNonNull(address, "address");
         type = requireNonNull(typeOfData, "typeOfData");
     }
@@ -48,7 +49,7 @@ public final class FluffyMemoryPointerAllocator<T> {
      *
      * @return A new {@link FluffyPointer} instance.
      */
-    public FluffyPointer<T> allocate() {
+    public FluffyScalarPointer<? extends T> allocate() {
         return allocate(globalScope());
     }
 
@@ -61,8 +62,8 @@ public final class FluffyMemoryPointerAllocator<T> {
     // The cast is indeed unsafe but it won't produce any ClassCastExceptions since the value the
     // pointer points to will be interpreted as T which may be false but does not cause any error.
     @SuppressWarnings("unchecked")
-    public FluffyPointer<T> allocate(ResourceScope scope) {
+    public FluffyScalarPointer<? extends T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
-        return (FluffyPointer<T>) new PointerOfLong(initialValue, scope);
+        return (FluffyScalarPointer<? extends T>) new PointerOfLong(initialValue, scope);
     }
 }
