@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
+import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.BlobSegment;
 
 import jdk.incubator.foreign.ResourceScope;
@@ -40,6 +41,13 @@ public final class FluffyMemoryVectorSegmentAllocator<T> {
     public FluffyVectorSegment<? extends T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
 
-        return (FluffyVectorSegment<? extends T>) new BlobSegment((Byte[]) initialValue, scope);
+        Object result = null;
+        if (initialValue.getClass().componentType().isAssignableFrom(Byte.class)) {
+            result = new BlobSegment((Byte[]) initialValue, scope);
+        } else {
+            throw new FluffyMemoryException("Cannot allocate vector segment of unknown type: " + initialValue.getClass().getCanonicalName());
+        }
+
+        return (FluffyVectorSegment<? extends T>) result;
     }
 }

@@ -6,6 +6,8 @@ import static jdk.incubator.foreign.ResourceScope.globalScope;
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
+import com.itemis.fluffyj.memory.error.FluffyMemoryException;
+import com.itemis.fluffyj.memory.internal.PointerOfInt;
 import com.itemis.fluffyj.memory.internal.PointerOfLong;
 
 import jdk.incubator.foreign.MemoryAddress;
@@ -18,8 +20,6 @@ import jdk.incubator.foreign.ResourceScope;
  */
 public final class FluffyMemoryScalarPointerAllocator<T> {
     private final MemoryAddress initialValue;
-    // Will be used as soon as there are multiple types of segments to allocate.
-    @SuppressWarnings("unused")
     private final Class<? extends T> type;
 
     /**
@@ -64,6 +64,16 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
     @SuppressWarnings("unchecked")
     public FluffyScalarPointer<? extends T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
-        return (FluffyScalarPointer<? extends T>) new PointerOfLong(initialValue, scope);
+
+        Object result = null;
+        if (type.isAssignableFrom(Long.class)) {
+            result = new PointerOfLong(initialValue, scope);
+        } else if (type.isAssignableFrom(Integer.class)) {
+            result = new PointerOfInt(initialValue, scope);
+        } else {
+            throw new FluffyMemoryException("Cannot allocate scalar pointer of unknown type: " + type.getCanonicalName());
+        }
+
+        return (FluffyScalarPointer<? extends T>) result;
     }
 }

@@ -5,7 +5,9 @@ import static java.util.Objects.requireNonNull;
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
+import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.BlobSegment;
+import com.itemis.fluffyj.memory.internal.IntSegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
 
 import jdk.incubator.foreign.MemorySegment;
@@ -35,7 +37,17 @@ public final class FluffyMemorySegmentWrapper {
     // The cast is indeed unsafe. We need to make sure with good test coverage.
     @SuppressWarnings("unchecked")
     public <T> FluffyScalarSegment<? extends T> as(Class<? extends T> type) {
-        return (FluffyScalarSegment<? extends T>) new LongSegment(nativeSegment);
+        requireNonNull(type, "type");
+
+        Object result = null;
+        if (type.isAssignableFrom(Long.class)) {
+            result = new LongSegment(nativeSegment);
+        } else if (type.isAssignableFrom(Integer.class)) {
+            result = new IntSegment(nativeSegment);
+        } else {
+            throw new FluffyMemoryException("Cannot wrap scalar segment of unknown type: " + type.getCanonicalName());
+        }
+        return (FluffyScalarSegment<? extends T>) result;
     }
 
     /**
@@ -46,6 +58,14 @@ public final class FluffyMemorySegmentWrapper {
     // The cast is indeed unsafe. We need to make sure with good test coverage.
     @SuppressWarnings("unchecked")
     public <T> FluffyVectorSegment<? extends T> asArray(Class<? extends T[]> type) {
-        return (FluffyVectorSegment<? extends T>) new BlobSegment(nativeSegment);
+        requireNonNull(type, "type");
+
+        Object result = null;
+        if (type.isAssignableFrom(Byte[].class)) {
+            result = new BlobSegment(nativeSegment);
+        } else {
+            throw new FluffyMemoryException("Cannot wrap vector segment of unknown type: " + type.getCanonicalName());
+        }
+        return (FluffyVectorSegment<? extends T>) result;
     }
 }

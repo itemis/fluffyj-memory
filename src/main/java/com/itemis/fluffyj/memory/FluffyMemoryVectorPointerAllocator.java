@@ -6,6 +6,7 @@ import static jdk.incubator.foreign.ResourceScope.globalScope;
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffyVectorPointer;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
+import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.PointerOfBlob;
 
 import jdk.incubator.foreign.MemoryAddress;
@@ -19,8 +20,6 @@ import jdk.incubator.foreign.ResourceScope;
 public final class FluffyMemoryVectorPointerAllocator<T> {
     private final MemoryAddress initialValue;
     private final long byteSize;
-    // Will be used as soon as there are multiple types of segments to allocate.
-    @SuppressWarnings("unused")
     private final Class<? extends T[]> type;
 
     /**
@@ -71,6 +70,13 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
     public FluffyVectorPointer<? extends T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
 
-        return (FluffyVectorPointer<? extends T>) new PointerOfBlob(initialValue, byteSize, scope);
+        Object result = null;
+        if (type.isAssignableFrom(Byte[].class)) {
+            result = new PointerOfBlob(initialValue, byteSize, scope);
+        } else {
+            throw new FluffyMemoryException("Cannot allocate vector pointer of unknown type: " + type.getCanonicalName());
+        }
+
+        return (FluffyVectorPointer<? extends T>) result;
     }
 }
