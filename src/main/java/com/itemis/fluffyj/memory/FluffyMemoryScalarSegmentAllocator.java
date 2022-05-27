@@ -4,6 +4,8 @@ import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
+import com.itemis.fluffyj.memory.error.FluffyMemoryException;
+import com.itemis.fluffyj.memory.internal.IntSegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
 
 import jdk.incubator.foreign.ResourceScope;
@@ -41,6 +43,14 @@ public final class FluffyMemoryScalarSegmentAllocator<T> {
     public FluffyScalarSegment<? extends T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
 
-        return (FluffyScalarSegment<? extends T>) new LongSegment((Long) initialValue, scope);
+        Object result = null;
+        if (initialValue instanceof Long) {
+            result = new LongSegment((Long) initialValue, scope);
+        } else if (initialValue instanceof Integer) {
+            result = new IntSegment((Integer) initialValue, scope);
+        } else {
+            throw new FluffyMemoryException("Cannot allocate scalar segment of unknown type: " + initialValue.getClass().getCanonicalName());
+        }
+        return (FluffyScalarSegment<? extends T>) result;
     }
 }

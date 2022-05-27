@@ -1,6 +1,6 @@
 package com.itemis.fluffyj.memory;
 
-import static com.google.common.primitives.Longs.toByteArray;
+import static com.google.common.primitives.Ints.toByteArray;
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.tests.FluffyMemoryScalarTestValue;
@@ -8,15 +8,15 @@ import com.itemis.fluffyj.memory.tests.FluffyScalarDataManipulationTest;
 
 import java.util.Random;
 
-class LongManipulationTest extends FluffyScalarDataManipulationTest<Long> {
+class IntManipulationTest extends FluffyScalarDataManipulationTest<Integer> {
 
-    LongManipulationTest() {
-        super(new FluffyMemoryScalarTestValueIterator<Long>() {
+    IntManipulationTest() {
+        super(new FluffyMemoryScalarTestValueIterator<Integer>() {
             private final Random rnd = new Random();
 
             @Override
-            public FluffyMemoryScalarTestValue<Long> next() {
-                var typedValue = rnd.nextLong();
+            public FluffyMemoryScalarTestValue<Integer> next() {
+                var typedValue = rnd.nextInt();
                 var rawValue = toByteArray(typedValue);
                 return new FluffyMemoryScalarTestValue<>(typedValue, rawValue);
             }
