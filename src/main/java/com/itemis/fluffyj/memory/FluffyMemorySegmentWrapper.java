@@ -9,6 +9,7 @@ import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.BlobSegment;
 import com.itemis.fluffyj.memory.internal.IntSegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
+import com.itemis.fluffyj.memory.internal.StringSegment;
 
 import jdk.incubator.foreign.MemorySegment;
 
@@ -44,6 +45,8 @@ public final class FluffyMemorySegmentWrapper {
             result = new LongSegment(nativeSegment);
         } else if (type.isAssignableFrom(Integer.class)) {
             result = new IntSegment(nativeSegment);
+        } else if (type.isAssignableFrom(String.class)) {
+            result = new StringSegment(nativeSegment);
         } else {
             throw new FluffyMemoryException("Cannot wrap scalar segment of unknown type: " + type.getCanonicalName());
         }
