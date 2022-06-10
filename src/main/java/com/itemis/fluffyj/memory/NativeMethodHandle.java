@@ -1,15 +1,18 @@
 package com.itemis.fluffyj.memory;
 
 import static com.itemis.fluffyj.exceptions.ThrowablePrettyfier.pretty;
+import static com.itemis.fluffyj.memory.api.FluffyMemoryLinker.C_LINKER;
 import static java.util.Objects.requireNonNull;
+import static jdk.incubator.foreign.CLinker.systemLookup;
 
+import com.itemis.fluffyj.memory.api.FluffyMemoryLinker;
 import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
+import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 
-import jdk.incubator.foreign.CLinker;
 import jdk.incubator.foreign.FunctionDescriptor;
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
@@ -42,8 +45,24 @@ public final class NativeMethodHandle<T> {
         }
     }
 
-    public static TypeConverterStage ofLib(SymbolLookup stdlib) {
+    public static ReturnTypeStage fromCStdLib() {
+        return fromLib(systemLookup())
+            .withLinker(C_LINKER)
+            .withTypeConverter(new CDataTypeConverter());
+    }
+
+    public static ReturnTypeStage fromCLib(SymbolLookup lib) {
+        return fromLib(lib)
+            .withLinker(C_LINKER)
+            .withTypeConverter(new CDataTypeConverter());
+    }
+
+    public static LinkerStage fromLib(SymbolLookup stdlib) {
         return new NativeMethodHandleBuilder<>(stdlib);
+    }
+
+    public static interface LinkerStage {
+        TypeConverterStage withLinker(FluffyMemoryLinker linker);
     }
 
     public static interface TypeConverterStage {
@@ -61,7 +80,7 @@ public final class NativeMethodHandle<T> {
     }
 
     public static interface ArgsStage<T> {
-        CreateStage<T> args(MemoryLayout... args);
+        NativeMethodHandle<T> args(MemoryLayout... args);
 
         /**
          * Convenience method. Like {@link #args(MemoryLayout...)} but emphasizes the fact that the
@@ -69,25 +88,27 @@ public final class NativeMethodHandle<T> {
          *
          * @return {@link CreateStage} instance.
          */
-        CreateStage<T> noArgs();
+        NativeMethodHandle<T> noArgs();
     }
 
-    public static interface CreateStage<T> {
-        NativeMethodHandle<T> create(CLinker linker);
-    }
-
-    private static final class NativeMethodHandleBuilder<T> implements TypeConverterStage, ReturnTypeStage, FuncStage<T>, ArgsStage<T>, CreateStage<T> {
+    private static final class NativeMethodHandleBuilder<T>
+            implements LinkerStage, TypeConverterStage, ReturnTypeStage, FuncStage<T>, ArgsStage<T> {
 
         private SymbolLookup lib;
+        private FluffyMemoryLinker linker;
         private FluffyMemoryTypeConverter conv;
-        private MemoryAddress funcRef;
+        private MemoryAddress symbol;
         private Class<?> javaReturnType;
         private MemoryLayout cReturnType;
-        private FunctionDescriptor funcDescr;
-        private MethodType methodType;
 
         NativeMethodHandleBuilder(SymbolLookup lib) {
             this.lib = requireNonNull(lib, "lib");
+        }
+
+        @Override
+        public TypeConverterStage withLinker(FluffyMemoryLinker linker) {
+            this.linker = requireNonNull(linker, "linker");
+            return this;
         }
 
         @Override
@@ -117,26 +138,21 @@ public final class NativeMethodHandle<T> {
         @Override
         public ArgsStage<T> func(String funcName) {
             requireNonNull(funcName, "funcName");
-            funcRef = loadSymbol(lib, funcName);
+            symbol = loadSymbol(lib, funcName);
             return this;
         }
 
         @Override
-        public CreateStage<T> args(MemoryLayout... args) {
-            funcDescr = FunctionDescriptor.of(cReturnType, requireNonNull(args, "args"));
-            methodType = MethodType.methodType(javaReturnType, conv.getJavaTypes(args));
-            return (CreateStage<T>) this;
+        public NativeMethodHandle<T> args(MemoryLayout... args) {
+            var srcFuncDescr = FunctionDescriptor.of(cReturnType, requireNonNull(args, "args"));
+            var targetMethodType = MethodType.methodType(javaReturnType, conv.getJavaTypes(args));
+            var method = linker.link(symbol, srcFuncDescr, targetMethodType);
+            return new NativeMethodHandle<>(method);
         }
 
         @Override
-        public CreateStage<T> noArgs() {
+        public NativeMethodHandle<T> noArgs() {
             return args();
-        }
-
-        @Override
-        public NativeMethodHandle<T> create(CLinker linker) {
-            var methodHandle = linker.downcallHandle(funcRef, methodType, funcDescr);
-            return new NativeMethodHandle<>(methodHandle);
         }
 
         private static MemoryAddress loadSymbol(SymbolLookup lookup, String symbolName) {

@@ -14,6 +14,7 @@ import com.itemis.fluffyj.exceptions.ThrowablePrettyfier;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.PointerOfString;
 import com.itemis.fluffyj.memory.internal.StringSegment;
+import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 import com.itemis.fluffyj.memory.tests.MemoryScopedTest;
 
 import org.junit.jupiter.api.Test;
@@ -58,11 +59,10 @@ public class RealWorldScenariosTest extends MemoryScopedTest {
     void call_throws_exception_when_error_is_encountered() {
         var underTest =
             NativeMethodHandle
-                .ofLib(systemLookup())
+                .fromCStdLib()
                 .returnType(long.class)
                 .func("strlen")
-                .args(C_POINTER)
-                .create(CLinker.getInstance());
+                .args(C_POINTER);
 
         var expectedCause = new WrongMethodTypeException("cannot convert MethodHandle(MemoryAddress)long to ()Object");
         assertThatThrownBy(() -> underTest.call())
@@ -71,14 +71,34 @@ public class RealWorldScenariosTest extends MemoryScopedTest {
             .hasCause(expectedCause);
     }
 
+    @Test
+    void handle_constrcution_via_shortcut_works() {
+        var testStr = "testString";
+        var ptr = segment().of(testStr).allocate(scope).address();
+
+        assertThat(strlen_shortcut_construction(ptr)).isEqualTo(testStr.length());
+    }
+
+    private long strlen_shortcut_construction(MemoryAddress pointerToString) {
+        var underTest =
+            NativeMethodHandle
+                .fromCStdLib()
+                .returnType(long.class)
+                .func("strlen")
+                .args(C_POINTER);
+
+        return underTest.call(pointerToString);
+    }
+
     private long strlen(MemoryAddress pointerToString) {
         var underTest =
             NativeMethodHandle
-                .ofLib(systemLookup())
+                .fromLib(systemLookup())
+                .withLinker((symbol, srcFuncType, targetMethodType) -> CLinker.getInstance().downcallHandle(symbol, targetMethodType, srcFuncType))
+                .withTypeConverter(new CDataTypeConverter())
                 .returnType(long.class)
                 .func("strlen")
-                .args(C_POINTER)
-                .create(CLinker.getInstance());
+                .args(C_POINTER);
 
         return underTest.call(pointerToString);
     }
