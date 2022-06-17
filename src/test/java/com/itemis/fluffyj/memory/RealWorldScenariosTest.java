@@ -3,9 +3,13 @@ package com.itemis.fluffyj.memory;
 import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
+import static com.itemis.fluffyj.memory.NativeMethodHandle.fromCStdLib;
+import static java.util.Arrays.sort;
+import static jdk.incubator.foreign.CLinker.C_INT;
 import static jdk.incubator.foreign.CLinker.C_POINTER;
 import static jdk.incubator.foreign.CLinker.systemLookup;
 import static jdk.incubator.foreign.CLinker.toCString;
+import static org.apache.commons.lang3.ArrayUtils.toObject;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -77,6 +81,61 @@ public class RealWorldScenariosTest extends MemoryScopedTest {
         var ptr = segment().of(testStr).allocate(scope).address();
 
         assertThat(strlen_shortcut_construction(ptr)).isEqualTo(testStr.length());
+    }
+
+    @Test
+    void test_qsort() {
+        var primitiveBuf = new byte[new Random().nextInt(MAX_RND_STR_LENGTH) + 1];
+        new Random().nextBytes(primitiveBuf);
+        var buf = toObject(primitiveBuf);
+
+        var expectedResult = toObject(primitiveBuf);
+        sort(expectedResult);
+
+        var bufSeg = segment().ofArray(buf).allocate();
+        var qsort = fromCStdLib()
+            .noReturnType()
+            .func("qsort")
+            .args(C_POINTER, C_INT, C_INT, C_POINTER);
+        var autoCompar = createComparPointerAuto();
+        var manualCompar = createComparPointerManual();
+
+        qsort.call(bufSeg.address(), buf.length, 1, autoCompar);
+        Byte[] actualResult = bufSeg.getValue();
+        assertThat(actualResult).isEqualTo(expectedResult);
+
+        qsort.call(bufSeg.address(), buf.length, 1, manualCompar);
+        actualResult = bufSeg.getValue();
+        assertThat(actualResult).isEqualTo(expectedResult);
+    }
+
+    private MemoryAddress createComparPointerAuto() {
+        return pointer()
+            .toCFunc("qsort_compar")
+            .of(this)
+            .autoBindTo(scope);
+    }
+
+    private MemoryAddress createComparPointerManual() {
+        return pointer()
+            .toFunc("qsort_compar")
+            .ofType(this)
+            .withTypeConverter(new CDataTypeConverter())
+            .withArgs(C_POINTER, C_POINTER)
+            .andReturnType(C_INT)
+            .bindTo(scope);
+    }
+
+    int qsort_compar(MemoryAddress left, MemoryAddress right) {
+        var leftByte = wrap(left.asSegment(1, scope)).as(Byte.class).getValue();
+        var rightByte = wrap(right.asSegment(1, scope)).as(Byte.class).getValue();
+        var result = 0;
+        if (leftByte < rightByte) {
+            result = -1;
+        } else if (leftByte > rightByte) {
+            result = 1;
+        }
+        return result;
     }
 
     private long strlen_shortcut_construction(MemoryAddress pointerToString) {

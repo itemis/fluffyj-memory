@@ -7,6 +7,7 @@ import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
+import com.itemis.fluffyj.memory.internal.PointerOfByte;
 import com.itemis.fluffyj.memory.internal.PointerOfInt;
 import com.itemis.fluffyj.memory.internal.PointerOfLong;
 import com.itemis.fluffyj.memory.internal.PointerOfString;
@@ -73,6 +74,8 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
             result = new PointerOfInt(initialValue, scope);
         } else if (type.isAssignableFrom(String.class)) {
             result = new PointerOfString(initialValue, scope);
+        } else if (type.isAssignableFrom(Byte.class)) {
+            result = new PointerOfByte(initialValue, scope);
         } else {
             throw new FluffyMemoryException("Cannot allocate scalar pointer of unknown type: " + type.getCanonicalName());
         }

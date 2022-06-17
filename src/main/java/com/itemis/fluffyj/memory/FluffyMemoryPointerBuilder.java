@@ -4,6 +4,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
+import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.CFuncStage;
+import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.FuncStage;
+import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
 import jdk.incubator.foreign.MemoryAddress;
 
@@ -20,7 +23,7 @@ public final class FluffyMemoryPointerBuilder {
      */
     public <T> FluffyMemoryScalarPointerAllocator<T> to(FluffyScalarSegment<? extends T> toHere) {
         requireNonNull(toHere, "toHere");
-        return new FluffyMemoryScalarPointerAllocator<T>(toHere);
+        return new FluffyMemoryScalarPointerAllocator<>(toHere);
     }
 
     /**
@@ -43,6 +46,14 @@ public final class FluffyMemoryPointerBuilder {
     public FluffyMemoryTypedPointerBuilder to(MemoryAddress address) {
         requireNonNull(address, "address");
         return new FluffyMemoryTypedPointerBuilder(address);
+    }
+
+    public CFuncStage toCFunc(String funcName) {
+        return new FluffyMemoryFuncPointerBuilder(requireNonNull(funcName, "funcName"), new CDataTypeConverter());
+    }
+
+    public FuncStage toFunc(String funcName) {
+        return new FluffyMemoryFuncPointerBuilder(requireNonNull(funcName, "funcName"));
     }
 
     public static final class FluffyMemoryTypedPointerBuilder {

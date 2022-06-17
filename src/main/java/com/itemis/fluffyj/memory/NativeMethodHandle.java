@@ -3,8 +3,10 @@ package com.itemis.fluffyj.memory;
 import static com.itemis.fluffyj.exceptions.ThrowablePrettyfier.pretty;
 import static com.itemis.fluffyj.memory.api.FluffyMemoryLinker.C_LINKER;
 import static java.util.Objects.requireNonNull;
+import static java.util.Optional.empty;
 import static jdk.incubator.foreign.CLinker.systemLookup;
 
+import com.google.common.collect.ImmutableSet;
 import com.itemis.fluffyj.memory.api.FluffyMemoryLinker;
 import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
@@ -12,6 +14,8 @@ import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
+import java.util.Optional;
+import java.util.Set;
 
 import jdk.incubator.foreign.FunctionDescriptor;
 import jdk.incubator.foreign.MemoryAddress;
@@ -26,6 +30,8 @@ import jdk.incubator.foreign.SymbolLookup;
  *        value.
  */
 public final class NativeMethodHandle<T> {
+
+    private static final Set<Class<?>> VOID_RETURN_TYPES = ImmutableSet.of(Void.class, void.class);
 
     private final MethodHandle method;
 
@@ -99,7 +105,7 @@ public final class NativeMethodHandle<T> {
         private FluffyMemoryTypeConverter conv;
         private MemoryAddress symbol;
         private Class<?> javaReturnType;
-        private MemoryLayout cReturnType;
+        private Optional<MemoryLayout> cReturnType = empty();
 
         NativeMethodHandleBuilder(SymbolLookup lib) {
             this.lib = requireNonNull(lib, "lib");
@@ -123,7 +129,9 @@ public final class NativeMethodHandle<T> {
         @Override
         public <K> FuncStage<K> returnType(Class<? super K> returnType) {
             javaReturnType = requireNonNull(returnType, "returnType");
-            cReturnType = conv.getCType(returnType);
+            if (!VOID_RETURN_TYPES.contains(javaReturnType)) {
+                cReturnType = Optional.of(conv.getNativeType(returnType));
+            }
             return (FuncStage<K>) this;
         }
 
@@ -132,7 +140,7 @@ public final class NativeMethodHandle<T> {
         @SuppressWarnings("unchecked")
         @Override
         public <K> FuncStage<K> noReturnType() {
-            return (FuncStage<K>) returnType(Void.class);
+            return (FuncStage<K>) returnType(void.class);
         }
 
         @Override
@@ -144,7 +152,14 @@ public final class NativeMethodHandle<T> {
 
         @Override
         public NativeMethodHandle<T> args(MemoryLayout... args) {
-            var srcFuncDescr = FunctionDescriptor.of(cReturnType, requireNonNull(args, "args"));
+            requireNonNull(args, "args");
+            FunctionDescriptor srcFuncDescr = null;
+            if (cReturnType.isPresent()) {
+                srcFuncDescr = FunctionDescriptor.of(cReturnType.get(), args);
+            } else {
+                srcFuncDescr = FunctionDescriptor.ofVoid(args);
+            }
+
             var targetMethodType = MethodType.methodType(javaReturnType, conv.getJavaTypes(args));
             var method = linker.link(symbol, srcFuncDescr, targetMethodType);
             return new NativeMethodHandle<>(method);

@@ -27,23 +27,23 @@ public class OsDependentCDataTypeConverterTest {
     void c_type_to_java_type_windows() {
         System.setProperty(OS_NAME.key(), "Windows 10");
 
-        assertThat(underTest.getCType(long.class)).isEqualTo(C_LONG_LONG);
-        assertThat(underTest.getCType(Long.class)).isEqualTo(C_LONG_LONG);
+        assertThat(underTest.getNativeType(long.class)).isEqualTo(C_LONG_LONG);
+        assertThat(underTest.getNativeType(Long.class)).isEqualTo(C_LONG_LONG);
     }
 
     @Test
     void c_type_to_java_type_linux() {
         System.setProperty(OS_NAME.key(), "Linux");
 
-        assertThat(underTest.getCType(long.class)).isEqualTo(C_LONG);
-        assertThat(underTest.getCType(Long.class)).isEqualTo(C_LONG);
+        assertThat(underTest.getNativeType(long.class)).isEqualTo(C_LONG);
+        assertThat(underTest.getNativeType(Long.class)).isEqualTo(C_LONG);
     }
 
     @Test
     void c_type_to_java_type_mac() {
         System.setProperty(OS_NAME.key(), "Mac OS X");
 
-        assertThat(underTest.getCType(long.class)).isEqualTo(C_LONG);
-        assertThat(underTest.getCType(Long.class)).isEqualTo(C_LONG);
+        assertThat(underTest.getNativeType(long.class)).isEqualTo(C_LONG);
+        assertThat(underTest.getNativeType(Long.class)).isEqualTo(C_LONG);
     }
 }

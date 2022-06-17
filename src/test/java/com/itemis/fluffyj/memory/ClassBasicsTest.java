@@ -10,8 +10,10 @@ import com.itemis.fluffyj.memory.FluffyMemoryPointerBuilder.FluffyMemoryTypedPoi
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.internal.PointerOfBlob;
+import com.itemis.fluffyj.memory.internal.PointerOfByte;
 import com.itemis.fluffyj.memory.internal.PointerOfInt;
 import com.itemis.fluffyj.memory.internal.PointerOfLong;
+import com.itemis.fluffyj.memory.internal.PointerOfString;
 
 import org.junit.jupiter.api.Test;
 
@@ -42,11 +44,11 @@ class ClassBasicsTest {
     @Test
     void constructor_with_null_arg_yields_npe() {
         assertNullArgNotAccepted(() -> new FluffyMemoryScalarPointerAllocator<>((FluffyScalarSegment<?>) null), "toHere");
-        assertNullArgNotAccepted(() -> new FluffyMemoryScalarPointerAllocator<Object>((MemoryAddress) null, Object.class), "address");
-        assertNullArgNotAccepted(() -> new FluffyMemoryScalarPointerAllocator<Object>(NULL, null), "typeOfData");
+        assertNullArgNotAccepted(() -> new FluffyMemoryScalarPointerAllocator<>((MemoryAddress) null, Object.class), "address");
+        assertNullArgNotAccepted(() -> new FluffyMemoryScalarPointerAllocator<>(NULL, null), "typeOfData");
         assertNullArgNotAccepted(() -> new FluffyMemoryVectorPointerAllocator<>((FluffyVectorSegment<?>) null), "toHere");
-        assertNullArgNotAccepted(() -> new FluffyMemoryVectorPointerAllocator<Object>((MemoryAddress) null, A_LONG, Object[].class), "address");
-        assertNullArgNotAccepted(() -> new FluffyMemoryVectorPointerAllocator<Object>(NULL, A_LONG, null), "typeOfData");
+        assertNullArgNotAccepted(() -> new FluffyMemoryVectorPointerAllocator<>((MemoryAddress) null, A_LONG, Object[].class), "address");
+        assertNullArgNotAccepted(() -> new FluffyMemoryVectorPointerAllocator<>(NULL, A_LONG, null), "typeOfData");
         assertNullArgNotAccepted(() -> new FluffyMemoryTypedPointerBuilder(null), "address");
         assertNullArgNotAccepted(() -> new FluffyMemoryScalarSegmentAllocator<>(null), "initialValue");
         assertNullArgNotAccepted(() -> new FluffyMemoryVectorSegmentAllocator<>(null), "initialValue");
@@ -57,5 +59,9 @@ class ClassBasicsTest {
         assertNullArgNotAccepted(() -> new PointerOfLong(NULL, null) {}, "scope");
         assertNullArgNotAccepted(() -> new PointerOfBlob(null, A_LONG, globalScope()) {}, "addressPointedTo");
         assertNullArgNotAccepted(() -> new PointerOfBlob(NULL, A_LONG, null) {}, "scope");
+        assertNullArgNotAccepted(() -> new PointerOfString(null, globalScope()) {}, "addressPointedTo");
+        assertNullArgNotAccepted(() -> new PointerOfString(NULL, null) {}, "scope");
+        assertNullArgNotAccepted(() -> new PointerOfByte(null, globalScope()) {}, "addressPointedTo");
+        assertNullArgNotAccepted(() -> new PointerOfByte(NULL, null) {}, "scope");
     }
 }

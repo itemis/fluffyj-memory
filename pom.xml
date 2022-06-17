@@ -287,7 +287,9 @@
                                             <limit>
                                                 <counter>LINE</counter>
                                                 <value>COVEREDRATIO</value>
-                                                <minimum>100%</minimum>
+                                                <!-- Cannot reach 100%, bc JaCoCo does not calculate coverage correct on code paths that throw an 
+                                                exception without declaring it. -->
+                                                <minimum>98%</minimum>
                                             </limit>
                                         </limits>
                                     </rule>

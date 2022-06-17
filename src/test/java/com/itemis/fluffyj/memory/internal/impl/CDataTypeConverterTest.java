@@ -35,10 +35,10 @@ public class CDataTypeConverterTest {
 
     @ParameterizedTest
     @MethodSource("expectedTypeMappings")
-    void c_type_to_java_type_and_back(Class<?> input, MemoryLayout expectedCType, Class<?> output) {
-        var actualCType = underTest.getCType(input);
+    void native_type_to_java_type_and_back(Class<?> javaInputType, MemoryLayout expectedCType, Class<?> expectedJavaType) {
+        var actualCType = underTest.getNativeType(javaInputType);
         assertThat(actualCType).isEqualTo(expectedCType);
-        assertThat(underTest.getJavaType(actualCType)).isEqualTo(output);
+        assertThat(underTest.getJavaType(actualCType)).isEqualTo(expectedJavaType);
     }
 
     @Test
@@ -47,9 +47,9 @@ public class CDataTypeConverterTest {
     }
 
     @Test
-    void c_memory_layout_of_unknown_type_yields_exception() {
+    void memory_layout_of_unknown_type_yields_exception() {
         var unknownType = Object.class;
-        assertThatThrownBy(() -> underTest.getCType(unknownType))
+        assertThatThrownBy(() -> underTest.getNativeType(unknownType))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Cannot provide C memory layout for type " + unknownType.getCanonicalName());
     }
@@ -88,7 +88,7 @@ public class CDataTypeConverterTest {
 
     @Test
     void javaTypes_returns_types_in_expected_order() {
-        assertThat(underTest.getJavaTypes(C_INT, C_CHAR, C_DOUBLE)).isEqualTo(new Class<?>[] {int.class, char.class, double.class});
+        assertThat(underTest.getJavaTypes(C_INT, C_CHAR, C_DOUBLE)).containsExactly(int.class, byte.class, double.class);
     }
 
     @Test
@@ -99,19 +99,58 @@ public class CDataTypeConverterTest {
             .hasMessage("Cannot provide Java type for C memory layout " + unknownMemoryLayout.name());
     }
 
+    // C's char is usually 1 byte in size. Java's char/Character is 2 bytes which usually is a
+    // C_SHORT
+    @Test
+    void javaType_of_c_char_is_byte() {
+        assertThat(underTest.getJavaType(C_CHAR)).isEqualTo(byte.class);
+    }
+
+    @Test
+    void nativeTypes_with_no_args_returns_empty_array() {
+        assertThat(underTest.getNativeTypes()).isEmpty();
+    }
+
+    @Test
+    void nativeTypes_with_null_yields_npe() {
+        assertNullArgNotAccepted(() -> underTest.getNativeTypes((Class<?>[]) null), "javaTypes");
+    }
+
+    @ParameterizedTest
+    @MethodSource("expectedTypeMappings")
+    void nativeTypes_with_one_type_yields_correct_type(Class<?> input, MemoryLayout expectedOutput, Class<?> unused) {
+        assertThat(underTest.getNativeTypes(input)).hasOnlyOneElementSatisfying(elm -> elm.equals(expectedOutput));
+    }
+
+    @Test
+    void nativeTypes_returns_converted_types_in_correct_order() {
+        assertThat(underTest.getNativeTypes(long.class, int.class, double.class)).containsExactly(OsDependentLong.memoryLayout(), C_INT, C_DOUBLE);
+    }
+
+    @Test
+    void nativeTypes_throws_exception_on_unknown_type() {
+        var unknownJavaType = String.class;
+        assertThatThrownBy(() -> underTest.getNativeTypes(long.class, unknownJavaType, double.class))
+            .isInstanceOf(FluffyMemoryException.class)
+            .hasMessage("Cannot provide C memory layout for type " + unknownJavaType.getCanonicalName());
+    }
+
     private static Stream<Arguments> expectedTypeMappings() {
         return Stream.of(
             Arguments.of(long.class, OsDependentLong.memoryLayout(), long.class),
             Arguments.of(Long.class, OsDependentLong.memoryLayout(), long.class),
             Arguments.of(int.class, C_INT, int.class),
             Arguments.of(Integer.class, C_INT, int.class),
-            Arguments.of(char.class, C_CHAR, char.class),
-            Arguments.of(Character.class, C_CHAR, char.class),
+            Arguments.of(char.class, C_SHORT, short.class),
+            Arguments.of(Character.class, C_SHORT, short.class),
             Arguments.of(double.class, C_DOUBLE, double.class),
             Arguments.of(Double.class, C_DOUBLE, double.class),
             Arguments.of(float.class, C_FLOAT, float.class),
             Arguments.of(Float.class, C_FLOAT, float.class),
             Arguments.of(short.class, C_SHORT, short.class),
-            Arguments.of(Short.class, C_SHORT, short.class));
+            Arguments.of(Short.class, C_SHORT, short.class),
+            Arguments.of(byte.class, C_CHAR, byte.class),
+            Arguments.of(Byte.class, C_CHAR, byte.class),
+            Arguments.of(MemoryAddress.class, C_POINTER, MemoryAddress.class));
     }
 }
