@@ -76,7 +76,7 @@ public class RealWorldScenariosTest extends MemoryScopedTest {
     }
 
     @Test
-    void handle_constrcution_via_shortcut_works() {
+    void handle_construction_via_shortcut_works() {
         var testStr = "testString";
         var ptr = segment().of(testStr).allocate(scope).address();
 

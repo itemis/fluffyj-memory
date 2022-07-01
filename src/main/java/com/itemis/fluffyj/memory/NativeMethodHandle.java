@@ -85,8 +85,8 @@ public final class NativeMethodHandle<T> {
     }
 
     /**
-     * Construct a handle to a function of an arbitrary library that does also not need to be C
-     * based.
+     * Construct a handle to a function of an arbitrary library that does not necessarily need to be
+     * C based.
      *
      * @param stdlib - {@link SymbolLookup} for the library to load the function from.
      * @return Next stage of the builder.
