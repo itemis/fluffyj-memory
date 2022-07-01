@@ -27,22 +27,39 @@ import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.ResourceScope;
 
+/**
+ * Builder for a native pointer to a Java method (function, effectively a {@link MemoryAddress}).
+ * Should not be used directly.
+ */
 public final class FluffyMemoryFuncPointerBuilder implements CFuncStage, FuncStage, ArgsStage, TypeConverterStage, ReturnTypeStage, BinderStage {
+
+    private final String funcName;
 
     private Object receiver;
     private MemoryLayout[] nativeArgTypes;
     private Optional<MemoryLayout> nativeReturnType = empty();
     private Class<?>[] javaArgTypes;
     private Class<?> javaReturnType;
-
-    private final String funcName;
     private FluffyMemoryTypeConverter typeConverter;
 
+    /**
+     * Construct a new instance.
+     *
+     * @param funcName - Name of the Java method to point to.
+     * @param conv - A {@link FluffyMemoryTypeConverter} that will be used to convert between Java
+     *        and native type arguments and return types.
+     */
     public FluffyMemoryFuncPointerBuilder(String funcName, FluffyMemoryTypeConverter conv) {
         this.funcName = requireNonNull(funcName, "funcName");
         this.typeConverter = requireNonNull(conv, "conv");
     }
 
+    /**
+     * Construct a new instance with a pre set {@link FluffyMemoryTypeConverter} that converts
+     * between Java and C.
+     *
+     * @param funcName - Name of the Java method to point to.
+     */
     public FluffyMemoryFuncPointerBuilder(String funcName) {
         this.funcName = requireNonNull(funcName, "funcName");
     }

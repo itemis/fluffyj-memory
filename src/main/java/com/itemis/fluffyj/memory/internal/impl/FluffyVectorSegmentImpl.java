@@ -9,7 +9,7 @@ import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
 /**
- * Default implementation of a generic segment.
+ * Default implementation of a generic segment that holds vectorized (i. e. array) data.
  *
  * @param <T> - Type of data this segment holds.
  */

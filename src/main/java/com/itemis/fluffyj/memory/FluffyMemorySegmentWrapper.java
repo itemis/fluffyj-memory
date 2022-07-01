@@ -32,6 +32,8 @@ public final class FluffyMemorySegmentWrapper {
     }
 
     /**
+     * <T> - Type of data the segment shall point to.
+     *
      * @return A view of the native segment interpreted as {@link FluffyScalarSegment} of
      *         {@code type}. The constructed {@link FluffyScalarSegment} will have the same scope as
      *         the native segment.

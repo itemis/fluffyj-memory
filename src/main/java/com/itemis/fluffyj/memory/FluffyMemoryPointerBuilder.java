@@ -48,22 +48,50 @@ public final class FluffyMemoryPointerBuilder {
         return new FluffyMemoryTypedPointerBuilder(address);
     }
 
+    /**
+     * Construct a C style pointer to a Java method. Will use Java to/from C type conversion rules.
+     *
+     * @param funcName - Name of the Java method to point to.
+     * @return A builder that helps with creating the function pointer.
+     */
     public CFuncStage toCFunc(String funcName) {
         return new FluffyMemoryFuncPointerBuilder(requireNonNull(funcName, "funcName"), new CDataTypeConverter());
     }
 
+    /**
+     * Construct a native pointer to a Java method. Argument and return type conversion rules must
+     * be set manually.
+     *
+     * @param funcName - Name of the Java method to point to.
+     * @return A builder that helps with creating the function pointer.
+     */
     public FuncStage toFunc(String funcName) {
         return new FluffyMemoryFuncPointerBuilder(requireNonNull(funcName, "funcName"));
     }
 
+    /**
+     * A builder that helps with creating native pointers to scalar and array types.
+     */
     public static final class FluffyMemoryTypedPointerBuilder {
         private final MemoryAddress address;
 
+        /**
+         * Create a new instance.
+         *
+         * @param address - Created pointer will point to this address.
+         */
         public FluffyMemoryTypedPointerBuilder(MemoryAddress address) {
             requireNonNull(address, "address");
             this.address = address;
         }
 
+        /**
+         * Create a native pointer to a scalar value (i. e. non array).
+         *
+         * @param <T> - Type of scalar data to point to.
+         * @param type - Type of scalar data to point to.
+         * @return A new builder instance that helps with creating this kind of pointer.
+         */
         public <T> FluffyMemoryScalarPointerAllocator<? extends T> as(Class<? extends T> type) {
             return new FluffyMemoryScalarPointerAllocator<T>(address, type);
         }
@@ -76,15 +104,31 @@ public final class FluffyMemoryPointerBuilder {
         }
     }
 
+    /**
+     * A builder that helps with creating native pointers to array types.
+     */
     public static final class FluffyMemoryTypedArrayPointerBuilder {
         private final long byteSize;
         private final MemoryAddress address;
 
+        /**
+         * Create a new instance.
+         *
+         * @param address - Created pointer will point to this address.
+         * @param byteSize - Size of the array to point to in bytes.
+         */
         public FluffyMemoryTypedArrayPointerBuilder(MemoryAddress address, long byteSize) {
             this.address = requireNonNull(address, "address");
             this.byteSize = byteSize;
         }
 
+        /**
+         * Create a native pointer to an array value.
+         *
+         * @param <T> - Component type of the array to point to.
+         * @param type - Array type of the array to point to.
+         * @return A new builder instance that helps with creating this kind of pointer.
+         */
         public <T> FluffyMemoryVectorPointerAllocator<? extends T> of(Class<? extends T[]> arrayType) {
             return new FluffyMemoryVectorPointerAllocator<>(address, byteSize, arrayType);
         }

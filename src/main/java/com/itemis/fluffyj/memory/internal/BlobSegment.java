@@ -23,7 +23,7 @@ public class BlobSegment extends FluffyVectorSegmentImpl<Byte> {
 
     private static final byte[] primitivize(Byte[] value) {
         var result = new byte[value.length];
-        for (int i = 0; i < value.length; i++) {
+        for (var i = 0; i < value.length; i++) {
             result[i] = value[i];
         }
 
@@ -34,7 +34,7 @@ public class BlobSegment extends FluffyVectorSegmentImpl<Byte> {
     protected Byte[] getTypedValue(ByteBuffer rawValue) {
         var length = rawValue.capacity();
         var result = new Byte[length];
-        for (int i = 0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             result[i] = rawValue.asReadOnlyBuffer().get(i);
         }
         return result;
