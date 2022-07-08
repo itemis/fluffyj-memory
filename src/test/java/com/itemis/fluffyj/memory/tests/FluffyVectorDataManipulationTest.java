@@ -130,7 +130,7 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
 
     @Test
     void pointer_of_address_points_to_address() {
-        MemoryAddress expectedAddress = allocateSeg().address();
+        var expectedAddress = allocateSeg().address();
         var underTest = allocatePointer(expectedAddress);
 
         assertThat(underTest.getValue()).isEqualTo(expectedAddress);
@@ -138,7 +138,7 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
 
     @Test
     void pointer_with_scope_is_not_alive_when_scope_is_closed() {
-        MemoryAddress addr = allocateSeg().address();
+        var addr = allocateSeg().address();
         var underTest = allocateScopedPointer(addr, scope);
 
         scope.close();

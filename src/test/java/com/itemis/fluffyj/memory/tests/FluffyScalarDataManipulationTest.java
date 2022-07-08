@@ -5,7 +5,9 @@ import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.MemoryAddress.NULL;
+import static jdk.incubator.foreign.MemoryAddress.ofLong;
 import static jdk.incubator.foreign.MemoryLayouts.ADDRESS;
+import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 import static jdk.incubator.foreign.MemorySegment.allocateNative;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -130,7 +132,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
 
     @Test
     void pointer_of_address_points_to_address() {
-        MemoryAddress expectedAddress = allocateSeg().address();
+        var expectedAddress = allocateSeg().address();
         var underTest = allocatePointer(expectedAddress);
 
         assertThat(underTest.getValue()).isEqualTo(expectedAddress);
@@ -138,7 +140,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
 
     @Test
     void pointer_with_scope_is_not_alive_when_scope_is_closed() {
-        MemoryAddress addr = allocateSeg().address();
+        var addr = allocateSeg().address();
         var underTest = allocateScopedPointer(addr, scope);
 
         scope.close();
@@ -163,6 +165,32 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
 
         var actualNativeSegAddress = MemoryAddress.ofLong(underTest.address().asSegment(ADDRESS.byteSize(), scope).asByteBuffer().getLong());
         assertThat(actualNativeSegAddress).isEqualTo(expectedNativeSegAddress);
+    }
+
+    @Test
+    void can_create_empty_typed_pointer() {
+        var result = pointer().of(testValueType).allocate();
+
+        assertThat(result).isInstanceOf(FluffyScalarPointer.class);
+    }
+
+    @Test
+    void can_create_empty_typed_pointer_tied_to_a_scope() {
+        var result = pointer().of(testValueType).allocate(scope);
+
+        assertThat(result.isAlive()).isTrue();
+        scope.close();
+        assertThat(result.isAlive()).isFalse();
+    }
+
+    @Test
+    void pointer_does_reflect_manual_address_change() {
+        var expectedAddress = 123L;
+        var underTest = allocateNullPointer();
+
+        assertThat(underTest.getValue()).isEqualTo(NULL);
+        underTest.address().asSegment(JAVA_LONG.byteSize(), scope).asByteBuffer().putLong(expectedAddress);
+        assertThat(underTest.getValue()).isEqualTo(ofLong(expectedAddress));
     }
 
     protected final MemorySegment allocateNativeSeg(byte[] rawContents) {

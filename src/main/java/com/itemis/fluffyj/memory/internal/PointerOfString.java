@@ -2,6 +2,7 @@ package com.itemis.fluffyj.memory.internal;
 
 import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.CLinker.toJavaString;
+import static jdk.incubator.foreign.MemoryAddress.ofLong;
 import static jdk.incubator.foreign.MemoryLayouts.ADDRESS;
 import static jdk.incubator.foreign.MemorySegment.allocateNative;
 
@@ -13,7 +14,6 @@ import jdk.incubator.foreign.ResourceScope;
 
 public class PointerOfString implements FluffyScalarPointer<String> {
 
-    private final MemoryAddress containedAddress;
     private final ResourceScope scope;
     private final MemorySegment backingSeg;
 
@@ -24,11 +24,10 @@ public class PointerOfString implements FluffyScalarPointer<String> {
      * @param scope - Attach the new pointer to this scope.
      */
     public PointerOfString(MemoryAddress addressPointedTo, ResourceScope scope) {
-        this.containedAddress = requireNonNull(addressPointedTo, "addressPointedTo");
         this.scope = requireNonNull(scope, "scope");
 
         backingSeg = allocateNative(ADDRESS, scope);
-        backingSeg.asByteBuffer().putLong(addressPointedTo.toRawLongValue());
+        backingSeg.asByteBuffer().putLong(requireNonNull(addressPointedTo, "addressPointedTo").toRawLongValue());
     }
 
     @Override
@@ -43,11 +42,11 @@ public class PointerOfString implements FluffyScalarPointer<String> {
 
     @Override
     public MemoryAddress getValue() {
-        return containedAddress;
+        return ofLong(backingSeg.asByteBuffer().getLong());
     }
 
     @Override
     public String dereference() {
-        return toJavaString(containedAddress);
+        return toJavaString(getValue());
     }
 }

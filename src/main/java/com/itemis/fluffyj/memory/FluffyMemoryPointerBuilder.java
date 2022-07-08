@@ -1,14 +1,19 @@
 package com.itemis.fluffyj.memory;
 
 import static java.util.Objects.requireNonNull;
+import static jdk.incubator.foreign.MemoryAddress.NULL;
+import static jdk.incubator.foreign.ResourceScope.globalScope;
 
+import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.CFuncStage;
 import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.FuncStage;
+import com.itemis.fluffyj.memory.internal.PointerOfThing;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
 import jdk.incubator.foreign.MemoryAddress;
+import jdk.incubator.foreign.ResourceScope;
 
 /**
  * Intermediate pointer creation helper.
@@ -46,6 +51,32 @@ public final class FluffyMemoryPointerBuilder {
     public FluffyMemoryTypedPointerBuilder to(MemoryAddress address) {
         requireNonNull(address, "address");
         return new FluffyMemoryTypedPointerBuilder(address);
+    }
+
+    /**
+     * Allocate a pointer to arbitrary data. The resulting pointer cannot be dereferenced via its
+     * API and is thought to be used in cases where an API writes an address into an "empty"
+     * pointer.
+     *
+     * @return A new instance of {@link FluffyPointer} tied to the global scope.
+     */
+    public FluffyPointer allocate() {
+        return allocate(globalScope());
+    }
+
+    /**
+     * Like {@link #allocate()} but ties the newly created pointer's lifecycle to the provided
+     * {@code scope}.
+     *
+     * @param scope - The scope to tie the pointer to.
+     * @return A new instance of {@link FluffyPointer}.
+     */
+    public FluffyPointer allocate(ResourceScope scope) {
+        return new PointerOfThing(requireNonNull(scope, "scope"));
+    }
+
+    public <T> FluffyMemoryScalarPointerAllocator<T> of(Class<? extends T> type) {
+        return new FluffyMemoryTypedPointerBuilder(NULL).as(type);
     }
 
     /**

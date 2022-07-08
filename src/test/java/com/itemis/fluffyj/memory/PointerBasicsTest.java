@@ -3,8 +3,10 @@ package com.itemis.fluffyj.memory;
 import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
 import static jdk.incubator.foreign.MemoryAddress.NULL;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
@@ -60,6 +62,23 @@ class PointerBasicsTest extends MemoryScopedTest {
     void to_null_addr_yields_npe() {
         var underTest = new FluffyMemoryPointerBuilder();
         assertNullArgNotAccepted(() -> underTest.to((MemoryAddress) null), "address");
+    }
+
+    @Test
+    void can_create_empty_pointer() {
+        var result = pointer().allocate();
+        assertThat(result).isInstanceOf(FluffyPointer.class);
+    }
+
+    @Test
+    void can_create_scoped_empty_pointer() {
+        var result = pointer().allocate(scope);
+        assertThat(result).isInstanceOf(FluffyPointer.class);
+    }
+
+    @Test
+    void empty_pointer_creation_does_not_accept_null_scoped() {
+        assertNullArgNotAccepted(() -> pointer().allocate(null), "scope");
     }
 
     private static final class MyType {
