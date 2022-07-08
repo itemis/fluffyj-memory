@@ -27,8 +27,6 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
      *
      * @param toHere - The constructed pointer will point to the address of this segment.
      */
-    // Cast is reasonably safe, since the particular type of 'type' is not important.
-    @SuppressWarnings("unchecked")
     public FluffyMemoryVectorPointerAllocator(FluffyVectorSegment<? extends T> toHere) {
         requireNonNull(toHere, "toHere");
         initialValue = toHere.address();
