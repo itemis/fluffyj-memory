@@ -32,7 +32,7 @@ public final class FluffyMemoryScalarSegmentAllocator<T> {
     /**
      * @return A freshly allocated segment attached to the global scope.
      */
-    public FluffyScalarSegment<? extends T> allocate() {
+    public FluffyScalarSegment<T> allocate() {
         return allocate(globalScope());
     }
 
@@ -42,7 +42,7 @@ public final class FluffyMemoryScalarSegmentAllocator<T> {
     // We cannot convince the compiler at this point anyway so we need to make sure about type
     // safety via tests
     @SuppressWarnings("unchecked")
-    public FluffyScalarSegment<? extends T> allocate(ResourceScope scope) {
+    public FluffyScalarSegment<T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
 
         Object result = null;
@@ -57,6 +57,6 @@ public final class FluffyMemoryScalarSegmentAllocator<T> {
         } else {
             throw new FluffyMemoryException("Cannot allocate scalar segment of unknown type: " + initialValue.getClass().getCanonicalName());
         }
-        return (FluffyScalarSegment<? extends T>) result;
+        return (FluffyScalarSegment<T>) result;
     }
 }

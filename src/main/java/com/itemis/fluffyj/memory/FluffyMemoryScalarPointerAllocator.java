@@ -51,7 +51,7 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
      *
      * @return A new {@link FluffyPointer} instance.
      */
-    public FluffyScalarPointer<? extends T> allocate() {
+    public FluffyScalarPointer<T> allocate() {
         return allocate(globalScope());
     }
 
@@ -64,7 +64,7 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
     // The cast is indeed unsafe but it won't produce any ClassCastExceptions since the value the
     // pointer points to will be interpreted as T which may be false but does not cause any error.
     @SuppressWarnings("unchecked")
-    public FluffyScalarPointer<? extends T> allocate(ResourceScope scope) {
+    public FluffyScalarPointer<T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
 
         Object result = null;
@@ -80,6 +80,6 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
             throw new FluffyMemoryException("Cannot allocate scalar pointer of unknown type: " + type.getCanonicalName());
         }
 
-        return (FluffyScalarPointer<? extends T>) result;
+        return (FluffyScalarPointer<T>) result;
     }
 }

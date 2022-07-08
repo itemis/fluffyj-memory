@@ -51,7 +51,7 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
      *
      * @return A new {@link FluffyPointer} instance.
      */
-    public FluffyVectorPointer<? extends T> allocate() {
+    public FluffyVectorPointer<T> allocate() {
         return allocate(globalScope());
     }
 
@@ -65,7 +65,7 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
     // pointer points to will be interpreted as T anyway which may be false but does not cause any
     // error at the time the cast is done.
     @SuppressWarnings({"unchecked"})
-    public FluffyVectorPointer<? extends T> allocate(ResourceScope scope) {
+    public FluffyVectorPointer<T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
 
         Object result = null;
@@ -75,6 +75,6 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
             throw new FluffyMemoryException("Cannot allocate vector pointer of unknown type: " + type.getCanonicalName());
         }
 
-        return (FluffyVectorPointer<? extends T>) result;
+        return (FluffyVectorPointer<T>) result;
     }
 }

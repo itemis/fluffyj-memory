@@ -92,8 +92,8 @@ public final class FluffyMemoryPointerBuilder {
          * @param type - Type of scalar data to point to.
          * @return A new builder instance that helps with creating this kind of pointer.
          */
-        public <T> FluffyMemoryScalarPointerAllocator<? extends T> as(Class<? extends T> type) {
-            return new FluffyMemoryScalarPointerAllocator<T>(address, type);
+        public <T> FluffyMemoryScalarPointerAllocator<T> as(Class<? extends T> type) {
+            return new FluffyMemoryScalarPointerAllocator<>(address, type);
         }
 
         /**
@@ -129,7 +129,7 @@ public final class FluffyMemoryPointerBuilder {
          * @param type - Array type of the array to point to.
          * @return A new builder instance that helps with creating this kind of pointer.
          */
-        public <T> FluffyMemoryVectorPointerAllocator<? extends T> of(Class<? extends T[]> arrayType) {
+        public <T> FluffyMemoryVectorPointerAllocator<T> of(Class<? extends T[]> arrayType) {
             return new FluffyMemoryVectorPointerAllocator<>(address, byteSize, arrayType);
         }
     }

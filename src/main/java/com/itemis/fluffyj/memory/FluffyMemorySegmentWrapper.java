@@ -40,7 +40,7 @@ public final class FluffyMemorySegmentWrapper {
      */
     // The cast is indeed unsafe. We need to make sure with good test coverage.
     @SuppressWarnings("unchecked")
-    public <T> FluffyScalarSegment<? extends T> as(Class<? extends T> type) {
+    public <T> FluffyScalarSegment<T> as(Class<? extends T> type) {
         requireNonNull(type, "type");
 
         Object result = null;
@@ -55,7 +55,7 @@ public final class FluffyMemorySegmentWrapper {
         } else {
             throw new FluffyMemoryException("Cannot wrap scalar segment of unknown type: " + type.getCanonicalName());
         }
-        return (FluffyScalarSegment<? extends T>) result;
+        return (FluffyScalarSegment<T>) result;
     }
 
     /**
@@ -65,7 +65,7 @@ public final class FluffyMemorySegmentWrapper {
      */
     // The cast is indeed unsafe. We need to make sure with good test coverage.
     @SuppressWarnings("unchecked")
-    public <T> FluffyVectorSegment<? extends T> asArray(Class<? extends T[]> type) {
+    public <T> FluffyVectorSegment<T> asArray(Class<? extends T[]> type) {
         requireNonNull(type, "type");
 
         Object result = null;
@@ -74,6 +74,6 @@ public final class FluffyMemorySegmentWrapper {
         } else {
             throw new FluffyMemoryException("Cannot wrap vector segment of unknown type: " + type.getCanonicalName());
         }
-        return (FluffyVectorSegment<? extends T>) result;
+        return (FluffyVectorSegment<T>) result;
     }
 }

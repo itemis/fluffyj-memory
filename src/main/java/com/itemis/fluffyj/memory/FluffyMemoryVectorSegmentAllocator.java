@@ -28,7 +28,7 @@ public final class FluffyMemoryVectorSegmentAllocator<T> {
     /**
      * @return A freshly allocated segment attached to the global scope.
      */
-    public FluffyVectorSegment<? extends T> allocate() {
+    public FluffyVectorSegment<T> allocate() {
         return allocate(globalScope());
     }
 
@@ -38,7 +38,7 @@ public final class FluffyMemoryVectorSegmentAllocator<T> {
     // We cannot convince the compiler at this point anyway so we need to make sure about type
     // safety via tests
     @SuppressWarnings("unchecked")
-    public FluffyVectorSegment<? extends T> allocate(ResourceScope scope) {
+    public FluffyVectorSegment<T> allocate(ResourceScope scope) {
         requireNonNull(scope, "scope");
 
         Object result = null;
@@ -48,6 +48,6 @@ public final class FluffyMemoryVectorSegmentAllocator<T> {
             throw new FluffyMemoryException("Cannot allocate vector segment of unknown type: " + initialValue.getClass().getCanonicalName());
         }
 
-        return (FluffyVectorSegment<? extends T>) result;
+        return (FluffyVectorSegment<T>) result;
     }
 }

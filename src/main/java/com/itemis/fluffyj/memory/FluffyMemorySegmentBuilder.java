@@ -9,7 +9,7 @@ public final class FluffyMemorySegmentBuilder {
      * @return A {@link FluffyMemoryScalarSegmentAllocator} instance that is able to allocate
      *         segments that hold the provided {@code initialValue}.
      */
-    public <T> FluffyMemoryScalarSegmentAllocator<? extends T> of(T initialValue) {
+    public <T> FluffyMemoryScalarSegmentAllocator<T> of(T initialValue) {
         return new FluffyMemoryScalarSegmentAllocator<>(initialValue);
     }
 
@@ -17,7 +17,7 @@ public final class FluffyMemorySegmentBuilder {
      * @return A {@link FluffyMemoryVectorSegmentAllocator} instance that is able to allocate
      *         segments that hold the provided {@code initialValue}.
      */
-    public <T> FluffyMemoryVectorSegmentAllocator<? extends T> ofArray(T[] initialValue) {
-        return new FluffyMemoryVectorSegmentAllocator<T>(initialValue);
+    public <T> FluffyMemoryVectorSegmentAllocator<T> ofArray(T[] initialValue) {
+        return new FluffyMemoryVectorSegmentAllocator<>(initialValue);
     }
 }
