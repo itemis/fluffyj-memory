@@ -39,6 +39,6 @@ public abstract class FluffyVectorPointerImpl<T> extends FluffyPointerImpl imple
 
     @Override
     public final T[] dereference() {
-        return typedDereference(getValue().asSegment(byteSize, scope).asByteBuffer().asReadOnlyBuffer());
+        return typedDereference(getValue().asSegment(byteSize, scope).asByteBuffer().asReadOnlyBuffer().order(FLUFFY_POINTER_BYTE_ORDER));
     }
 }

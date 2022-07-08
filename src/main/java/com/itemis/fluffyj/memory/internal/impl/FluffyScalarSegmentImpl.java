@@ -31,6 +31,6 @@ public abstract class FluffyScalarSegmentImpl<T> extends FluffySegmentImpl imple
 
     @Override
     public T getValue() {
-        return getTypedValue(backingSeg.asByteBuffer().asReadOnlyBuffer());
+        return getTypedValue(backingSeg.asByteBuffer().asReadOnlyBuffer().order(FLUFFY_SEGMENT_BYTE_ORDER));
     }
 }

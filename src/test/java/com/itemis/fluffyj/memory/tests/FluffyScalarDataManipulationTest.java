@@ -3,11 +3,11 @@ package com.itemis.fluffyj.memory.tests;
 import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
+import static com.itemis.fluffyj.memory.api.FluffyPointer.FLUFFY_POINTER_BYTE_ORDER;
 import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.MemoryAddress.NULL;
 import static jdk.incubator.foreign.MemoryAddress.ofLong;
 import static jdk.incubator.foreign.MemoryLayouts.ADDRESS;
-import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 import static jdk.incubator.foreign.MemorySegment.allocateNative;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -163,7 +163,8 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
 
         var underTest = allocatePointer(expectedNativeSegAddress);
 
-        var actualNativeSegAddress = MemoryAddress.ofLong(underTest.address().asSegment(ADDRESS.byteSize(), scope).asByteBuffer().getLong());
+        var actualNativeSegAddress =
+            MemoryAddress.ofLong(underTest.address().asSegment(ADDRESS.byteSize(), scope).asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).getLong());
         assertThat(actualNativeSegAddress).isEqualTo(expectedNativeSegAddress);
     }
 
@@ -189,7 +190,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
         var underTest = allocateNullPointer();
 
         assertThat(underTest.getValue()).isEqualTo(NULL);
-        underTest.address().asSegment(JAVA_LONG.byteSize(), scope).asByteBuffer().putLong(expectedAddress);
+        underTest.address().asSegment(ADDRESS.byteSize(), scope).asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).putLong(expectedAddress);
         assertThat(underTest.getValue()).isEqualTo(ofLong(expectedAddress));
     }
 

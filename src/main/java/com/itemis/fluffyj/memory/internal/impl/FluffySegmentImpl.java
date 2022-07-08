@@ -37,7 +37,7 @@ public abstract class FluffySegmentImpl implements FluffySegment {
      */
     public FluffySegmentImpl(byte[] initialValue, MemoryLayout layout, ResourceScope scope) {
         this(allocateNative(layout, scope));
-        backingSeg.asByteBuffer().put(initialValue);
+        backingSeg.asByteBuffer().order(FLUFFY_SEGMENT_BYTE_ORDER).put(initialValue);
     }
 
     @Override

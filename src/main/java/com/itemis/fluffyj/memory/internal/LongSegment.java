@@ -1,12 +1,17 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.internal.impl.FluffyScalarSegmentImpl;
+import com.tngtech.archunit.thirdparty.com.google.common.primitives.Longs;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
@@ -32,7 +37,8 @@ public class LongSegment extends FluffyScalarSegmentImpl<Long> {
      *        the new segment will not be alive anymore.
      */
     public LongSegment(long initialValue, ResourceScope scope) {
-        super(ByteBuffer.allocate((int) MY_LAYOUT.byteSize()).putLong(initialValue).array(), MY_LAYOUT, requireNonNull(scope, "scope"));
+        super(toByteArray(initialValue, FLUFFY_SEGMENT_BYTE_ORDER), MY_LAYOUT,
+            requireNonNull(scope, "scope"));
     }
 
     /**
@@ -47,11 +53,19 @@ public class LongSegment extends FluffyScalarSegmentImpl<Long> {
 
     @Override
     protected Long getTypedValue(ByteBuffer rawValue) {
-        return rawValue.getLong();
+        return rawValue.order(FLUFFY_SEGMENT_BYTE_ORDER).getLong();
     }
 
     @Override
     public Class<Long> getContainedType() {
         return Long.class;
+    }
+
+    private static final byte[] toByteArray(long val, ByteOrder byteOrder) {
+        var result = Longs.toByteArray(val);
+        if (byteOrder.equals(LITTLE_ENDIAN)) {
+            ArrayUtils.reverse(result);
+        }
+        return result;
     }
 }

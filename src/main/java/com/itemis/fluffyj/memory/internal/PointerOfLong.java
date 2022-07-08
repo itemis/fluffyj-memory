@@ -29,6 +29,6 @@ public class PointerOfLong extends FluffyScalarPointerImpl<Long> {
     @Override
     protected Long typedDereference(ByteBuffer rawDereferencedValue) {
         requireNonNull(rawDereferencedValue, "rawDereferencedValue");
-        return rawDereferencedValue.getLong();
+        return rawDereferencedValue.order(FLUFFY_POINTER_BYTE_ORDER).getLong();
     }
 }

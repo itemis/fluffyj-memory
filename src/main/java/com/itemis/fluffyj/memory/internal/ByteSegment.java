@@ -27,7 +27,7 @@ public class ByteSegment extends FluffyScalarSegmentImpl<Byte> {
      *        the new segment will not be alive anymore.
      */
     public ByteSegment(byte initialValue, ResourceScope scope) {
-        super(ByteBuffer.allocate((int) MY_LAYOUT.byteSize()).put(initialValue).array(), MY_LAYOUT, requireNonNull(scope, "scope"));
+        super(new byte[] {initialValue}, MY_LAYOUT, requireNonNull(scope, "scope"));
     }
 
     /**

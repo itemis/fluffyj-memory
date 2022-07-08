@@ -1,12 +1,17 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.util.Objects.requireNonNull;
 import static jdk.incubator.foreign.MemoryLayouts.JAVA_INT;
 
+import com.google.common.primitives.Ints;
 import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.internal.impl.FluffyScalarSegmentImpl;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 import jdk.incubator.foreign.MemoryLayout;
 import jdk.incubator.foreign.MemorySegment;
@@ -32,7 +37,8 @@ public class IntSegment extends FluffyScalarSegmentImpl<Integer> {
      *        the new segment will not be alive anymore.
      */
     public IntSegment(int initialValue, ResourceScope scope) {
-        super(ByteBuffer.allocate((int) MY_LAYOUT.byteSize()).putInt(initialValue).array(), MY_LAYOUT, requireNonNull(scope, "scope"));
+        super(toByteArray(initialValue, FLUFFY_SEGMENT_BYTE_ORDER), MY_LAYOUT,
+            requireNonNull(scope, "scope"));
     }
 
     /**
@@ -47,11 +53,19 @@ public class IntSegment extends FluffyScalarSegmentImpl<Integer> {
 
     @Override
     protected Integer getTypedValue(ByteBuffer rawValue) {
-        return rawValue.getInt();
+        return rawValue.order(FLUFFY_SEGMENT_BYTE_ORDER).getInt();
     }
 
     @Override
     public Class<Integer> getContainedType() {
         return Integer.class;
+    }
+
+    private static final byte[] toByteArray(int val, ByteOrder byteOrder) {
+        var result = Ints.toByteArray(val);
+        if (byteOrder.equals(LITTLE_ENDIAN)) {
+            ArrayUtils.reverse(result);
+        }
+        return result;
     }
 }

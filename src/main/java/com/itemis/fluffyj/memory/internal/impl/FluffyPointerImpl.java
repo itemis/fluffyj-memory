@@ -25,7 +25,7 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
      */
     public FluffyPointerImpl(MemoryAddress addressPointedTo, ResourceScope scope) {
         this.addressSeg = allocateNative(ADDRESS, requireNonNull(scope, "scope"));
-        this.addressSeg.asByteBuffer().putLong(requireNonNull(addressPointedTo, "addressPointedTo").toRawLongValue());
+        this.addressSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).putLong(requireNonNull(addressPointedTo, "addressPointedTo").toRawLongValue());
         this.scope = scope;
     }
 
@@ -41,6 +41,6 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
 
     @Override
     public final MemoryAddress getValue() {
-        return MemoryAddress.ofLong(addressSeg.asByteBuffer().getLong());
+        return MemoryAddress.ofLong(addressSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).getLong());
     }
 }

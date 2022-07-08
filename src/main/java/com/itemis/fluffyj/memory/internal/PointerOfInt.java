@@ -29,6 +29,6 @@ public class PointerOfInt extends FluffyScalarPointerImpl<Integer> {
     @Override
     protected Integer typedDereference(ByteBuffer rawDereferencedValue) {
         requireNonNull(rawDereferencedValue, "rawDereferencedValue");
-        return rawDereferencedValue.getInt();
+        return rawDereferencedValue.order(FLUFFY_POINTER_BYTE_ORDER).getInt();
     }
 }

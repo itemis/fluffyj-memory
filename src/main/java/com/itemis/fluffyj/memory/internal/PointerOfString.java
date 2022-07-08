@@ -27,7 +27,7 @@ public class PointerOfString implements FluffyScalarPointer<String> {
         this.scope = requireNonNull(scope, "scope");
 
         backingSeg = allocateNative(ADDRESS, scope);
-        backingSeg.asByteBuffer().putLong(requireNonNull(addressPointedTo, "addressPointedTo").toRawLongValue());
+        backingSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).putLong(requireNonNull(addressPointedTo, "addressPointedTo").toRawLongValue());
     }
 
     @Override
@@ -42,7 +42,7 @@ public class PointerOfString implements FluffyScalarPointer<String> {
 
     @Override
     public MemoryAddress getValue() {
-        return ofLong(backingSeg.asByteBuffer().getLong());
+        return ofLong(backingSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).getLong());
     }
 
     @Override
