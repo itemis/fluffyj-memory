@@ -1,25 +1,23 @@
 package com.itemis.fluffyj.memory;
 
-import com.itemis.fluffyj.memory.internal.LongSegment;
-
 /**
  * Intermediate segment creation stage.
  */
 public final class FluffyMemorySegmentBuilder {
 
     /**
-     * @return A {@link FluffyMemorySegmentAllocator} instance that is able to allocate segments
-     *         that hold data of type {@link Long}.
+     * @return A {@link FluffyMemoryScalarSegmentAllocator} instance that is able to allocate
+     *         segments that hold the provided {@code initialValue}.
      */
-    public FluffyMemorySegmentAllocator<Long> ofLong() {
-        return new FluffyMemorySegmentAllocator<Long>(LongSegment.DEFAULT_VALUE);
+    public <T> FluffyMemoryScalarSegmentAllocator<T> of(T initialValue) {
+        return new FluffyMemoryScalarSegmentAllocator<>(initialValue);
     }
 
     /**
-     * @return A {@link FluffyMemorySegmentAllocator} instance that is able to allocate segments
-     *         that hold the provided {@code initialValue}.
+     * @return A {@link FluffyMemoryVectorSegmentAllocator} instance that is able to allocate
+     *         segments that hold the provided {@code initialValue}.
      */
-    public FluffyMemorySegmentAllocator<Long> of(long initialValue) {
-        return new FluffyMemorySegmentAllocator<Long>(initialValue);
+    public <T> FluffyMemoryVectorSegmentAllocator<T> ofArray(T[] initialValue) {
+        return new FluffyMemoryVectorSegmentAllocator<>(initialValue);
     }
 }

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -12,7 +10,7 @@
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -58,7 +56,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven-surefire-plugin.version>3.0.0-M6</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
@@ -73,14 +71,14 @@
             plugin processes all contents of the configured resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
         <guava.version>31.1-jre</guava.version>
-        <mockito.version>4.5.1</mockito.version>
+        <mockito.version>4.6.1</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <spotbugs.plugin.version>4.6.0.0</spotbugs.plugin.version>
-        <spotbugs.version>4.6.0</spotbugs.version>
+        <spotbugs.plugin.version>4.7.1.0</spotbugs.plugin.version>
+        <spotbugs.version>4.7.1</spotbugs.version>
         <junit.version>5.8.2</junit.version>
         <jacoco.plugin.version>0.8.8</jacoco.plugin.version>
         <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
-        <assertj.version>3.22.0</assertj.version>
+        <assertj.version>3.23.1</assertj.version>
         <logback.version>1.2.11</logback.version>
         <equalsverifier.version>3.10</equalsverifier.version>
         <arch.unit.version>0.23.1</arch.unit.version>
@@ -135,6 +133,11 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
                 <version>${junit.version}</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5 -->
@@ -213,6 +216,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5</artifactId>
         </dependency>
@@ -279,7 +287,9 @@
                                             <limit>
                                                 <counter>LINE</counter>
                                                 <value>COVEREDRATIO</value>
-                                                <minimum>100%</minimum>
+                                                <!-- Cannot reach 100%, bc JaCoCo does not calculate coverage correct on code paths that throw an 
+                                                exception without declaring it. -->
+                                                <minimum>98%</minimum>
                                             </limit>
                                         </limits>
                                     </rule>
@@ -398,6 +408,9 @@
                     <!-- $argLine is 'injected' by JaCoCo and contains instructions 
                         to setup its agent -->
                     <argLine>@{argLine} @{custom.jvm.options}</argLine>
+                    <parallel>all</parallel>
+                    <threadCount>1</threadCount>
+                    <perCoreThreadCount>true</perCoreThreadCount>
                 </configuration>
             </plugin>
             <plugin>

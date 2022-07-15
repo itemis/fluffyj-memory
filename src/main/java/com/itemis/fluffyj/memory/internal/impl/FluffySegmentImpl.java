@@ -1,10 +1,8 @@
-package com.itemis.fluffyj.memory.internal;
+package com.itemis.fluffyj.memory.internal.impl;
 
 import static jdk.incubator.foreign.MemorySegment.allocateNative;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
-
-import java.nio.ByteBuffer;
 
 import jdk.incubator.foreign.MemoryAddress;
 import jdk.incubator.foreign.MemoryLayout;
@@ -12,11 +10,9 @@ import jdk.incubator.foreign.MemorySegment;
 import jdk.incubator.foreign.ResourceScope;
 
 /**
- * Default implementation of a generic segment.
- *
- * @param <T> - Type of data this segment holds.
+ * Default implementation of a segment.
  */
-abstract class FluffySegmentImpl<T> implements FluffySegment<T> {
+public abstract class FluffySegmentImpl implements FluffySegment {
 
     protected final MemorySegment backingSeg;
     protected final ResourceScope scope;
@@ -41,18 +37,7 @@ abstract class FluffySegmentImpl<T> implements FluffySegment<T> {
      */
     public FluffySegmentImpl(byte[] initialValue, MemoryLayout layout, ResourceScope scope) {
         this(allocateNative(layout, scope));
-        backingSeg.asByteBuffer().put(initialValue);
-    }
-
-    /**
-     * @param rawValue - A read only {@link ByteBuffer} that contains the bytes this segment holds.
-     * @return The typed interpretation if this segment's bytes.
-     */
-    protected abstract T getTypedValue(ByteBuffer rawValue);
-
-    @Override
-    public T getValue() {
-        return getTypedValue(backingSeg.asByteBuffer().asReadOnlyBuffer());
+        backingSeg.asByteBuffer().order(FLUFFY_SEGMENT_BYTE_ORDER).put(initialValue);
     }
 
     @Override
