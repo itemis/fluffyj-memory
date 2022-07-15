@@ -1,5 +1,5 @@
 # Fluffy J Memory
-Adding some fluff to Java's foreign memory abstraction ❤
+Adding some fluff to [Java's foreign memory abstraction](https://openjdk.org/jeps/412) ❤
 
 ## Prerequisites
 This software requires Java 17 and Maven >= 3.3.x. However, it is best to use a current Maven version, i. e. >= 3.8.x.
@@ -7,13 +7,28 @@ This software requires Java 17 and Maven >= 3.3.x. However, it is best to use a 
 ## Build
 Usually a `mvn clean install` should be enough.
 
+## IDE Setup
+Due to the usage of Java 17 incubator code, the following special setup is required:  
+* Add the following to the startup JVM options of your IDE (e. g. eclipse.ini):
+
+```
+--add-modules=ALL-SYSTEM,jdk.incubator.foreign
+--enable-native-access=ALL-UNNAMED
+--add-opens=java.base/java.util=ALL-UNNAMED
+--add-opens java.base/java.lang=ALL-UNNAMED
+```
+* Add the following JVM options to launch configurations in order to be able to run (tests) from within the IDE:
+```--add-modules=ALL-SYSTEM,jdk.incubator.foreign --enable-native-access=ALL-UNNAMED```
+
 ## CAUTION
 Due to the nature of unchecked memory access, it is possible to program all sort of weird things like "pointer magic", "ill-casting" data, address / read / write dangerous memory areas, etc. In most of these cases, the JVM will crash and / or the OS will prevent anything bad from happening **but this is not guaranteed**.  
   
 So **please, please please** be careful and know that according to the license, there is no warranty provided with respect to any kind of damage or data loss.
 
 ## How to use
-Check out the examples from down below. Also Javadoc is available with the source code.
+Check out the examples from down below. Also Javadoc is available with the source code.  
+  
+A real world example can be seen at [jSCDLib](https://github.com/itemis/jscdlib).
 
 ### Allocating an off heap Long
 
