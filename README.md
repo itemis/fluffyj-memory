@@ -33,29 +33,55 @@ A real world example can be seen at [jSCDLib](https://github.com/itemis/jscdlib)
 ### Allocating an off heap Long
 
 ```
-var seg = FluffyMemory.segment().of(123).allocate();
-var nativeSeg = someNativeCode.getNumber();
-var nativeSegValue = FluffyMemory.wrap(nativeSeg).asLong().getValue();
+FluffyScalarSegment<Long> seg = FluffyMemory.segment().of(123L).allocate();
+System.out.println(seg.getValue());  // Prints 123
+  
+MemorySegment nativeSeg = someNativeCode.getNumber();
+seg = FluffyMemory.wrap(nativeSeg).as(long.class);
+System.out.println(seg.getValue());  // Prints contents of nativeSeg interpreted as Long
 ```
 
 ### Pointing to an off heap Long
 
 ```
-var nativeAddress = someNativeCode.getPtr();
-var value = FluffyMemory.pointer().to(nativeAddress).asLong().allocate().dereference();
+MemoryAddress nativeAddress = someNativeCode.getPtr();
+FluffyScalarPointer<Long> valuePtr = FluffyMemory.pointer().to(nativeAddress).as(long.class).allocate();
+System.out.println(valuePtr.dereference()); // prints contents of segment valuePtr points to, interpreted as Long
+```
+  
+Please note that due to reasons, primitive array types (i. e. byte[]) are not supported at the moment. Please consider using their object-counterparts instead (i. e. Byte[]).
+  
+### Allocating an off heap Array
+
+```
+Byte[] bytes = new Byte[] {1, 2, 3};
+FluffyVectorSegment<Byte> seg = FluffyMemory.segment().ofArray(bytes).allocate();
+System.out.println(Arrays.toString(seg.getValue())); // Prints [1, 2, 3]
+  
+MemorySegment nativeSeg = someNativeCode.getNumbers();
+FluffyVectorSegment<Byte> seg = FluffyMemory.wrap(nativeSeg).asArray(Byte[].class);
+System.out.println(seg.getValue());  // Prints contents of nativeSeg interpreted as array of byte
+```
+
+### Pointing to an off heap Array
+
+```
+MemoryAddress nativeAddress = someNativeCode.getPtr();
+FluffyVectorPointer<Byte> valuePtr = FluffyMemory.pointer().to(nativeAddress).asArray(arraySizeInBytes).of(Byte[].class).allocate();
+System.out.println(valuePtr.dereference()); // prints contents of segment valuePtr points to, interpreted as Long
 ```
 
 ### Call a function from stdlib  
   
 ```
-var testStr = "testStr";
-var ptr = FluffyMemory.segment().of(testStr).allocate().address();
-var strlen = NativeMethodHandle
-                .fromCStdLib()
-                .returnType(long.class)
-                .func("strlen")
-                .args(CLinker.C_POINTER);
-
+String testStr = "testStr";
+MemoryAddress ptr = FluffyMemory.segment().of(testStr).allocate().address();
+NativeMethodHandle<Long> strlen = NativeMethodHandle
+    .fromCStdLib()
+    .returnType(long.class)
+    .func("strlen")
+    .args(CLinker.C_POINTER);
+  
 System.out.println(strlen.call(ptr)); // prints 7
 ```
   
@@ -63,44 +89,44 @@ System.out.println(strlen.call(ptr)); // prints 7
   
 ```
 // Use C stdlib's quick sort on an array of 1024 bytes.
-
-var primitiveBuf = new byte[1024];
+  
+byte[] primitiveBuf = new byte[1024];
 // Fill array with random bytes.
 new Random().nextBytes(primitiveBuf);
 // Convert from byte[] to Byte[] with Apache Commons
-var buf = ArrayUtils.toObject(primitiveBuf);
-var bufSeg = FluffyMemory.segment().ofArray(buf).allocate();
-
-var qsort = NativeMethodHandle.fromCStdLib()
-            .noReturnType()
-            .func("qsort")
-            .args(CLinker.C_POINTER, CLinker.C_INT, CLinker.C_INT, CLinker.C_POINTER);
-
-var comparator = FluffyMemory.pointer()
-            .toCFunc("qsort_comparator")
-            .of(this)
-            .autoBind();
-            
-// base, length of array in bytes, length of one element in bytes, pointer to comparator function
+Byte[] buf = ArrayUtils.toObject(primitiveBuf);
+FluffyVectorSegment<Byte> bufSeg = FluffyMemory.segment().ofArray(buf).allocate();
+  
+NativeMethodHandle<Void> qsort = NativeMethodHandle.fromCStdLib()
+    .noReturnType()
+    .func("qsort")
+    .args(CLinker.C_POINTER, CLinker.C_INT, CLinker.C_INT, CLinker.C_POINTER);
+  
+MemoryAddress comparator = FluffyMemory.pointer()
+    .toCFunc("qsort_comparator")
+    .of(new QSortComparator())
+    .autoBind();
+  
+// array base addr, length of array in bytes, length of one element in bytes, pointer to comparator func
 qsort.call(bufSeg.address(), buf.length, 1, comparator);
-Byte[] result = bufSeg.getValue(); // sorted buf
-
+System.out.println(Arrays.toString(bufSeg.getValue())); // Prints sorted buf
+  
 ...
-
+  
 // 0.. equal, -1.. left larger, 1.. right larger
-int qsort_comparator(MemoryAddress left, MemoryAddress right) {
-    var scope = ResourceScope.globalScope();
-    var sizeOfOneElmInByte = 1L;
-    var leftByte = FluffyMemory.wrap(left.asSegment(sizeOfOneElmInByte, scope)).as(Byte.class).getValue();
-    var rightByte = FluffyMemory.wrap(right.asSegment(sizeOfOneElmInByte, scope)).as(Byte.class).getValue();
-        
+public int qsort_comparator(MemoryAddress left, MemoryAddress right) {
+    ResourceScope scope = ResourceScope.globalScope();
+    long sizeOfOneElmInByte = 1L;
+    Byte leftByte = FluffyMemory.wrap(left.asSegment(sizeOfOneElmInByte, scope)).as(Byte.class).getValue();
+    Byte rightByte = FluffyMemory.wrap(right.asSegment(sizeOfOneElmInByte, scope)).as(Byte.class).getValue();
+  
     var result = 0;
     if (leftByte < rightByte) {
         result = -1;
     } else if (leftByte > rightByte) {
         result = 1;
     }
-    
+  
     return result;
 }
 ```
@@ -110,14 +136,14 @@ int qsort_comparator(MemoryAddress left, MemoryAddress right) {
 ```
 System.loadLibrary("lib_name_known_to_system_linker");
 var lib = SymbolLookup.loaderLookup();
-        
-var func = NativeMethodHandle
-                .fromLib(lib)
-                .withLinker((symbol, srcFuncType, targetMethodType) -> myLinker.link(symbol, targetMethodType, srcFuncType))
-                .withTypeConverter(new MyCustomTypeConverter())
-                .returnType(long.class)
-                .func("myFunc")
-                .args(NATIVE_DATA_TYPE);
-
-var resultValue = func.call(someData);
+  
+NativeMethodHandle<Long> func = NativeMethodHandle
+    .fromLib(lib)
+    .withLinker((symbol, srcFuncType, targetMethodType) -> myLinker.link(symbol, targetMethodType, srcFuncType))
+    .withTypeConverter(new MyCustomTypeConverter())
+    .returnType(long.class)
+    .func("myFunc")
+    .args(NATIVE_DATA_TYPE);
+  
+Long resultValue = func.call((MyDataType)someData);
 ```
