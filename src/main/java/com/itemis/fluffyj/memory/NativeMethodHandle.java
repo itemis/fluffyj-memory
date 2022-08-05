@@ -175,7 +175,7 @@ public final class NativeMethodHandle<T> {
          * Convenience method. Like {@link #args(MemoryLayout...)} but emphasizes the fact that the
          * native method does not take any arguments.
          *
-         * @return {@link CreateStage} instance.
+         * @return {@link NativeMethodHandle} instance.
          */
         NativeMethodHandle<T> noArgs();
     }

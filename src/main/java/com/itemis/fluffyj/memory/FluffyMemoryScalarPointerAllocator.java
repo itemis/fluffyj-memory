@@ -38,7 +38,7 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
     /**
      * Prepare to allocate a pointer to the provided {@code address}.
      *
-     * @param toHere - The constructed pointer will point to this address.
+     * @param address - The constructed pointer will point to this address.
      * @param typeOfData - Type of data the segment the provided address points to.
      */
     public FluffyMemoryScalarPointerAllocator(MemoryAddress address, Class<? extends T> typeOfData) {

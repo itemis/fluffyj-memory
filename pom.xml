@@ -6,11 +6,11 @@
     <parent>
         <groupId>com.itemis</groupId>
         <artifactId>org-parent</artifactId>
-        <version>5.5.0</version>
+        <version>5.5.3</version>
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -443,6 +443,8 @@
                         <option>--add-modules</option>
                         <option>jdk.incubator.foreign</option>
                     </additionalOptions>
+                    <doclint>-missing</doclint>
+                    <quiet>true</quiet>
                 </configuration>
             </plugin>
         </plugins>
