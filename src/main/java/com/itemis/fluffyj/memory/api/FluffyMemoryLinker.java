@@ -24,9 +24,8 @@ public interface FluffyMemoryLinker {
      * Link a native function (symbol) to a Java {@link MethodHandle}.
      *
      * @param symbol - Symbol to link to. Use a {@link SymbolLookup} to acquire one of these.
-     * @param srcFuncDescr - Describes the native function in a way that Java understands. Use
-     *        {@link FunctionDescriptor#of(jdk.incubator.foreign.MemoryLayout, jdk.incubator.foreign.MemoryLayout...)
-     * to acquire one of these.
+     * @param srcFuncDescr - Native function description understandable by Java. To acquire, use
+     *        {@link FunctionDescriptor}.
      * @param targetMethodType - Describes the resulting Java method in a way that the native
      *        function understands. Use {@link MethodType#methodType(Class, Class, Class...)} to
      *        acquire one of these.

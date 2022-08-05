@@ -443,6 +443,8 @@
                         <option>--add-modules</option>
                         <option>jdk.incubator.foreign</option>
                     </additionalOptions>
+                    <doclint>-missing</doclint>
+                    <quiet>true</quiet>
                 </configuration>
             </plugin>
         </plugins>

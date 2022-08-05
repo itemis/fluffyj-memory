@@ -101,7 +101,7 @@ public class RealWorldScenariosTest extends MemoryScopedTest {
         var manualCompar = createComparPointerManual();
 
         qsort.call(bufSeg.address(), buf.length, 1, autoCompar);
-        Byte[] actualResult = bufSeg.getValue();
+        var actualResult = bufSeg.getValue();
         assertThat(actualResult).isEqualTo(expectedResult);
 
         qsort.call(bufSeg.address(), buf.length, 1, manualCompar);

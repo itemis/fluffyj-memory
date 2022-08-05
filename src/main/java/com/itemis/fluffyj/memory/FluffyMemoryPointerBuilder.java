@@ -43,7 +43,6 @@ public final class FluffyMemoryPointerBuilder {
     }
 
     /**
-     * @param <T> - Type of data the pointer should point to.
      * @param address - The resulting pointer will point to this address.
      * @return A {@link FluffyMemoryScalarPointerAllocator} instance that is able to allocate
      *         pointers to data of type {@code T}.
@@ -157,7 +156,6 @@ public final class FluffyMemoryPointerBuilder {
          * Create a native pointer to an array value.
          *
          * @param <T> - Component type of the array to point to.
-         * @param type - Array type of the array to point to.
          * @return A new builder instance that helps with creating this kind of pointer.
          */
         public <T> FluffyMemoryVectorPointerAllocator<T> of(Class<? extends T[]> arrayType) {
