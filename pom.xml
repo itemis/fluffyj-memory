@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.1.4</version>
+    <version>1.2.0-SNAPSHOT</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
