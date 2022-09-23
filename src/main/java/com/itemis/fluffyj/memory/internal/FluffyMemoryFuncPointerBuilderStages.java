@@ -3,9 +3,9 @@ package com.itemis.fluffyj.memory.internal;
 import com.itemis.fluffyj.exceptions.InstantiationNotPermittedException;
 import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 
 public final class FluffyMemoryFuncPointerBuilderStages {
 
@@ -13,37 +13,37 @@ public final class FluffyMemoryFuncPointerBuilderStages {
         throw new InstantiationNotPermittedException();
     }
 
-    public static interface FuncStage {
-        public TypeConverterStage ofType(Object receiver);
+    public interface FuncStage {
+        TypeConverterStage ofType(Object receiver);
     }
 
-    public static interface CFuncStage {
-        public ArgsStage of(Object receiver);
+    public interface CFuncStage {
+        ArgsStage of(Object receiver);
     }
 
-    public static interface TypeConverterStage {
-        public ArgsStage withTypeConverter(FluffyMemoryTypeConverter conv);
+    public interface TypeConverterStage {
+        ArgsStage withTypeConverter(FluffyMemoryTypeConverter conv);
     }
 
-    public static interface ArgsStage {
+    public interface ArgsStage {
         ReturnTypeStage withArgs(MemoryLayout... args);
 
         ReturnTypeStage withoutArgs();
 
-        MemoryAddress autoBind();
+        MemorySegment autoBind();
 
-        MemoryAddress autoBindTo(ResourceScope scope);
+        MemorySegment autoBindTo(MemorySession session);
     }
 
-    public static interface ReturnTypeStage {
+    public interface ReturnTypeStage {
         BinderStage andReturnType(MemoryLayout returnType);
 
         BinderStage andNoReturnType();
     }
 
-    public static interface BinderStage {
-        MemoryAddress bindTo(ResourceScope scope);
+    public interface BinderStage {
+        MemorySegment bindToGlobalSession();
 
-        MemoryAddress bindToGlobalScope();
+        MemorySegment bindTo(MemorySession session);
     }
 }

@@ -1,11 +1,10 @@
 package com.itemis.fluffyj.memory;
 
-import static jdk.incubator.foreign.MemoryLayout.sequenceLayout;
-import static jdk.incubator.foreign.MemoryLayouts.JAVA_BYTE;
-
 import com.itemis.fluffyj.memory.tests.FluffyMemoryVectorTestValue;
 import com.itemis.fluffyj.memory.tests.FluffyVectorDataManipulationTest;
 
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.ValueLayout;
 import java.util.Random;
 
 class BlobManipulationTest extends FluffyVectorDataManipulationTest<Byte> {
@@ -21,11 +20,11 @@ class BlobManipulationTest extends FluffyVectorDataManipulationTest<Byte> {
                 var rawValue = new byte[TEST_ARRAY_LENGTH];
                 rnd.nextBytes(rawValue);
                 var typedValue = new Byte[TEST_ARRAY_LENGTH];
-                for (int i = 0; i < rawValue.length; i++) {
+                for (var i = 0; i < rawValue.length; i++) {
                     typedValue[i] = rawValue[i];
                 }
-                return new FluffyMemoryVectorTestValue<Byte>(typedValue, rawValue);
+                return new FluffyMemoryVectorTestValue<>(typedValue, rawValue);
             }
-        }, sequenceLayout(3, JAVA_BYTE));
+        }, MemoryLayout.sequenceLayout(3, ValueLayout.JAVA_BYTE));
     }
 }

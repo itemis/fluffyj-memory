@@ -4,10 +4,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.internal.impl.FluffyVectorPointerImpl;
 
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySession;
 import java.nio.ByteBuffer;
-
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ResourceScope;
 
 public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
 
@@ -16,10 +15,10 @@ public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
      *
      * @param addressPointedTo - The {@link MemoryAddress} the new pointer will point to.
      * @param byteSize - Size of the vector this pointer points to in bytes.
-     * @param scope - Attach the new pointer to this scope.
+     * @param session - Attach the new pointer to this session.
      */
-    public PointerOfBlob(MemoryAddress addressPointedTo, long byteSize, ResourceScope scope) {
-        super(requireNonNull(addressPointedTo, "addressPointedTo"), byteSize, requireNonNull(scope, "scope"));
+    public PointerOfBlob(MemoryAddress addressPointedTo, long byteSize, MemorySession session) {
+        super(requireNonNull(addressPointedTo, "addressPointedTo"), byteSize, requireNonNull(session, "session"));
     }
 
     @Override
@@ -27,7 +26,7 @@ public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
         requireNonNull(rawDereferencedValue, "rawDereferencedValue");
         var length = rawDereferencedValue.capacity();
         var result = new Byte[length];
-        for (int i = 0; i < length; i++) {
+        for (var i = 0; i < length; i++) {
             result[i] = rawDereferencedValue.asReadOnlyBuffer().get(i);
         }
 

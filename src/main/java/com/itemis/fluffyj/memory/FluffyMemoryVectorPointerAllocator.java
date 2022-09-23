@@ -1,7 +1,6 @@
 package com.itemis.fluffyj.memory;
 
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffyVectorPointer;
@@ -9,8 +8,8 @@ import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.PointerOfBlob;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySession;
 
 /**
  * Helps with allocating pointers to off heap memory areas that hold arrays.
@@ -31,7 +30,7 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
         requireNonNull(toHere, "toHere");
         initialValue = toHere.address();
         byteSize = toHere.byteSize();
-        type = (Class<? extends T[]>) toHere.getContainedType();
+        type = toHere.getContainedType();
     }
 
     /**
@@ -47,32 +46,33 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
     }
 
     /**
-     * Allocate the pointer. Its scope will be the global scope.
+     * Allocate the pointer. Its session will be the global session.
      *
      * @return A new {@link FluffyPointer} instance.
      */
     public FluffyVectorPointer<T> allocate() {
-        return allocate(globalScope());
+        return allocate(MemorySession.global());
     }
 
     /**
-     * Allocate the pointer and attach it to the provided {@code scope}.
+     * Allocate the pointer and attach it to the provided {@code session}.
      *
-     * @param scope - {@link ResourceScope} of the pointer.
+     * @param session - {@link MemorySession} of the pointer.
      * @return A new {@link FluffyPointer} instance.
      */
     // The cast is indeed unsafe but it won't produce any ClassCastExceptions since the value the
     // pointer points to will be interpreted as T anyway which may be false but does not cause any
     // error at the time the cast is done.
     @SuppressWarnings({"unchecked"})
-    public FluffyVectorPointer<T> allocate(ResourceScope scope) {
-        requireNonNull(scope, "scope");
+    public FluffyVectorPointer<T> allocate(MemorySession session) {
+        requireNonNull(session, "session");
 
         Object result = null;
         if (type.isAssignableFrom(Byte[].class)) {
-            result = new PointerOfBlob(initialValue, byteSize, scope);
+            result = new PointerOfBlob(initialValue, byteSize, session);
         } else {
-            throw new FluffyMemoryException("Cannot allocate vector pointer of unknown type: " + type.getCanonicalName());
+            throw new FluffyMemoryException(
+                "Cannot allocate vector pointer of unknown type: " + type.getCanonicalName());
         }
 
         return (FluffyVectorPointer<T>) result;

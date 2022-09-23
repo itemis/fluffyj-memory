@@ -1,8 +1,6 @@
 package com.itemis.fluffyj.memory;
 
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.MemoryAddress.NULL;
-import static jdk.incubator.foreign.ResourceScope.globalScope;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
@@ -12,8 +10,8 @@ import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.F
 import com.itemis.fluffyj.memory.internal.PointerOfThing;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySession;
 
 /**
  * Intermediate pointer creation helper.
@@ -57,31 +55,31 @@ public final class FluffyMemoryPointerBuilder {
      * API and is thought to be used in cases where an API writes an address into an "empty"
      * pointer.
      *
-     * @return A new instance of {@link FluffyPointer} tied to the global scope.
+     * @return A new instance of {@link FluffyPointer} tied to the global session.
      */
     public FluffyPointer allocate() {
-        return allocate(globalScope());
+        return allocate(MemorySession.global());
     }
 
     /**
      * Like {@link #allocate()} but ties the newly created pointer's lifecycle to the provided
-     * {@code scope}.
+     * {@code session}.
      *
-     * @param scope - The scope to tie the pointer to.
+     * @param session - The session to tie the pointer to.
      * @return A new instance of {@link FluffyPointer}.
      */
-    public FluffyPointer allocate(ResourceScope scope) {
-        return new PointerOfThing(requireNonNull(scope, "scope"));
+    public FluffyPointer allocate(MemorySession session) {
+        return new PointerOfThing(requireNonNull(session, "session"));
     }
 
     public <T> FluffyMemoryScalarPointerAllocator<T> of(Class<? extends T> type) {
-        return new FluffyMemoryTypedPointerBuilder(NULL).as(type);
+        return new FluffyMemoryTypedPointerBuilder(MemoryAddress.NULL).as(type);
     }
 
     /**
-     * Construct a C style pointer to a Java method. Will use Java to/from C type conversion rules.
+     * Construct a C style pointer to a JVM method. Will use JVM to/from C type conversion rules.
      *
-     * @param funcName - Name of the Java method to point to.
+     * @param funcName - Name of the JVM method to point to.
      * @return A builder that helps with creating the function pointer.
      */
     public CFuncStage toCFunc(String funcName) {
@@ -89,10 +87,10 @@ public final class FluffyMemoryPointerBuilder {
     }
 
     /**
-     * Construct a native pointer to a Java method. Argument and return type conversion rules must
-     * be set manually.
+     * Construct a native pointer to a JVM method. Argument and return type conversion rules must be
+     * set manually.
      *
-     * @param funcName - Name of the Java method to point to.
+     * @param funcName - Name of the JVM method to point to.
      * @return A builder that helps with creating the function pointer.
      */
     public FuncStage toFunc(String funcName) {

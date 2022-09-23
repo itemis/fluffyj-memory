@@ -1,10 +1,9 @@
 package com.itemis.fluffyj.memory.api;
 
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.nio.ByteOrder;
-
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
 
 /**
  * Provides convenience methods that help with working with {@link MemorySegment}s that hold
@@ -16,10 +15,10 @@ public interface FluffyPointer {
      * The byte order used within a pointer segment, i. e. in which direction to read an address's
      * bytes.
      */
-    public static final ByteOrder FLUFFY_POINTER_BYTE_ORDER = ByteOrder.nativeOrder();
+    ByteOrder FLUFFY_POINTER_BYTE_ORDER = ByteOrder.nativeOrder();
 
     /**
-     * @see ResourceScope#isAlive()
+     * @see MemorySession#isAlive()
      */
     boolean isAlive();
 

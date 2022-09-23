@@ -1,12 +1,15 @@
 package com.itemis.fluffyj.memory.internal.impl;
 
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
-import static jdk.incubator.foreign.CLinker.C_CHAR;
-import static jdk.incubator.foreign.CLinker.C_DOUBLE;
-import static jdk.incubator.foreign.CLinker.C_FLOAT;
-import static jdk.incubator.foreign.CLinker.C_INT;
-import static jdk.incubator.foreign.CLinker.C_POINTER;
-import static jdk.incubator.foreign.CLinker.C_SHORT;
+import static java.lang.foreign.MemoryLayout.sequenceLayout;
+import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
+import static java.lang.foreign.ValueLayout.JAVA_CHAR;
+import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
+import static java.lang.foreign.ValueLayout.JAVA_FLOAT;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -18,13 +21,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemoryLayout;
 import java.util.stream.Stream;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemoryLayouts;
-
 public class CDataTypeConverterTest {
+
+    private static MemoryLayout UNKNOWN_MEMORY_LAYOUT = sequenceLayout(3, JAVA_INT);
 
     private CDataTypeConverter underTest;
 
@@ -35,15 +38,16 @@ public class CDataTypeConverterTest {
 
     @ParameterizedTest
     @MethodSource("expectedTypeMappings")
-    void native_type_to_java_type_and_back(Class<?> javaInputType, MemoryLayout expectedCType, Class<?> expectedJavaType) {
-        var actualCType = underTest.getNativeType(javaInputType);
-        assertThat(actualCType).isEqualTo(expectedCType);
-        assertThat(underTest.getJavaType(actualCType)).isEqualTo(expectedJavaType);
+    void native_type_to_jvm_type_and_back(Class<?> jvmInputType, MemoryLayout expectedNativeType,
+            Class<?> expectedJvmType) {
+        var actualNativeType = underTest.getNativeType(jvmInputType);
+        assertThat(actualNativeType).isEqualTo(expectedNativeType);
+        assertThat(underTest.getJvmType(actualNativeType)).isEqualTo(expectedJvmType);
     }
 
     @Test
-    void java_type_of_pointer_is_memory_address() {
-        assertThat(underTest.getJavaType(C_POINTER)).isEqualTo(MemoryAddress.class);
+    void JVM_type_of_pointer_is_memory_address() {
+        assertThat(underTest.getJvmType(ADDRESS)).isEqualTo(MemoryAddress.class);
     }
 
     @Test
@@ -51,59 +55,59 @@ public class CDataTypeConverterTest {
         var unknownType = Object.class;
         assertThatThrownBy(() -> underTest.getNativeType(unknownType))
             .isInstanceOf(FluffyMemoryException.class)
-            .hasMessage("Cannot provide C memory layout for type " + unknownType.getCanonicalName());
+            .hasMessage("Cannot provide native memory layout for JVM type " + unknownType.getCanonicalName());
     }
 
     @Test
-    void java_type_of_unknown_memory_layout_yields_exception() {
-        var unknownMemoryLayout = MemoryLayouts.PAD_16;
-        assertThatThrownBy(() -> underTest.getJavaType(unknownMemoryLayout))
+    void JVM_type_of_unknown_memory_layout_yields_exception() {
+        var unknownMemoryLayout = sequenceLayout(3, JAVA_INT);
+
+        assertThatThrownBy(() -> underTest.getJvmType(unknownMemoryLayout))
             .isInstanceOf(FluffyMemoryException.class)
-            .hasMessage("Cannot provide Java type for C memory layout " + unknownMemoryLayout.name());
+            .hasMessage("Cannot provide JVM type for native memory layout " + unknownMemoryLayout.name());
     }
 
     @ParameterizedTest
     @MethodSource("expectedTypeMappings")
-    void javaTypes_returns_correct_types(Class<?> unused, MemoryLayout input, Class<?> expectedOutput) {
-        assertThat(underTest.getJavaTypes(input)).isEqualTo(new Class<?>[] {expectedOutput});
+    void jvmTypes_returns_correct_types(Class<?> unused, MemoryLayout input, Class<?> expectedOutput) {
+        assertThat(underTest.getJvmTypes(input)).isEqualTo(new Class<?>[] {expectedOutput});
     }
 
     @Test
-    void javaTypes_does_not_accept_null_input() {
-        assertNullArgNotAccepted(() -> underTest.getJavaTypes((MemoryLayout[]) null), "cTypes");
+    void jvmTypes_does_not_accept_null_input() {
+        assertNullArgNotAccepted(() -> underTest.getJvmTypes((MemoryLayout[]) null), "nativeTypes");
     }
 
     @Test
-    void javaTypes_returns_empty_array_on_empty_input() {
-        assertThat(underTest.getJavaTypes()).isEmpty();
+    void jvmTypes_returns_empty_array_on_empty_input() {
+        assertThat(underTest.getJvmTypes()).isEmpty();
     }
 
     @Test
-    void javaTypes_throws_exception_on_unknown_memory_layout() {
-        var unknownMemoryLayout = MemoryLayouts.PAD_16;
-        assertThatThrownBy(() -> underTest.getJavaTypes(unknownMemoryLayout))
+    void jvmTypes_throws_exception_on_unknown_memory_layout() {
+        assertThatThrownBy(() -> underTest.getJvmTypes(UNKNOWN_MEMORY_LAYOUT))
             .isInstanceOf(FluffyMemoryException.class)
-            .hasMessage("Cannot provide Java type for C memory layout " + unknownMemoryLayout.name());
+            .hasMessage("Cannot provide JVM type for native memory layout " + UNKNOWN_MEMORY_LAYOUT.name());
     }
 
     @Test
-    void javaTypes_returns_types_in_expected_order() {
-        assertThat(underTest.getJavaTypes(C_INT, C_CHAR, C_DOUBLE)).containsExactly(int.class, byte.class, double.class);
+    void jvmTypes_returns_types_in_expected_order() {
+        assertThat(underTest.getJvmTypes(JAVA_INT, JAVA_CHAR, JAVA_BYTE, JAVA_DOUBLE)).containsExactly(
+            int.class,
+            char.class,
+            byte.class, double.class);
     }
 
     @Test
-    void javaTypes_throws_exception_on_unknown_memory_layout_multiple_inputs_case() {
-        var unknownMemoryLayout = MemoryLayouts.PAD_16;
-        assertThatThrownBy(() -> underTest.getJavaTypes(C_INT, unknownMemoryLayout))
+    void jvmTypes_throws_exception_on_unknown_memory_layout_multiple_inputs_case() {
+        assertThatThrownBy(() -> underTest.getJvmTypes(JAVA_INT, UNKNOWN_MEMORY_LAYOUT))
             .isInstanceOf(FluffyMemoryException.class)
-            .hasMessage("Cannot provide Java type for C memory layout " + unknownMemoryLayout.name());
+            .hasMessage("Cannot provide JVM type for native memory layout " + UNKNOWN_MEMORY_LAYOUT.name());
     }
 
-    // C's char is usually 1 byte in size. Java's char/Character is 2 bytes which usually is a
-    // C_SHORT
     @Test
-    void javaType_of_c_char_is_byte() {
-        assertThat(underTest.getJavaType(C_CHAR)).isEqualTo(byte.class);
+    void jvmType_of_native_char_is_char() {
+        assertThat(underTest.getJvmType(JAVA_CHAR)).isEqualTo(char.class);
     }
 
     @Test
@@ -113,7 +117,7 @@ public class CDataTypeConverterTest {
 
     @Test
     void nativeTypes_with_null_yields_npe() {
-        assertNullArgNotAccepted(() -> underTest.getNativeTypes((Class<?>[]) null), "javaTypes");
+        assertNullArgNotAccepted(() -> underTest.getNativeTypes((Class<?>[]) null), "jvmTypes");
     }
 
     @ParameterizedTest
@@ -124,33 +128,34 @@ public class CDataTypeConverterTest {
 
     @Test
     void nativeTypes_returns_converted_types_in_correct_order() {
-        assertThat(underTest.getNativeTypes(long.class, int.class, double.class)).containsExactly(OsDependentLong.memoryLayout(), C_INT, C_DOUBLE);
+        assertThat(underTest.getNativeTypes(long.class, int.class, double.class))
+            .containsExactly(JAVA_LONG, JAVA_INT, JAVA_DOUBLE);
     }
 
     @Test
     void nativeTypes_throws_exception_on_unknown_type() {
-        var unknownJavaType = String.class;
-        assertThatThrownBy(() -> underTest.getNativeTypes(long.class, unknownJavaType, double.class))
+        var unknownJvmType = String.class;
+        assertThatThrownBy(() -> underTest.getNativeTypes(long.class, unknownJvmType, double.class))
             .isInstanceOf(FluffyMemoryException.class)
-            .hasMessage("Cannot provide C memory layout for type " + unknownJavaType.getCanonicalName());
+            .hasMessage("Cannot provide native memory layout for JVM type " + unknownJvmType.getCanonicalName());
     }
 
     private static Stream<Arguments> expectedTypeMappings() {
         return Stream.of(
-            Arguments.of(long.class, OsDependentLong.memoryLayout(), long.class),
-            Arguments.of(Long.class, OsDependentLong.memoryLayout(), long.class),
-            Arguments.of(int.class, C_INT, int.class),
-            Arguments.of(Integer.class, C_INT, int.class),
-            Arguments.of(char.class, C_SHORT, short.class),
-            Arguments.of(Character.class, C_SHORT, short.class),
-            Arguments.of(double.class, C_DOUBLE, double.class),
-            Arguments.of(Double.class, C_DOUBLE, double.class),
-            Arguments.of(float.class, C_FLOAT, float.class),
-            Arguments.of(Float.class, C_FLOAT, float.class),
-            Arguments.of(short.class, C_SHORT, short.class),
-            Arguments.of(Short.class, C_SHORT, short.class),
-            Arguments.of(byte.class, C_CHAR, byte.class),
-            Arguments.of(Byte.class, C_CHAR, byte.class),
-            Arguments.of(MemoryAddress.class, C_POINTER, MemoryAddress.class));
+            Arguments.of(long.class, JAVA_LONG, long.class),
+            Arguments.of(Long.class, JAVA_LONG, long.class),
+            Arguments.of(int.class, JAVA_INT, int.class),
+            Arguments.of(Integer.class, JAVA_INT, int.class),
+            Arguments.of(char.class, JAVA_CHAR, char.class),
+            Arguments.of(Character.class, JAVA_CHAR, char.class),
+            Arguments.of(double.class, JAVA_DOUBLE, double.class),
+            Arguments.of(Double.class, JAVA_DOUBLE, double.class),
+            Arguments.of(float.class, JAVA_FLOAT, float.class),
+            Arguments.of(Float.class, JAVA_FLOAT, float.class),
+            Arguments.of(short.class, JAVA_SHORT, short.class),
+            Arguments.of(Short.class, JAVA_SHORT, short.class),
+            Arguments.of(byte.class, JAVA_BYTE, byte.class),
+            Arguments.of(Byte.class, JAVA_BYTE, byte.class),
+            Arguments.of(MemoryAddress.class, ADDRESS, MemoryAddress.class));
     }
 }

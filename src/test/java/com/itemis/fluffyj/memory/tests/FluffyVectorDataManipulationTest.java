@@ -3,9 +3,8 @@ package com.itemis.fluffyj.memory.tests;
 import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
+import static java.lang.foreign.MemorySegment.allocateNative;
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.MemoryAddress.NULL;
-import static jdk.incubator.foreign.MemorySegment.allocateNative;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
@@ -15,21 +14,21 @@ import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.util.Iterator;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
-
-public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTest {
+public abstract class FluffyVectorDataManipulationTest<T> extends MemorySessionEnabledTest {
 
     private final Iterator<FluffyMemoryVectorTestValue<T>> testValueIter;
     private final MemoryLayout segmentLayout;
     private final FluffyMemoryVectorTestValue<T> firstTestValue;
     private final Class<? extends T[]> testValueType;
 
-    protected FluffyVectorDataManipulationTest(Iterator<FluffyMemoryVectorTestValue<T>> testValueIter, MemoryLayout segmentLayout) {
+    protected FluffyVectorDataManipulationTest(Iterator<FluffyMemoryVectorTestValue<T>> testValueIter,
+            MemoryLayout segmentLayout) {
         this.testValueIter = requireNonNull(testValueIter, "testValueIter");
         this.segmentLayout = requireNonNull(segmentLayout, "segmentLayout");
         this.firstTestValue = testValueIter.next();
@@ -58,10 +57,10 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
     }
 
     @Test
-    void when_scope_is_closed_then_segment_is_not_alive_anymore() {
-        var underTest = allocateScopedSeg(scope);
+    void when_session_is_closed_then_segment_is_not_alive_anymore() {
+        var underTest = allocateSessionSeg(session);
 
-        scope.close();
+        session.close();
 
         assertThat(underTest.isAlive()).isFalse();
     }
@@ -97,12 +96,12 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
     }
 
     @Test
-    void wrapped_seg_and_native_seg_share_same_scope() {
-        var nativeSeg = allocateNativeSeg(firstTestValue.rawValue(), scope);
+    void wrapped_seg_and_native_seg_share_same_session() {
+        var nativeSeg = allocateNativeSeg(firstTestValue.rawValue(), session);
         var underTest = wrapNativeSeg(nativeSeg);
 
         assertThat(underTest.isAlive()).isTrue();
-        scope.close();
+        session.close();
         assertThat(underTest.isAlive()).isFalse();
     }
 
@@ -117,7 +116,7 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
     void null_pointer_points_to_null() {
         var result = allocateNullPointer();
 
-        assertThat(result.getValue()).isEqualTo(NULL);
+        assertThat(result.getValue()).isEqualTo(MemoryAddress.NULL);
     }
 
     @Test
@@ -137,11 +136,11 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
     }
 
     @Test
-    void pointer_with_scope_is_not_alive_when_scope_is_closed() {
+    void pointer_with_session_is_not_alive_when_session_is_closed() {
         var addr = allocateSeg().address();
-        var underTest = allocateScopedPointer(addr, scope);
+        var underTest = allocateSessionPointer(addr, session);
 
-        scope.close();
+        session.close();
 
         assertThat(underTest.isAlive()).isFalse();
     }
@@ -155,11 +154,11 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
     }
 
     protected MemorySegment allocateNativeSeg(byte[] rawContents) {
-        return allocateNativeSeg(rawContents, ResourceScope.globalScope());
+        return allocateNativeSeg(rawContents, MemorySession.global());
     }
 
-    protected MemorySegment allocateNativeSeg(byte[] rawContents, ResourceScope scope) {
-        var result = allocateNative(segmentLayout, scope);
+    protected MemorySegment allocateNativeSeg(byte[] rawContents, MemorySession session) {
+        var result = allocateNative(segmentLayout, session);
         result.asByteBuffer().put(rawContents);
         return result;
     }
@@ -168,8 +167,8 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
         return segment().ofArray(firstTestValue.typedValue()).allocate();
     }
 
-    protected final FluffyVectorSegment<? extends T> allocateScopedSeg(ResourceScope scope) {
-        return segment().ofArray(firstTestValue.typedValue()).allocate(scope);
+    protected final FluffyVectorSegment<? extends T> allocateSessionSeg(MemorySession session) {
+        return segment().ofArray(firstTestValue.typedValue()).allocate(session);
     }
 
     protected final FluffyVectorSegment<? extends T> wrapNativeSeg(MemorySegment nativeSeg) {
@@ -180,8 +179,9 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
         return pointer().to(address).asArray(firstTestValue.length()).of(testValueType).allocate();
     }
 
-    protected final FluffyVectorPointer<? extends T> allocateScopedPointer(MemoryAddress address, ResourceScope scope) {
-        return pointer().to(address).asArray(firstTestValue.length()).of(testValueType).allocate(scope);
+    protected final FluffyVectorPointer<? extends T> allocateSessionPointer(MemoryAddress address,
+            MemorySession session) {
+        return pointer().to(address).asArray(firstTestValue.length()).of(testValueType).allocate(session);
     }
 
     protected final FluffyVectorPointer<? extends T> allocatePointer(FluffyVectorSegment<? extends T> seg) {
@@ -189,10 +189,11 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopedTe
     }
 
     protected final FluffyVectorPointer<? extends T> allocateNullPointer() {
-        return allocatePointer(NULL);
+        return allocatePointer(MemoryAddress.NULL);
     }
 
-    protected static abstract class FluffyMemoryVectorTestValueIterator<V> implements Iterator<FluffyMemoryVectorTestValue<V>> {
+    protected static abstract class FluffyMemoryVectorTestValueIterator<V>
+            implements Iterator<FluffyMemoryVectorTestValue<V>> {
         @Override
         public boolean hasNext() {
             return true;

@@ -1,6 +1,6 @@
 package com.itemis.fluffyj.memory;
 
-import static jdk.incubator.foreign.MemoryLayouts.JAVA_BYTE;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 
 import com.itemis.fluffyj.memory.tests.FluffyMemoryScalarTestValue;
 import com.itemis.fluffyj.memory.tests.FluffyScalarDataManipulationTest;

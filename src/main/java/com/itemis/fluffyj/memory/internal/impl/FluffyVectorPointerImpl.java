@@ -4,10 +4,10 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.api.FluffyVectorPointer;
 
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.nio.ByteBuffer;
-
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ResourceScope;
 
 /**
  * Default implementation of a vector pointer.
@@ -22,11 +22,11 @@ public abstract class FluffyVectorPointerImpl<T> extends FluffyPointerImpl imple
     /**
      * @param addressPointedTo - The address this pointer will point to.
      * @param byteSize - Size of the array this pointer points to in bytes.
-     * @param scope - The scope to attach this pointer to. If the scope is closed, the pointer will
-     *        not be alive anymore.
+     * @param session - The session to attach this pointer to. If the session is closed, the pointer
+     *        will not be alive anymore.
      */
-    public FluffyVectorPointerImpl(MemoryAddress addressPointedTo, long byteSize, ResourceScope scope) {
-        super(addressPointedTo, scope);
+    public FluffyVectorPointerImpl(MemoryAddress addressPointedTo, long byteSize, MemorySession session) {
+        super(addressPointedTo, session);
         this.byteSize = requireNonNull(byteSize);
     }
 
@@ -39,6 +39,6 @@ public abstract class FluffyVectorPointerImpl<T> extends FluffyPointerImpl imple
 
     @Override
     public final T[] dereference() {
-        return typedDereference(getValue().asSegment(byteSize, scope).asByteBuffer().asReadOnlyBuffer().order(FLUFFY_POINTER_BYTE_ORDER));
+        return typedDereference(MemorySegment.ofAddress(getValue(), byteSize, session).asByteBuffer().asReadOnlyBuffer().order(FLUFFY_POINTER_BYTE_ORDER));
     }
 }
