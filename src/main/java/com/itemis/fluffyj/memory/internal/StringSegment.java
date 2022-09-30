@@ -1,14 +1,13 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.lang.foreign.SegmentAllocator.newNativeArena;
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.CLinker.toCString;
-import static jdk.incubator.foreign.CLinker.toJavaString;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 
 public class StringSegment implements FluffyScalarSegment<String> {
 
@@ -18,16 +17,17 @@ public class StringSegment implements FluffyScalarSegment<String> {
      * Allocate a new segment.
      *
      * @param initialValue - The new segment will hold this value.
-     * @param scope - The new segment will be attached to this scope, i. e. if the scope is closed,
-     *        the new segment will not be alive anymore.
+     * @param session - The new segment will be attached to this session, i. e. if the session is
+     *        closed, the new segment will not be alive anymore.
      */
-    public StringSegment(String initialValue, ResourceScope scope) {
-        this.backingSeg = toCString(requireNonNull(initialValue, "initialValue"), requireNonNull(scope, "scope"));
+    public StringSegment(String initialValue, MemorySession session) {
+        this.backingSeg = newNativeArena(requireNonNull(session, "session"))
+            .allocateUtf8String(requireNonNull(initialValue, "initialValue"));
     }
 
     /**
      * Wrap the provided {@code backingSeg}. The constructed segment will be attached to the same
-     * scope as the {@code backingSeg}.
+     * session as the {@code backingSeg}.
      *
      * @param backingSeg - The raw segment to wrap.
      */
@@ -47,11 +47,11 @@ public class StringSegment implements FluffyScalarSegment<String> {
 
     @Override
     public boolean isAlive() {
-        return backingSeg.scope().isAlive();
+        return backingSeg.session().isAlive();
     }
 
     @Override
     public String getValue() {
-        return toJavaString(address());
+        return address().getUtf8String(0);
     }
 }

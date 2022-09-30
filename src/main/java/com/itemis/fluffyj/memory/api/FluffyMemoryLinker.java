@@ -1,35 +1,33 @@
 package com.itemis.fluffyj.memory.api;
 
+import java.lang.foreign.Addressable;
+import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.Linker;
+import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
-
-import jdk.incubator.foreign.Addressable;
-import jdk.incubator.foreign.CLinker;
-import jdk.incubator.foreign.FunctionDescriptor;
-import jdk.incubator.foreign.SymbolLookup;
 
 /**
- * A linker abstraction that is able to link a symbol of a library to a Java {@link MethodHandle}
+ * A linker abstraction that is able to link a symbol of a library to a JVM {@link MethodHandle}
  * instance.
  */
+@FunctionalInterface
 public interface FluffyMemoryLinker {
 
     /**
-     * A {@link FluffyMemoryLinker} that is able to link Java and C code.
+     * A {@link FluffyMemoryLinker} that is able to link JVM and native code according to the ABI of
+     * the underlying native platform.
      */
-    public static final FluffyMemoryLinker C_LINKER =
-        (symbol, srcFuncType, targetMethodType) -> CLinker.getInstance().downcallHandle(symbol, targetMethodType, srcFuncType);
+    FluffyMemoryLinker NATIVE_LINKER =
+        (symbol, srcFuncType) -> Linker.nativeLinker().downcallHandle(symbol, srcFuncType);
 
     /**
-     * Link a native function (symbol) to a Java {@link MethodHandle}.
+     * Link a native function (symbol) to a JVM {@link MethodHandle}.
      *
      * @param symbol - Symbol to link to. Use a {@link SymbolLookup} to acquire one of these.
-     * @param srcFuncDescr - Native function description understandable by Java. To acquire, use
+     * @param srcFuncDescr - Native function description understandable by the JVM. To acquire, use
      *        {@link FunctionDescriptor}.
-     * @param targetMethodType - Describes the resulting Java method in a way that the native
-     *        function understands. Use {@link MethodType#methodType(Class, Class, Class...)} to
-     *        acquire one of these.
-     * @return
+     * @return A {@link MethodHandle} instance with which it is possible to call native code via JVM
+     *         semantics.
      */
-    MethodHandle link(Addressable symbol, FunctionDescriptor srcFuncDescr, MethodType targetMethodType);
+    MethodHandle link(Addressable symbol, FunctionDescriptor srcFuncDescr);
 }

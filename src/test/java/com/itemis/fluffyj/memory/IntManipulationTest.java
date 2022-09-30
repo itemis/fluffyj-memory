@@ -1,8 +1,8 @@
 package com.itemis.fluffyj.memory;
 
+import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.ByteOrder.nativeOrder;
-import static jdk.incubator.foreign.MemoryLayouts.JAVA_INT;
 
 import com.google.common.primitives.Ints;
 import com.itemis.fluffyj.memory.tests.FluffyMemoryScalarTestValue;

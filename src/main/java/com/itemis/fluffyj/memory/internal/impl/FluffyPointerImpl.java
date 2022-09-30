@@ -1,14 +1,14 @@
 package com.itemis.fluffyj.memory.internal.impl;
 
+import static java.lang.foreign.MemorySegment.allocateNative;
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.MemoryLayouts.ADDRESS;
-import static jdk.incubator.foreign.MemorySegment.allocateNative;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
+import java.lang.foreign.ValueLayout;
 
 /**
  * Default implementation of a pointer.
@@ -16,22 +16,22 @@ import jdk.incubator.foreign.ResourceScope;
 public abstract class FluffyPointerImpl implements FluffyPointer {
 
     protected final MemorySegment addressSeg;
-    protected final ResourceScope scope;
+    protected final MemorySession session;
 
     /**
      * @param addressPointedTo - The address this pointer will point to.
-     * @param scope - The scope to attach this pointer to. If the scope is closed, the pointer will
-     *        not be alive anymore.
+     * @param session - The session to attach this pointer to. If the session is closed, the pointer
+     *        will not be alive anymore.
      */
-    public FluffyPointerImpl(MemoryAddress addressPointedTo, ResourceScope scope) {
-        this.addressSeg = allocateNative(ADDRESS, requireNonNull(scope, "scope"));
+    public FluffyPointerImpl(MemoryAddress addressPointedTo, MemorySession session) {
+        this.addressSeg = allocateNative(ValueLayout.ADDRESS, requireNonNull(session, "session"));
         this.addressSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).putLong(requireNonNull(addressPointedTo, "addressPointedTo").toRawLongValue());
-        this.scope = scope;
+        this.session = session;
     }
 
     @Override
     public final boolean isAlive() {
-        return scope.isAlive();
+        return session.isAlive();
     }
 
     @Override

@@ -1,6 +1,6 @@
 package com.itemis.fluffyj.memory.api;
 
-import jdk.incubator.foreign.MemorySegment;
+import java.lang.foreign.MemorySegment;
 
 /**
  * A representation of an allocated area of off heap memory. Unlike {@link MemorySegment},

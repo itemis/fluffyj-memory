@@ -1,38 +1,36 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.lang.foreign.MemorySegment.allocateNative;
+import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.CLinker.toJavaString;
-import static jdk.incubator.foreign.MemoryAddress.ofLong;
-import static jdk.incubator.foreign.MemoryLayouts.ADDRESS;
-import static jdk.incubator.foreign.MemorySegment.allocateNative;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarPointer;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 
 public class PointerOfString implements FluffyScalarPointer<String> {
 
-    private final ResourceScope scope;
+    private final MemorySession session;
     private final MemorySegment backingSeg;
 
     /**
      * Allocate a new pointer.
      *
      * @param addressPointedTo - The {@link MemoryAddress} the new pointer will point to.
-     * @param scope - Attach the new pointer to this scope.
+     * @param session - Attach the new pointer to this session.
      */
-    public PointerOfString(MemoryAddress addressPointedTo, ResourceScope scope) {
-        this.scope = requireNonNull(scope, "scope");
+    public PointerOfString(MemoryAddress addressPointedTo, MemorySession session) {
+        this.session = requireNonNull(session, "session");
 
-        backingSeg = allocateNative(ADDRESS, scope);
+        backingSeg = allocateNative(ADDRESS, session);
         backingSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).putLong(requireNonNull(addressPointedTo, "addressPointedTo").toRawLongValue());
     }
 
     @Override
     public boolean isAlive() {
-        return scope.isAlive();
+        return session.isAlive();
     }
 
     @Override
@@ -42,11 +40,11 @@ public class PointerOfString implements FluffyScalarPointer<String> {
 
     @Override
     public MemoryAddress getValue() {
-        return ofLong(backingSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).getLong());
+        return MemoryAddress.ofLong(backingSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).getLong());
     }
 
     @Override
     public String dereference() {
-        return toJavaString(getValue());
+        return getValue().getUtf8String(0);
     }
 }

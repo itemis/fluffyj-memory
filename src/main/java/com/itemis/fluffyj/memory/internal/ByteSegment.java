@@ -1,16 +1,15 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.MemoryLayouts.JAVA_BYTE;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.internal.impl.FluffyScalarSegmentImpl;
 
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.nio.ByteBuffer;
-
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
 
 /**
  * A {@link FluffySegment} that holds a {@link Byte}.
@@ -23,16 +22,16 @@ public class ByteSegment extends FluffyScalarSegmentImpl<Byte> {
      * Allocate a new segment.
      *
      * @param initialValue - The new segment will hold this value.
-     * @param scope - The new segment will be attached to this scope, i. e. if the scope is closed,
-     *        the new segment will not be alive anymore.
+     * @param session - The new segment will be attached to this session, i. e. if the session is
+     *        closed, the new segment will not be alive anymore.
      */
-    public ByteSegment(byte initialValue, ResourceScope scope) {
-        super(new byte[] {initialValue}, MY_LAYOUT, requireNonNull(scope, "scope"));
+    public ByteSegment(byte initialValue, MemorySession session) {
+        super(new byte[] {initialValue}, MY_LAYOUT, requireNonNull(session, "session"));
     }
 
     /**
      * Wrap the provided {@code backingSeg}. The constructed segment will be attached to the same
-     * scope as the {@code backingSeg}.
+     * session as the {@code backingSeg}.
      *
      * @param backingSeg - The raw segment to wrap.
      */

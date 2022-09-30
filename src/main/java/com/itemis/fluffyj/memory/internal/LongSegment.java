@@ -1,8 +1,8 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.internal.impl.FluffyScalarSegmentImpl;
@@ -10,12 +10,11 @@ import com.tngtech.archunit.thirdparty.com.google.common.primitives.Longs;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
 
 /**
  * A {@link FluffySegment} that holds a {@link Long}.
@@ -33,17 +32,17 @@ public class LongSegment extends FluffyScalarSegmentImpl<Long> {
      * Allocate a new segment.
      *
      * @param initialValue - The new segment will hold this value.
-     * @param scope - The new segment will be attached to this scope, i. e. if the scope is closed,
-     *        the new segment will not be alive anymore.
+     * @param session - The new segment will be attached to this session, i. e. if the session is
+     *        closed, the new segment will not be alive anymore.
      */
-    public LongSegment(long initialValue, ResourceScope scope) {
+    public LongSegment(long initialValue, MemorySession session) {
         super(toByteArray(initialValue, FLUFFY_SEGMENT_BYTE_ORDER), MY_LAYOUT,
-            requireNonNull(scope, "scope"));
+            requireNonNull(session, "session"));
     }
 
     /**
      * Wrap the provided {@code backingSeg}. The constructed segment will be attached to the same
-     * scope as the {@code backingSeg}.
+     * session as the {@code backingSeg}.
      *
      * @param backingSeg - The raw segment to wrap.
      */

@@ -2,11 +2,10 @@ package com.itemis.fluffyj.memory.internal.impl;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.nio.ByteBuffer;
-
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
 
 /**
  * Default implementation of a segment that holds scalar values, i. e. non array ones.
@@ -19,8 +18,8 @@ public abstract class FluffyScalarSegmentImpl<T> extends FluffySegmentImpl imple
         super(backingSeg);
     }
 
-    public FluffyScalarSegmentImpl(byte[] initialValue, MemoryLayout layout, ResourceScope scope) {
-        super(initialValue, layout, scope);
+    public FluffyScalarSegmentImpl(byte[] initialValue, MemoryLayout layout, MemorySession session) {
+        super(initialValue, layout, session);
     }
 
     /**
