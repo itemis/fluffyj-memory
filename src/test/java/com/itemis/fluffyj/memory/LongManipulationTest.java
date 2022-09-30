@@ -1,9 +1,9 @@
 package com.itemis.fluffyj.memory;
 
 import static com.google.common.primitives.Longs.toByteArray;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static java.nio.ByteOrder.LITTLE_ENDIAN;
 import static java.nio.ByteOrder.nativeOrder;
-import static jdk.incubator.foreign.MemoryLayouts.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.tests.FluffyMemoryScalarTestValue;
 import com.itemis.fluffyj.memory.tests.FluffyScalarDataManipulationTest;

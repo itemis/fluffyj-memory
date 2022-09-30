@@ -2,8 +2,8 @@ package com.itemis.fluffyj.memory.internal;
 
 import com.itemis.fluffyj.memory.internal.impl.FluffyPointerImpl;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.ResourceScope;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemorySession;
 
 /**
  * An arbitrary pointer that just holds an address and cannot be dereferenced via Fluffy API. It is
@@ -13,10 +13,10 @@ import jdk.incubator.foreign.ResourceScope;
 public class PointerOfThing extends FluffyPointerImpl {
 
     /**
-     * @param scope - The scope to attach this pointer to. If the scope is closed, the pointer will
-     *        not be alive anymore.
+     * @param session - The session to attach this pointer to. If the session is closed, the pointer
+     *        will not be alive anymore.
      */
-    public PointerOfThing(ResourceScope scope) {
-        super(MemoryAddress.NULL, scope);
+    public PointerOfThing(MemorySession session) {
+        super(MemoryAddress.NULL, session);
     }
 }

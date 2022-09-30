@@ -12,7 +12,7 @@ import com.itemis.fluffyj.memory.internal.IntSegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
 import com.itemis.fluffyj.memory.internal.StringSegment;
 
-import jdk.incubator.foreign.MemorySegment;
+import java.lang.foreign.MemorySegment;
 
 /**
  * Helps with wrapping "untyped" off heap memory areas ("segments") into {@link FluffySegment}s.
@@ -35,8 +35,8 @@ public final class FluffyMemorySegmentWrapper {
      * <T> - Type of data the segment shall point to.
      *
      * @return A view of the native segment interpreted as {@link FluffyScalarSegment} of
-     *         {@code type}. The constructed {@link FluffyScalarSegment} will have the same scope as
-     *         the native segment.
+     *         {@code type}. The constructed {@link FluffyScalarSegment} will have the same session
+     *         as the native segment.
      */
     // The cast is indeed unsafe. We need to make sure with good test coverage.
     @SuppressWarnings("unchecked")
@@ -60,8 +60,8 @@ public final class FluffyMemorySegmentWrapper {
 
     /**
      * @return A view of the native segment interpreted as {@link FluffyVectorSegment} of
-     *         {@code type}. The constructed {@link FluffyVectorSegment} will have the same scope as
-     *         the native segment.
+     *         {@code type}. The constructed {@link FluffyVectorSegment} will have the same session
+     *         as the native segment.
      */
     // The cast is indeed unsafe. We need to make sure with good test coverage.
     @SuppressWarnings("unchecked")

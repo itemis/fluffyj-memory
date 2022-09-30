@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.itemis.fluffyj.exceptions.InstantiationNotPermittedException;
 import com.itemis.fluffyj.memory.api.FluffySegment;
 
-import jdk.incubator.foreign.MemorySegment;
+import java.lang.foreign.MemorySegment;
 
 /**
  * Entry point to the FluffyJ Memory API

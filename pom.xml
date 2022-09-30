@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.1.4</version>
+    <version>1.2.0</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -19,7 +19,7 @@
 
     <licenses>
         <license>
-            <name>Eclipse Public License - v 2.0</name>
+            <name>Eclipse Public License - v2.0</name>
             <url>https://www.eclipse.org/legal/epl-2.0</url>
             <distribution>repo</distribution>
         </license>
@@ -52,13 +52,13 @@
     </organization>
 
     <properties>
-        <java.version>17</java.version>
-        <maven.compiler.release>17</maven.compiler.release>
+        <java.version>19</java.version>
+        <maven.compiler.release>19</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
         <maven-failsafe-plugin.version>3.0.0-M5</maven-failsafe-plugin.version>
-        <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
+        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
         <build.timestamp.formatted>${maven.build.timestamp}</build.timestamp.formatted>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm.ssZ</maven.build.timestamp.format>
@@ -67,24 +67,21 @@
             plugin processes all contents of the configured resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
         <guava.version>31.1-jre</guava.version>
-        <mockito.version>4.7.0</mockito.version>
+        <mockito.version>4.8.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <spotbugs.plugin.version>4.7.1.1</spotbugs.plugin.version>
-        <spotbugs.version>4.7.1</spotbugs.version>
-        <junit.version>5.9.0</junit.version>
+        <spotbugs.plugin.version>4.7.2.0</spotbugs.plugin.version>
+        <spotbugs.version>4.7.2</spotbugs.version>
+        <junit.version>5.9.1</junit.version>
         <jacoco.plugin.version>0.8.8</jacoco.plugin.version>
         <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
         <assertj.version>3.23.1</assertj.version>
-        <logback.version>1.2.11</logback.version>
+        <logback.version>1.4.1</logback.version>
         <equalsverifier.version>3.10.1</equalsverifier.version>
         <arch.unit.version>0.23.1</arch.unit.version>
         <fluffyj.version>1.10.0</fluffyj.version>
         <fluffyj.tests.version>1.5.0</fluffyj.tests.version>
         <custom.jvm.options>
-            --enable-native-access=ALL-UNNAMED
-            --add-modules=ALL-SYSTEM,jdk.incubator.foreign
-            --add-opens=java.base/java.util=ALL-UNNAMED
-            --add-opens=java.base/java.lang=ALL-UNNAMED
+            --enable-native-access=ALL-UNNAMED --enable-preview
         </custom.jvm.options>
     </properties>
 
@@ -331,11 +328,10 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <release>${java.version}</release>
                         <compilerArgs>
-                            <compilerArg>--add-modules</compilerArg>
-                            <compilerArg>jdk.incubator.foreign</compilerArg>
+                            <compilerArg>--enable-preview</compilerArg>
                         </compilerArgs>
+                        <release>${java.version}</release>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -440,8 +436,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
                     <additionalOptions>
-                        <option>--add-modules</option>
-                        <option>jdk.incubator.foreign</option>
+                        <option>--enable-preview</option>
                     </additionalOptions>
                     <doclint>-missing</doclint>
                     <quiet>true</quiet>

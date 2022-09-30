@@ -4,11 +4,10 @@ import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.memory.api.FluffyPointer.FLUFFY_POINTER_BYTE_ORDER;
+import static java.lang.foreign.MemorySegment.allocateNative;
+import static java.lang.foreign.MemorySegment.ofAddress;
+import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.util.Objects.requireNonNull;
-import static jdk.incubator.foreign.MemoryAddress.NULL;
-import static jdk.incubator.foreign.MemoryAddress.ofLong;
-import static jdk.incubator.foreign.MemoryLayouts.ADDRESS;
-import static jdk.incubator.foreign.MemorySegment.allocateNative;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
@@ -18,21 +17,21 @@ import com.itemis.fluffyj.memory.api.FluffySegment;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.util.Iterator;
 
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.MemorySegment;
-import jdk.incubator.foreign.ResourceScope;
-
-public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTest {
+public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionEnabledTest {
 
     private final Iterator<FluffyMemoryScalarTestValue<T>> testValueIter;
     private final MemoryLayout segmentLayout;
     private final FluffyMemoryScalarTestValue<T> firstTestValue;
     private final Class<? extends T> testValueType;
 
-    protected FluffyScalarDataManipulationTest(Iterator<FluffyMemoryScalarTestValue<T>> testValueIter, MemoryLayout segmentLayout) {
+    protected FluffyScalarDataManipulationTest(Iterator<FluffyMemoryScalarTestValue<T>> testValueIter,
+            MemoryLayout segmentLayout) {
         this.testValueIter = requireNonNull(testValueIter, "testValueIter");
         this.segmentLayout = requireNonNull(segmentLayout, "segmentLayout");
         this.firstTestValue = testValueIter.next();
@@ -61,10 +60,10 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
     }
 
     @Test
-    void when_scope_is_closed_then_segment_is_not_alive_anymore() {
-        var underTest = allocateScopedSeg(scope);
+    void when_session_is_closed_then_segment_is_not_alive_anymore() {
+        var underTest = allocateSessionSeg(session);
 
-        scope.close();
+        session.close();
 
         assertThat(underTest.isAlive()).isFalse();
     }
@@ -99,12 +98,12 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
     }
 
     @Test
-    void wrapped_seg_and_native_seg_share_same_scope() {
+    void wrapped_seg_and_native_seg_share_same_session() {
         var nativeSeg = allocateNativeSeg(firstTestValue.rawValue());
         var underTest = wrapNativeSeg(nativeSeg);
 
         assertThat(underTest.isAlive()).isTrue();
-        nativeSeg.scope().close();
+        nativeSeg.session().close();
         assertThat(underTest.isAlive()).isFalse();
     }
 
@@ -119,7 +118,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
     void null_pointer_points_to_null() {
         var result = allocateNullPointer();
 
-        assertThat(result.getValue()).isEqualTo(NULL);
+        assertThat(result.getValue()).isEqualTo(MemoryAddress.NULL);
     }
 
     @Test
@@ -139,11 +138,11 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
     }
 
     @Test
-    void pointer_with_scope_is_not_alive_when_scope_is_closed() {
+    void pointer_with_session_is_not_alive_when_session_is_closed() {
         var addr = allocateSeg().address();
-        var underTest = allocateScopedPointer(addr, scope);
+        var underTest = allocateSessionPointer(addr, session);
 
-        scope.close();
+        session.close();
 
         assertThat(underTest.isAlive()).isFalse();
     }
@@ -164,7 +163,8 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
         var underTest = allocatePointer(expectedNativeSegAddress);
 
         var actualNativeSegAddress =
-            MemoryAddress.ofLong(underTest.address().asSegment(ADDRESS.byteSize(), scope).asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).getLong());
+            MemoryAddress.ofLong(ofAddress(underTest.address(), ADDRESS.byteSize(), session).asByteBuffer()
+                .order(FLUFFY_POINTER_BYTE_ORDER).getLong());
         assertThat(actualNativeSegAddress).isEqualTo(expectedNativeSegAddress);
     }
 
@@ -176,11 +176,11 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
     }
 
     @Test
-    void can_create_empty_typed_pointer_tied_to_a_scope() {
-        var result = pointer().of(testValueType).allocate(scope);
+    void can_create_empty_typed_pointer_tied_to_a_session() {
+        var result = pointer().of(testValueType).allocate(session);
 
         assertThat(result.isAlive()).isTrue();
-        scope.close();
+        session.close();
         assertThat(result.isAlive()).isFalse();
     }
 
@@ -189,13 +189,14 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
         var expectedAddress = 123L;
         var underTest = allocateNullPointer();
 
-        assertThat(underTest.getValue()).isEqualTo(NULL);
-        underTest.address().asSegment(ADDRESS.byteSize(), scope).asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).putLong(expectedAddress);
-        assertThat(underTest.getValue()).isEqualTo(ofLong(expectedAddress));
+        assertThat(underTest.getValue()).isEqualTo(MemoryAddress.NULL);
+        ofAddress(underTest.address(), ADDRESS.byteSize(), session).asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER)
+            .putLong(expectedAddress);
+        assertThat(underTest.getValue()).isEqualTo(MemoryAddress.ofLong(expectedAddress));
     }
 
     protected final MemorySegment allocateNativeSeg(byte[] rawContents) {
-        var result = allocateNative(segmentLayout, scope);
+        var result = allocateNative(segmentLayout, session);
         result.asByteBuffer().put(rawContents);
         return result;
     }
@@ -204,8 +205,8 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
         return segment().of(firstTestValue.typedValue()).allocate();
     }
 
-    protected final FluffyScalarSegment<? extends T> allocateScopedSeg(ResourceScope scope) {
-        return segment().of(firstTestValue.typedValue()).allocate(scope);
+    protected final FluffyScalarSegment<? extends T> allocateSessionSeg(MemorySession session) {
+        return segment().of(firstTestValue.typedValue()).allocate(session);
     }
 
     protected final FluffyScalarSegment<? extends T> wrapNativeSeg(MemorySegment nativeSeg) {
@@ -216,8 +217,9 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
         return pointer().to(address).as(testValueType).allocate();
     }
 
-    protected final FluffyScalarPointer<? extends T> allocateScopedPointer(MemoryAddress address, ResourceScope scope) {
-        return pointer().to(address).as(testValueType).allocate(scope);
+    protected final FluffyScalarPointer<? extends T> allocateSessionPointer(MemoryAddress address,
+            MemorySession session) {
+        return pointer().to(address).as(testValueType).allocate(session);
     }
 
     protected final FluffyScalarPointer<? extends T> allocatePointer(FluffyScalarSegment<? extends T> seg) {
@@ -225,10 +227,11 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopedTe
     }
 
     protected final FluffyScalarPointer<? extends T> allocateNullPointer() {
-        return allocatePointer(NULL);
+        return allocatePointer(MemoryAddress.NULL);
     }
 
-    protected static abstract class FluffyMemoryScalarTestValueIterator<V> implements Iterator<FluffyMemoryScalarTestValue<V>> {
+    protected static abstract class FluffyMemoryScalarTestValueIterator<V>
+            implements Iterator<FluffyMemoryScalarTestValue<V>> {
         @Override
         public boolean hasNext() {
             return true;

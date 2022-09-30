@@ -1,10 +1,10 @@
 package com.itemis.fluffyj.memory;
 
 import static com.itemis.fluffyj.exceptions.ThrowablePrettyfier.pretty;
-import static com.itemis.fluffyj.memory.api.FluffyMemoryLinker.C_LINKER;
+import static com.itemis.fluffyj.memory.api.FluffyMemoryLinker.NATIVE_LINKER;
+import static java.lang.foreign.Linker.nativeLinker;
 import static java.util.Objects.requireNonNull;
 import static java.util.Optional.empty;
-import static jdk.incubator.foreign.CLinker.systemLookup;
 
 import com.google.common.collect.ImmutableSet;
 import com.itemis.fluffyj.memory.api.FluffyMemoryLinker;
@@ -12,37 +12,35 @@ import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
+import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.MemoryAddress;
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 import java.util.Optional;
 import java.util.Set;
 
-import jdk.incubator.foreign.FunctionDescriptor;
-import jdk.incubator.foreign.MemoryAddress;
-import jdk.incubator.foreign.MemoryLayout;
-import jdk.incubator.foreign.SymbolLookup;
-
 /**
- * Instances of this class encapsulate a method call to a native method in a known non Java-based
+ * Instances of this class encapsulate a method call to a native method in a known non JVM-based
  * library.
  *
  * @param <T> - Return type of the method to call. Use {@link Void} if method does not return a
  *        value.
  */
-public final class NativeMethodHandle<T> {
+public final class FluffyNativeMethodHandle<T> {
 
     private static final Set<Class<?>> VOID_RETURN_TYPES = ImmutableSet.of(Void.class, void.class);
 
     private final MethodHandle method;
 
-    private NativeMethodHandle(MethodHandle method) {
+    private FluffyNativeMethodHandle(MethodHandle method) {
         this.method = method;
     }
 
     /**
      * Execute the native method this handle stands for.
      *
-     * @param args - All required arguments of the native method as Java instances. For pointers use
+     * @param args - All required arguments of the native method as JVM instances. For pointers use
      *        instances of {@link MemoryAddress}.
      * @return The return value of the method or {@code null} if the method is not supposed to
      *         return anything.
@@ -66,8 +64,8 @@ public final class NativeMethodHandle<T> {
      * @return Next stage of the builder.
      */
     public static ReturnTypeStage fromCStdLib() {
-        return fromLib(systemLookup())
-            .withLinker(C_LINKER)
+        return fromLib(nativeLinker().defaultLookup())
+            .withLinker(NATIVE_LINKER)
             .withTypeConverter(new CDataTypeConverter());
     }
 
@@ -80,7 +78,7 @@ public final class NativeMethodHandle<T> {
      */
     public static ReturnTypeStage fromCLib(SymbolLookup lib) {
         return fromLib(lib)
-            .withLinker(C_LINKER)
+            .withLinker(NATIVE_LINKER)
             .withTypeConverter(new CDataTypeConverter());
     }
 
@@ -98,9 +96,9 @@ public final class NativeMethodHandle<T> {
     /**
      * Builder stage that takes care of setting up an appropriate linker.
      */
-    public static interface LinkerStage {
+    public interface LinkerStage {
         /**
-         * Set up a {@link FluffyMemoryLinker} that is able to link native code to Java.
+         * Set up a {@link FluffyMemoryLinker} that is able to link native code to JVM code.
          *
          * @param linker - Linker to use.
          * @return Next stage of the builder.
@@ -111,10 +109,10 @@ public final class NativeMethodHandle<T> {
     /**
      * Builder stage that takes care of setting up an appropriate type converter.
      */
-    public static interface TypeConverterStage {
+    public interface TypeConverterStage {
         /**
-         * Set up a {@link FluffyMemoryTypeConverter} that is able to convert Java to native types
-         * and vice versa.
+         * Set up a {@link FluffyMemoryTypeConverter} that is able to convert JVM types to native
+         * types and vice versa.
          *
          * @param conv - The converter to set up.
          * @return Next stage of the builder.
@@ -125,12 +123,12 @@ public final class NativeMethodHandle<T> {
     /**
      * Builder stage that takes care of setting up the function's return type if any.
      */
-    public static interface ReturnTypeStage {
+    public interface ReturnTypeStage {
         /**
          * Configure the return type of the function.
          *
-         * @param <T> - Java returnType of the function.
-         * @param returnType - Java return type of the function. Use primitive values instead of
+         * @param <T> - JVM returnType of the function.
+         * @param returnType - JVM return type of the function. Use primitive values instead of
          *        boxed values if appropriate.
          * @return Next stage of the builder.
          */
@@ -149,7 +147,7 @@ public final class NativeMethodHandle<T> {
      *
      * @param <T> - Used to pass the function's return type to the final call of the builder chain.
      */
-    public static interface FuncStage<T> {
+    public interface FuncStage<T> {
         /**
          * Set up the name of the native function to bind to.
          *
@@ -162,22 +160,22 @@ public final class NativeMethodHandle<T> {
     /**
      * @param <T> - Used to pass the function's return type to the final call of the builder chain.
      */
-    public static interface ArgsStage<T> {
+    public interface ArgsStage<T> {
         /**
          * Set up arguments of the function in native memory layout and correct order.
          *
          * @param args - Arguments in correct order or no argument if none.
-         * @return A new instance of {@link NativeMethodHandle}.
+         * @return A new instance of {@link FluffyNativeMethodHandle}.
          */
-        NativeMethodHandle<T> args(MemoryLayout... args);
+        FluffyNativeMethodHandle<T> args(MemoryLayout... args);
 
         /**
          * Convenience method. Like {@link #args(MemoryLayout...)} but emphasizes the fact that the
          * native method does not take any arguments.
          *
-         * @return {@link NativeMethodHandle} instance.
+         * @return {@link FluffyNativeMethodHandle} instance.
          */
-        NativeMethodHandle<T> noArgs();
+        FluffyNativeMethodHandle<T> noArgs();
     }
 
     private static final class NativeMethodHandleBuilder<T>
@@ -187,7 +185,7 @@ public final class NativeMethodHandle<T> {
         private FluffyMemoryLinker linker;
         private FluffyMemoryTypeConverter conv;
         private MemoryAddress symbol;
-        private Class<?> javaReturnType;
+        private Class<?> jvmReturnType;
         private Optional<MemoryLayout> cReturnType = empty();
 
         NativeMethodHandleBuilder(SymbolLookup lib) {
@@ -211,8 +209,8 @@ public final class NativeMethodHandle<T> {
         @SuppressWarnings("unchecked")
         @Override
         public <K> FuncStage<K> returnType(Class<? super K> returnType) {
-            javaReturnType = requireNonNull(returnType, "returnType");
-            if (!VOID_RETURN_TYPES.contains(javaReturnType)) {
+            jvmReturnType = requireNonNull(returnType, "returnType");
+            if (!VOID_RETURN_TYPES.contains(jvmReturnType)) {
                 cReturnType = Optional.of(conv.getNativeType(returnType));
             }
             return (FuncStage<K>) this;
@@ -231,7 +229,7 @@ public final class NativeMethodHandle<T> {
         }
 
         @Override
-        public NativeMethodHandle<T> args(MemoryLayout... args) {
+        public FluffyNativeMethodHandle<T> args(MemoryLayout... args) {
             requireNonNull(args, "args");
             FunctionDescriptor srcFuncDescr = null;
             if (cReturnType.isPresent()) {
@@ -240,19 +238,20 @@ public final class NativeMethodHandle<T> {
                 srcFuncDescr = FunctionDescriptor.ofVoid(args);
             }
 
-            var targetMethodType = MethodType.methodType(javaReturnType, conv.getJavaTypes(args));
-            var method = linker.link(symbol, srcFuncDescr, targetMethodType);
-            return new NativeMethodHandle<>(method);
+            var method = linker.link(symbol, srcFuncDescr);
+            return new FluffyNativeMethodHandle<>(method);
         }
 
         @Override
-        public NativeMethodHandle<T> noArgs() {
+        public FluffyNativeMethodHandle<T> noArgs() {
             return args();
         }
 
         private static MemoryAddress loadSymbol(SymbolLookup lookup, String symbolName) {
             return lookup.lookup(symbolName)
-                .orElseThrow(() -> new FluffyMemoryException("Could not find symbol '" + symbolName + "' in library '" + lookup.toString() + "'."));
+                .orElseThrow(() -> new FluffyMemoryException(
+                    "Could not find symbol '" + symbolName + "' in library '" + lookup.toString() + "'."))
+                .address();
         }
     }
 }
