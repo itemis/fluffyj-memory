@@ -5,7 +5,6 @@ import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted
 import static java.lang.foreign.MemorySegment.allocateNative;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.invoke.MethodType.methodType;
-import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,11 +27,13 @@ import com.itemis.fluffyj.memory.tests.MemorySessionEnabledTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class FluffyNativeMethodHandleTest extends MemorySessionEnabledTest {
 
@@ -215,6 +216,9 @@ public class FluffyNativeMethodHandleTest extends MemorySessionEnabledTest {
     }
 
     private void removeSymbol(String symbolName) {
-        when(libMock.lookup(symbolName)).thenReturn(empty());
+        // The mock statement is required in order for eclipse to accept the next statement.
+        // There seems to be a Java19 related bug wrt Mockito.when
+        Mockito.mock(Supplier.class);
+        when(libMock.lookup(symbolName)).thenReturn(Optional.empty());
     }
 }
