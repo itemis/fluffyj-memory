@@ -8,7 +8,6 @@ import com.itemis.fluffyj.memory.internal.impl.FluffyScalarPointerImpl;
 
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySession;
-import java.nio.ByteBuffer;
 
 /**
  * A {@link FluffyPointer} that points to a segment that holds a {@link Long}.
@@ -22,12 +21,12 @@ public class PointerOfLong extends FluffyScalarPointerImpl<Long> {
      * @param sessions - Attach the new pointer to this session.
      */
     public PointerOfLong(MemoryAddress addressPointedTo, MemorySession session) {
-        super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_LONG.byteSize(), requireNonNull(session, "session"));
+        super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_LONG.byteSize(),
+            requireNonNull(session, "session"));
     }
 
     @Override
-    protected Long typedDereference(ByteBuffer rawDereferencedValue) {
-        requireNonNull(rawDereferencedValue, "rawDereferencedValue");
-        return rawDereferencedValue.order(FLUFFY_POINTER_BYTE_ORDER).getLong();
+    public Long dereference() {
+        return getValue().get(JAVA_LONG, 0);
     }
 }

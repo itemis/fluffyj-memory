@@ -8,7 +8,7 @@ import com.itemis.fluffyj.memory.internal.impl.FluffyScalarPointerImpl;
 
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySession;
-import java.nio.ByteBuffer;
+import java.lang.foreign.ValueLayout;
 
 /**
  * A {@link FluffyPointer} that points to a segment that holds an {@link Integer}.
@@ -22,12 +22,12 @@ public class PointerOfInt extends FluffyScalarPointerImpl<Integer> {
      * @param session - Attach the new pointer to this session.
      */
     public PointerOfInt(MemoryAddress addressPointedTo, MemorySession session) {
-        super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_INT.byteSize(), requireNonNull(session, "session"));
+        super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_INT.byteSize(),
+            requireNonNull(session, "session"));
     }
 
     @Override
-    protected Integer typedDereference(ByteBuffer rawDereferencedValue) {
-        requireNonNull(rawDereferencedValue, "rawDereferencedValue");
-        return rawDereferencedValue.order(FLUFFY_POINTER_BYTE_ORDER).getInt();
+    public Integer dereference() {
+        return getValue().get(ValueLayout.JAVA_INT, 0);
     }
 }

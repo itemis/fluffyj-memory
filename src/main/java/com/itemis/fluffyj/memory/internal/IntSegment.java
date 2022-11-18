@@ -1,27 +1,20 @@
 package com.itemis.fluffyj.memory.internal;
 
-import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static java.util.Objects.requireNonNull;
+import static java.lang.foreign.SegmentAllocator.newNativeArena;
 
-import com.google.common.primitives.Ints;
+import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffySegment;
-import com.itemis.fluffyj.memory.internal.impl.FluffyScalarSegmentImpl;
+import com.itemis.fluffyj.memory.internal.impl.FluffySegmentImpl;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.lang.foreign.ValueLayout;
 
 /**
  * A {@link FluffySegment} that holds an {@link Integer}.
  */
-public class IntSegment extends FluffyScalarSegmentImpl<Integer> {
+public class IntSegment extends FluffySegmentImpl implements FluffyScalarSegment<Integer> {
 
-    private static final MemoryLayout MY_LAYOUT = JAVA_INT;
     /**
      * Instances of this class hold this value as default if no other has been set upon
      * construction.
@@ -36,8 +29,7 @@ public class IntSegment extends FluffyScalarSegmentImpl<Integer> {
      *        closed, the new segment will not be alive anymore.
      */
     public IntSegment(int initialValue, MemorySession session) {
-        super(toByteArray(initialValue, FLUFFY_SEGMENT_BYTE_ORDER), MY_LAYOUT,
-            requireNonNull(session, "session"));
+        this(newNativeArena(session).allocate(ValueLayout.JAVA_INT, initialValue));
     }
 
     /**
@@ -51,20 +43,12 @@ public class IntSegment extends FluffyScalarSegmentImpl<Integer> {
     }
 
     @Override
-    protected Integer getTypedValue(ByteBuffer rawValue) {
-        return rawValue.order(FLUFFY_SEGMENT_BYTE_ORDER).getInt();
-    }
-
-    @Override
     public Class<Integer> getContainedType() {
         return Integer.class;
     }
 
-    private static final byte[] toByteArray(int val, ByteOrder byteOrder) {
-        var result = Ints.toByteArray(val);
-        if (byteOrder.equals(LITTLE_ENDIAN)) {
-            ArrayUtils.reverse(result);
-        }
-        return result;
+    @Override
+    public Integer getValue() {
+        return backingSeg.get(ValueLayout.JAVA_INT, 0);
     }
 }
