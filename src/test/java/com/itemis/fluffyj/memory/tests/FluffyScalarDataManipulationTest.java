@@ -3,10 +3,7 @@ package com.itemis.fluffyj.memory.tests;
 import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
-import static com.itemis.fluffyj.memory.api.FluffyPointer.FLUFFY_POINTER_BYTE_ORDER;
 import static java.lang.foreign.MemorySegment.allocateNative;
-import static java.lang.foreign.MemorySegment.ofAddress;
-import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +18,7 @@ import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
+import java.lang.foreign.ValueLayout;
 import java.util.Iterator;
 
 public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionEnabledTest {
@@ -156,19 +154,6 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
     }
 
     @Test
-    void address_returns_address() {
-        var nativeSeg = allocateNativeSeg(firstTestValue.rawValue());
-        var expectedNativeSegAddress = nativeSeg.address();
-
-        var underTest = allocatePointer(expectedNativeSegAddress);
-
-        var actualNativeSegAddress =
-            MemoryAddress.ofLong(ofAddress(underTest.address(), ADDRESS.byteSize(), session).asByteBuffer()
-                .order(FLUFFY_POINTER_BYTE_ORDER).getLong());
-        assertThat(actualNativeSegAddress).isEqualTo(expectedNativeSegAddress);
-    }
-
-    @Test
     void can_create_empty_typed_pointer() {
         var result = pointer().of(testValueType).allocate();
 
@@ -190,8 +175,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
         var underTest = allocateNullPointer();
 
         assertThat(underTest.getValue()).isEqualTo(MemoryAddress.NULL);
-        ofAddress(underTest.address(), ADDRESS.byteSize(), session).asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER)
-            .putLong(expectedAddress);
+        underTest.address().set(ValueLayout.JAVA_LONG, 0, expectedAddress);
         assertThat(underTest.getValue()).isEqualTo(MemoryAddress.ofLong(expectedAddress));
     }
 

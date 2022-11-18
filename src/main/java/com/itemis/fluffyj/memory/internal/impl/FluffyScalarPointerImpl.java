@@ -5,9 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.itemis.fluffyj.memory.api.FluffyScalarPointer;
 
 import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
-import java.nio.ByteBuffer;
 
 /**
  * Default implementation of a scalar pointer.
@@ -16,7 +14,7 @@ import java.nio.ByteBuffer;
  */
 public abstract class FluffyScalarPointerImpl<T> extends FluffyPointerImpl implements FluffyScalarPointer<T> {
 
-    private final long byteSize;
+    final long byteSize;
 
     /**
      * @param addressPointedTo - The address this pointer will point to.
@@ -27,18 +25,5 @@ public abstract class FluffyScalarPointerImpl<T> extends FluffyPointerImpl imple
     public FluffyScalarPointerImpl(MemoryAddress addressPointedTo, long byteSize, MemorySession session) {
         super(addressPointedTo, session);
         this.byteSize = requireNonNull(byteSize);
-    }
-
-    /**
-     * @param rawDereferencedValue - A read only {@link ByteBuffer} that contains the bytes of the
-     *        segment this pointer points to.
-     * @return The correctly typed value of the segment this pointer points to.
-     */
-    protected abstract T typedDereference(ByteBuffer rawDereferencedValue);
-
-    @Override
-    public final T dereference() {
-        return typedDereference(MemorySegment.ofAddress(getValue(), byteSize, session).asByteBuffer().asReadOnlyBuffer()
-            .order(FLUFFY_POINTER_BYTE_ORDER));
     }
 }
