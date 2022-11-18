@@ -1,27 +1,20 @@
 package com.itemis.fluffyj.memory.internal;
 
-import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static java.nio.ByteOrder.LITTLE_ENDIAN;
-import static java.util.Objects.requireNonNull;
+import static java.lang.foreign.SegmentAllocator.newNativeArena;
 
+import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffySegment;
-import com.itemis.fluffyj.memory.internal.impl.FluffyScalarSegmentImpl;
-import com.tngtech.archunit.thirdparty.com.google.common.primitives.Longs;
+import com.itemis.fluffyj.memory.internal.impl.FluffySegmentImpl;
 
-import org.apache.commons.lang3.ArrayUtils;
-
-import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.lang.foreign.ValueLayout;
 
 /**
- * A {@link FluffySegment} that holds a {@link Long}.
+ * A {@link FluffySegment} that holds an {@link Long}.
  */
-public class LongSegment extends FluffyScalarSegmentImpl<Long> {
+public class LongSegment extends FluffySegmentImpl implements FluffyScalarSegment<Long> {
 
-    private static final MemoryLayout MY_LAYOUT = JAVA_LONG;
     /**
      * Instances of this class hold this value as default if no other has been set upon
      * construction.
@@ -36,8 +29,7 @@ public class LongSegment extends FluffyScalarSegmentImpl<Long> {
      *        closed, the new segment will not be alive anymore.
      */
     public LongSegment(long initialValue, MemorySession session) {
-        super(toByteArray(initialValue, FLUFFY_SEGMENT_BYTE_ORDER), MY_LAYOUT,
-            requireNonNull(session, "session"));
+        this(newNativeArena(session).allocate(ValueLayout.JAVA_LONG, initialValue));
     }
 
     /**
@@ -51,20 +43,12 @@ public class LongSegment extends FluffyScalarSegmentImpl<Long> {
     }
 
     @Override
-    protected Long getTypedValue(ByteBuffer rawValue) {
-        return rawValue.order(FLUFFY_SEGMENT_BYTE_ORDER).getLong();
-    }
-
-    @Override
     public Class<Long> getContainedType() {
         return Long.class;
     }
 
-    private static final byte[] toByteArray(long val, ByteOrder byteOrder) {
-        var result = Longs.toByteArray(val);
-        if (byteOrder.equals(LITTLE_ENDIAN)) {
-            ArrayUtils.reverse(result);
-        }
-        return result;
+    @Override
+    public Long getValue() {
+        return backingSeg.get(ValueLayout.JAVA_LONG, 0);
     }
 }

@@ -2,8 +2,8 @@ name: snapshot-workflow
 run-name: Build commit ${{ github.sha }} on branch ${{ github.ref }}
 on: 
   push:
-    branches:
-      - develop
+    branches-ignore:
+      - main
   pull_request:
 jobs:
   build-snapshot:
@@ -22,4 +22,5 @@ jobs:
           check-latest: true
           cache: 'maven'
       - name: Build & Test
-        run: mvn --batch-mode -U clean verify
+        run: |
+          mvn -B -U clean verify package

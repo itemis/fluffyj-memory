@@ -1,22 +1,19 @@
 package com.itemis.fluffyj.memory.internal;
 
-import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.util.Objects.requireNonNull;
 
+import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffySegment;
-import com.itemis.fluffyj.memory.internal.impl.FluffyScalarSegmentImpl;
+import com.itemis.fluffyj.memory.internal.impl.FluffySegmentImpl;
 
-import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
-import java.nio.ByteBuffer;
+import java.lang.foreign.ValueLayout;
 
 /**
  * A {@link FluffySegment} that holds a {@link Byte}.
  */
-public class ByteSegment extends FluffyScalarSegmentImpl<Byte> {
-
-    private static final MemoryLayout MY_LAYOUT = JAVA_BYTE;
+public class ByteSegment extends FluffySegmentImpl implements FluffyScalarSegment<Byte> {
 
     /**
      * Allocate a new segment.
@@ -26,7 +23,7 @@ public class ByteSegment extends FluffyScalarSegmentImpl<Byte> {
      *        closed, the new segment will not be alive anymore.
      */
     public ByteSegment(byte initialValue, MemorySession session) {
-        super(new byte[] {initialValue}, MY_LAYOUT, requireNonNull(session, "session"));
+        super(new byte[] {initialValue}, requireNonNull(session, "session"));
     }
 
     /**
@@ -40,12 +37,12 @@ public class ByteSegment extends FluffyScalarSegmentImpl<Byte> {
     }
 
     @Override
-    protected Byte getTypedValue(ByteBuffer rawValue) {
-        return rawValue.get();
+    public Byte getValue() {
+        return backingSeg.get(ValueLayout.JAVA_BYTE, 0);
     }
 
     @Override
-    public Class<Byte> getContainedType() {
+    public Class<? extends Byte> getContainedType() {
         return Byte.class;
     }
 }

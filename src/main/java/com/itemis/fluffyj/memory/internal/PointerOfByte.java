@@ -8,7 +8,7 @@ import com.itemis.fluffyj.memory.internal.impl.FluffyScalarPointerImpl;
 
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySession;
-import java.nio.ByteBuffer;
+import java.lang.foreign.ValueLayout;
 
 /**
  * A {@link FluffyPointer} that points to a segment that holds a {@link Byte}.
@@ -22,12 +22,12 @@ public class PointerOfByte extends FluffyScalarPointerImpl<Byte> {
      * @param session - Attach the new pointer to this session.
      */
     public PointerOfByte(MemoryAddress addressPointedTo, MemorySession session) {
-        super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_INT.byteSize(), requireNonNull(session, "session"));
+        super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_INT.byteSize(),
+            requireNonNull(session, "session"));
     }
 
     @Override
-    protected Byte typedDereference(ByteBuffer rawDereferencedValue) {
-        requireNonNull(rawDereferencedValue, "rawDereferencedValue");
-        return rawDereferencedValue.get();
+    public Byte dereference() {
+        return getValue().get(ValueLayout.JAVA_BYTE, 0);
     }
 }

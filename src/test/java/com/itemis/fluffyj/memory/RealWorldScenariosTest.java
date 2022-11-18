@@ -24,7 +24,7 @@ import com.itemis.fluffyj.memory.tests.MemorySessionEnabledTest;
 import org.junit.jupiter.api.Test;
 
 import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.lang.invoke.WrongMethodTypeException;
 import java.util.Random;
 
@@ -127,8 +127,8 @@ public class RealWorldScenariosTest extends MemorySessionEnabledTest {
     }
 
     int qsort_compar(MemoryAddress left, MemoryAddress right) {
-        var leftByte = wrap(MemorySegment.ofAddress(left, 1, session)).as(Byte.class).getValue();
-        var rightByte = wrap(MemorySegment.ofAddress(right, 1, session)).as(Byte.class).getValue();
+        var leftByte = left.get(ValueLayout.JAVA_BYTE, 0);
+        var rightByte = right.get(ValueLayout.JAVA_BYTE, 0);
         var result = 0;
         if (leftByte < rightByte) {
             result = -1;

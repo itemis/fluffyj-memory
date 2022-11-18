@@ -6,7 +6,7 @@ import com.itemis.fluffyj.memory.internal.impl.FluffyVectorPointerImpl;
 
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySession;
-import java.nio.ByteBuffer;
+import java.lang.foreign.ValueLayout;
 
 public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
 
@@ -22,12 +22,11 @@ public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
     }
 
     @Override
-    protected Byte[] typedDereference(ByteBuffer rawDereferencedValue) {
-        requireNonNull(rawDereferencedValue, "rawDereferencedValue");
-        var length = rawDereferencedValue.capacity();
-        var result = new Byte[length];
-        for (var i = 0; i < length; i++) {
-            result[i] = rawDereferencedValue.asReadOnlyBuffer().get(i);
+    public Byte[] dereference() {
+        var addr = getValue();
+        var result = new Byte[(int) byteSize];
+        for (var i = 0; i < result.length; i++) {
+            result[i] = addr.get(ValueLayout.JAVA_BYTE, i);
         }
 
         return result;

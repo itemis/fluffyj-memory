@@ -1,6 +1,7 @@
 package com.itemis.fluffyj.memory.internal.impl;
 
 import static java.lang.foreign.MemorySegment.allocateNative;
+import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
@@ -8,7 +9,6 @@ import com.itemis.fluffyj.memory.api.FluffyPointer;
 import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.MemorySession;
-import java.lang.foreign.ValueLayout;
 
 /**
  * Default implementation of a pointer.
@@ -24,8 +24,8 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
      *        will not be alive anymore.
      */
     public FluffyPointerImpl(MemoryAddress addressPointedTo, MemorySession session) {
-        this.addressSeg = allocateNative(ValueLayout.ADDRESS, requireNonNull(session, "session"));
-        this.addressSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).putLong(requireNonNull(addressPointedTo, "addressPointedTo").toRawLongValue());
+        this.addressSeg = allocateNative(ADDRESS, requireNonNull(session, "session"));
+        addressSeg.set(ADDRESS, 0, addressPointedTo);
         this.session = session;
     }
 
@@ -41,6 +41,6 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
 
     @Override
     public final MemoryAddress getValue() {
-        return MemoryAddress.ofLong(addressSeg.asByteBuffer().order(FLUFFY_POINTER_BYTE_ORDER).getLong());
+        return addressSeg.get(ADDRESS, 0);
     }
 }
