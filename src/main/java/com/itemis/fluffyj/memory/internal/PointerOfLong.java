@@ -18,7 +18,7 @@ public class PointerOfLong extends FluffyScalarPointerImpl<Long> {
      * Allocate a new pointer.
      *
      * @param addressPointedTo - The {@link MemoryAddress} the new pointer will point to.
-     * @param sessions - Attach the new pointer to this session.
+     * @param session - Attach the new pointer to this session.
      */
     public PointerOfLong(MemoryAddress addressPointedTo, MemorySession session) {
         super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_LONG.byteSize(),
