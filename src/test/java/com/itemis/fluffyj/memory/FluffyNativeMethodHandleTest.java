@@ -23,7 +23,7 @@ import com.itemis.fluffyj.memory.api.FluffyMemoryLinker;
 import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
-import com.itemis.fluffyj.memory.tests.MemorySessionEnabledTest;
+import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class FluffyNativeMethodHandleTest extends MemorySessionEnabledTest {
+public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     private SymbolLookup libMock;
     private FluffyMemoryLinker linkerMock;
@@ -128,7 +128,7 @@ public class FluffyNativeMethodHandleTest extends MemorySessionEnabledTest {
             .returnType(Long.class)
             .func(expectedSymbolName);
 
-        verify(libMock, times(1)).lookup(expectedSymbolName);
+        verify(libMock, times(1)).find(expectedSymbolName);
     }
 
     @Test
@@ -211,14 +211,14 @@ public class FluffyNativeMethodHandleTest extends MemorySessionEnabledTest {
     }
 
     private void addKnownSymbol(String symbolName) {
-        var seg = allocateNative(1, session);
-        when(libMock.lookup(symbolName)).thenReturn(Optional.of(seg));
+        var seg = allocateNative(1, scope);
+        when(libMock.find(symbolName)).thenReturn(Optional.of(seg));
     }
 
     private void removeSymbol(String symbolName) {
         // The mock statement is required in order for eclipse to accept the next statement.
         // There seems to be a Java19 related bug wrt Mockito.when
         Mockito.mock(Supplier.class);
-        when(libMock.lookup(symbolName)).thenReturn(Optional.empty());
+        when(libMock.find(symbolName)).thenReturn(Optional.empty());
     }
 }

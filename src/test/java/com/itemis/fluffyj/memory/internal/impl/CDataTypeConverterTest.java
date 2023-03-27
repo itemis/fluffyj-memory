@@ -21,8 +21,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
 import java.util.stream.Stream;
 
 public class CDataTypeConverterTest {
@@ -46,8 +46,8 @@ public class CDataTypeConverterTest {
     }
 
     @Test
-    void JVM_type_of_pointer_is_memory_address() {
-        assertThat(underTest.getJvmType(ADDRESS)).isEqualTo(MemoryAddress.class);
+    void JVM_type_of_pointer_is_memory_segment() {
+        assertThat(underTest.getJvmType(ADDRESS)).isEqualTo(MemorySegment.class);
     }
 
     @Test
@@ -156,6 +156,6 @@ public class CDataTypeConverterTest {
             Arguments.of(Short.class, JAVA_SHORT, short.class),
             Arguments.of(byte.class, JAVA_BYTE, byte.class),
             Arguments.of(Byte.class, JAVA_BYTE, byte.class),
-            Arguments.of(MemoryAddress.class, ADDRESS, MemoryAddress.class));
+            Arguments.of(MemorySegment.class, ADDRESS, MemorySegment.class));
     }
 }

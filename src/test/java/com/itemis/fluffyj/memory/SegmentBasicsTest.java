@@ -3,36 +3,42 @@ package com.itemis.fluffyj.memory;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
-import static java.lang.foreign.MemoryAddress.NULL;
 import static java.lang.foreign.MemorySegment.allocateNative;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
-import com.itemis.fluffyj.memory.tests.MemorySessionEnabledTest;
+import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.foreign.MemorySegment;
 
-class SegmentBasicsTest extends MemorySessionEnabledTest {
+class SegmentBasicsTest extends MemoryScopeEnabledTest {
 
     private MemorySegment nativeSeg;
 
     @BeforeEach
     void setUp() {
-        nativeSeg = allocateNative(1, session);
+        nativeSeg = allocateNative(1, scope);
+    }
+
+    @Test
+    void address_rawAddress_equality() {
+        var segment = new FluffyMemoryScalarSegmentAllocator<>("test").allocate(scope);
+        assertThat(segment.address().address()).isEqualTo(segment.rawAddress());
     }
 
     @Test
     void allocate_with_null_yields_npe() {
-        var pointerAlloc = new FluffyMemoryScalarPointerAllocator<>(NULL, Object.class);
-        assertNullArgNotAccepted(() -> pointerAlloc.allocate(null), "session");
+        var pointerAlloc = new FluffyMemoryScalarPointerAllocator<>(0L, Object.class);
+        assertNullArgNotAccepted(() -> pointerAlloc.allocate(null), "scope");
 
-        var segmentAlloc = new FluffyMemoryScalarSegmentAllocator<>(NULL);
-        assertNullArgNotAccepted(() -> segmentAlloc.allocate(null), "session");
+        var segmentAlloc = new FluffyMemoryScalarSegmentAllocator<>(0L);
+        assertNullArgNotAccepted(() -> segmentAlloc.allocate(null), "scope");
     }
 
     @Test
@@ -43,15 +49,15 @@ class SegmentBasicsTest extends MemorySessionEnabledTest {
     }
 
     @Test
-    void allocate_scalar_seg_with_session_and_unknown_type_yields_exception() {
-        assertThatThrownBy(() -> segment().of(new MyType()).allocate(session))
+    void allocate_scalar_seg_with_scope_and_unknown_type_yields_exception() {
+        assertThatThrownBy(() -> segment().of(new MyType()).allocate(scope))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Cannot allocate scalar segment of unknown type: " + MyType.class.getCanonicalName());
     }
 
     @Test
-    void allocate_vector_seg_with_session_and_unknown_type_yields_exception() {
-        assertThatThrownBy(() -> segment().ofArray(new MyType[0]).allocate(session))
+    void allocate_vector_seg_with_scope_and_unknown_type_yields_exception() {
+        assertThatThrownBy(() -> segment().ofArray(new MyType[0]).allocate(scope))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage(
                 "Cannot allocate vector segment of unknown type: " + MyType.class.arrayType().getCanonicalName());

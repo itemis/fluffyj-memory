@@ -5,7 +5,7 @@ import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.memory.FluffyNativeMethodHandle.fromCStdLib;
 import static java.lang.foreign.Linker.nativeLinker;
-import static java.lang.foreign.SegmentAllocator.newNativeArena;
+import static java.lang.foreign.SegmentAllocator.nativeAllocator;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.util.Arrays.sort;
@@ -19,16 +19,15 @@ import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.PointerOfString;
 import com.itemis.fluffyj.memory.internal.StringSegment;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
-import com.itemis.fluffyj.memory.tests.MemorySessionEnabledTest;
+import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.ValueLayout;
+import java.lang.foreign.MemorySegment;
 import java.lang.invoke.WrongMethodTypeException;
 import java.util.Random;
 
-public class RealWorldScenariosTest extends MemorySessionEnabledTest {
+public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
 
     private static final int MAX_RND_STR_LENGTH = 100;
 
@@ -37,8 +36,8 @@ public class RealWorldScenariosTest extends MemorySessionEnabledTest {
         var expectedStringLength = new Random().nextInt(MAX_RND_STR_LENGTH);
         var rndStr = randomAlphanumeric(expectedStringLength);
 
-        var cStr = new StringSegment(rndStr, session);
-        var ptrCStr = new PointerOfString(cStr.address(), session);
+        var cStr = new StringSegment(rndStr, scope);
+        var ptrCStr = new PointerOfString(cStr.rawAddress(), scope);
 
         assertThat(strlen(cStr.address())).isEqualTo(expectedStringLength);
         assertThat(strlen(ptrCStr.getValue())).isEqualTo(expectedStringLength);
@@ -49,9 +48,9 @@ public class RealWorldScenariosTest extends MemorySessionEnabledTest {
         var expectedStringLength = new Random().nextInt(MAX_RND_STR_LENGTH);
         var rndStr = randomAlphanumeric(expectedStringLength);
 
-        var cStr = segment().of(rndStr).allocate(session);
-        var ptrCStr = pointer().to(cStr).allocate(session);
-        var strSeg = newNativeArena(session).allocateUtf8String(rndStr);
+        var cStr = segment().of(rndStr).allocate(scope);
+        var ptrCStr = pointer().to(cStr).allocate(scope);
+        var strSeg = nativeAllocator(scope).allocateUtf8String(rndStr);
         var wrappedStrSeg = wrap(strSeg).as(String.class);
 
         assertThat(strlen(cStr.address())).isEqualTo(expectedStringLength);
@@ -68,7 +67,7 @@ public class RealWorldScenariosTest extends MemorySessionEnabledTest {
                 .func("strlen")
                 .args(ADDRESS);
 
-        var expectedCause = new WrongMethodTypeException("cannot convert MethodHandle(Addressable)long to ()Object");
+        var expectedCause = new WrongMethodTypeException("cannot convert MethodHandle(MemorySegment)long to ()Object");
         assertThatThrownBy(() -> underTest.call())
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Calling native code failed: " + ThrowablePrettyfier.pretty(expectedCause))
@@ -78,7 +77,7 @@ public class RealWorldScenariosTest extends MemorySessionEnabledTest {
     @Test
     void handle_construction_via_shortcut_works() {
         var testStr = "testString";
-        var ptr = segment().of(testStr).allocate(session).address();
+        var ptr = segment().of(testStr).allocate(scope).address();
 
         assertThat(strlen_shortcut_construction(ptr)).isEqualTo(testStr.length());
     }
@@ -109,26 +108,26 @@ public class RealWorldScenariosTest extends MemorySessionEnabledTest {
         assertThat(actualResult).isEqualTo(expectedResult);
     }
 
-    private MemoryAddress createComparPointerAuto() {
+    private MemorySegment createComparPointerAuto() {
         return pointer()
             .toCFunc("qsort_compar")
             .of(this)
-            .autoBindTo(session).address();
+            .autoBindTo(scope);
     }
 
-    private MemoryAddress createComparPointerManual() {
+    private MemorySegment createComparPointerManual() {
         return pointer()
             .toFunc("qsort_compar")
             .ofType(this)
             .withTypeConverter(new CDataTypeConverter())
             .withArgs(ADDRESS, ADDRESS)
             .andReturnType(JAVA_INT)
-            .bindTo(session).address();
+            .bindTo(scope);
     }
 
-    int qsort_compar(MemoryAddress left, MemoryAddress right) {
-        var leftByte = left.get(ValueLayout.JAVA_BYTE, 0);
-        var rightByte = right.get(ValueLayout.JAVA_BYTE, 0);
+    int qsort_compar(MemorySegment left, MemorySegment right) {
+        var leftByte = pointer().to(left.address()).as(Byte.class).allocate(scope).dereference();
+        var rightByte = pointer().to(right.address()).as(Byte.class).allocate(scope).dereference();
         var result = 0;
         if (leftByte < rightByte) {
             result = -1;
@@ -138,7 +137,7 @@ public class RealWorldScenariosTest extends MemorySessionEnabledTest {
         return result;
     }
 
-    private long strlen_shortcut_construction(MemoryAddress pointerToString) {
+    private long strlen_shortcut_construction(MemorySegment pointerToString) {
         var underTest =
             FluffyNativeMethodHandle
                 .fromCStdLib()
@@ -149,7 +148,7 @@ public class RealWorldScenariosTest extends MemorySessionEnabledTest {
         return underTest.call(pointerToString);
     }
 
-    private long strlen(MemoryAddress pointerToString) {
+    private long strlen(MemorySegment pointerToString) {
         var underTest =
             FluffyNativeMethodHandle
                 .fromLib(nativeLinker().defaultLookup())
