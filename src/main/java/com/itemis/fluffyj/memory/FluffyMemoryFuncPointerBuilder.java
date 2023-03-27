@@ -1,7 +1,7 @@
 package com.itemis.fluffyj.memory;
 
 import static java.lang.foreign.Linker.nativeLinker;
-import static java.lang.foreign.MemorySession.global;
+import static java.lang.foreign.SegmentScope.global;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.methodType;
 import static java.util.Arrays.stream;
@@ -18,10 +18,9 @@ import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.R
 import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.TypeConverterStage;
 
 import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -29,9 +28,8 @@ import java.util.Optional;
 
 
 /**
- * Builder for a native pointer to a JVM method (function, effectively a {@link MemoryAddress})
- * which may act as a function pointer from the perspective of native code. Should not be used
- * directly.
+ * Builder for a native pointer to a JVM method (function, effectively a memory address) which may
+ * act as a function pointer from the perspective of native code. Should not be used directly.
  */
 public final class FluffyMemoryFuncPointerBuilder
         implements CFuncStage, FuncStage, ArgsStage, TypeConverterStage, ReturnTypeStage, BinderStage {
@@ -103,8 +101,8 @@ public final class FluffyMemoryFuncPointerBuilder
     }
 
     @Override
-    public MemorySegment autoBindTo(MemorySession session) {
-        requireNonNull(session, "session");
+    public MemorySegment autoBindTo(SegmentScope scope) {
+        requireNonNull(scope, "scope");
 
         var candidateMethods = extractMethodCandidates();
 
@@ -145,7 +143,7 @@ public final class FluffyMemoryFuncPointerBuilder
                     e);
             }
         }
-        return bindTo(session);
+        return bindTo(scope);
     }
 
     @Override
@@ -164,8 +162,8 @@ public final class FluffyMemoryFuncPointerBuilder
     }
 
     @Override
-    public MemorySegment bindTo(MemorySession session) {
-        requireNonNull(session, "session");
+    public MemorySegment bindTo(SegmentScope scope) {
+        requireNonNull(scope, "scope");
 
         if (extractMethodCandidates().stream().anyMatch(Method::isSynthetic)) {
             throwCannotBindSynthMethod();
@@ -182,15 +180,15 @@ public final class FluffyMemoryFuncPointerBuilder
 
         if (nativeReturnType.isPresent()) {
             return nativeLinker()
-                .upcallStub(callback, FunctionDescriptor.of(nativeReturnType.get(), nativeArgTypes), session);
+                .upcallStub(callback, FunctionDescriptor.of(nativeReturnType.get(), nativeArgTypes), scope);
         } else {
-            return nativeLinker().upcallStub(callback, FunctionDescriptor.ofVoid(nativeArgTypes), session);
+            return nativeLinker().upcallStub(callback, FunctionDescriptor.ofVoid(nativeArgTypes), scope);
         }
     }
 
     @Override
-    public MemorySegment bindToGlobalSession() {
-        return bindTo(MemorySession.global());
+    public MemorySegment bindToGlobalScope() {
+        return bindTo(SegmentScope.global());
     }
 
     private List<Method> extractMethodCandidates() {

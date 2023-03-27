@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.itemis.fluffyj.memory.internal.impl.FluffyVectorSegmentImpl;
 
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 
@@ -15,12 +15,12 @@ public class BlobSegment extends FluffyVectorSegmentImpl<Byte> {
         super(backingSeg);
     }
 
-    public BlobSegment(Byte[] initialValue, MemorySession session) {
-        this(primitivize(requireNonNull(initialValue, "initialValue")), requireNonNull(session, "session"));
+    public BlobSegment(Byte[] initialValue, SegmentScope scope) {
+        this(primitivize(requireNonNull(initialValue, "initialValue")), requireNonNull(scope, "scope"));
     }
 
-    public BlobSegment(byte[] initialValue, MemorySession session) {
-        super(requireNonNull(initialValue, "initialValue"), requireNonNull(session, "session"));
+    public BlobSegment(byte[] initialValue, SegmentScope scope) {
+        super(requireNonNull(initialValue, "initialValue"), requireNonNull(scope, "scope"));
     }
 
     private static final byte[] primitivize(Byte[] value) {

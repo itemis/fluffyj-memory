@@ -5,7 +5,7 @@ import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 
 public final class FluffyMemoryFuncPointerBuilderStages {
 
@@ -32,7 +32,7 @@ public final class FluffyMemoryFuncPointerBuilderStages {
 
         MemorySegment autoBind();
 
-        MemorySegment autoBindTo(MemorySession session);
+        MemorySegment autoBindTo(SegmentScope scope);
     }
 
     public interface ReturnTypeStage {
@@ -42,8 +42,8 @@ public final class FluffyMemoryFuncPointerBuilderStages {
     }
 
     public interface BinderStage {
-        MemorySegment bindToGlobalSession();
+        MemorySegment bindToGlobalScope();
 
-        MemorySegment bindTo(MemorySession session);
+        MemorySegment bindTo(SegmentScope scope);
     }
 }

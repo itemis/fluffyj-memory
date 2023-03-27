@@ -4,7 +4,7 @@ import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertFinal;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertIsStaticHelper;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
-import static java.lang.foreign.MemorySession.global;
+import static java.lang.foreign.SegmentScope.global;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
@@ -23,7 +23,7 @@ import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.C
 import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.ReturnTypeStage;
 import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.TypeConverterStage;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
-import com.itemis.fluffyj.memory.tests.MemorySessionEnabledTest;
+import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +33,7 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.util.Comparator;
 
-public class FunctionPointerTest extends MemorySessionEnabledTest {
+public class FunctionPointerTest extends MemoryScopeEnabledTest {
 
     private static final String TEST_FUNC = "testFunc";
     private static final String NO_ARGS = "noArgs";
@@ -74,24 +74,25 @@ public class FunctionPointerTest extends MemorySessionEnabledTest {
         var fifthStage = fourthStage.andReturnType(JAVA_INT);
         assertThat(fifthStage).isInstanceOf(BinderStage.class);
 
-        var sixthStage = fifthStage.bindTo(session);
+        var sixthStage = fifthStage.bindTo(scope);
         assertThat(sixthStage).isInstanceOf(MemorySegment.class);
 
-        var otherSixthStage = fifthStage.bindToGlobalSession();
+        var otherSixthStage = fifthStage.bindToGlobalScope();
         assertThat(otherSixthStage).isInstanceOf(MemorySegment.class);
     }
 
     @Test
     void test_bind_to_void_method_with_no_args_use_shortcuts() {
         var result =
-            pointer().toCFunc(NO_ARGS).of(new TestType()).withoutArgs().andNoReturnType().bindToGlobalSession();
+            pointer().toCFunc(NO_ARGS).of(new TestType()).withoutArgs().andNoReturnType().bindToGlobalScope();
 
         assertThat(result).isNotNull();
     }
 
     @Test
     void test_bind_to_void_method_with_no_args_dont_use_shortcuts() {
-        var result = pointer().toCFunc(NO_ARGS).of(new TestType()).withArgs().andNoReturnType().bindTo(global());
+        var result =
+            pointer().toCFunc(NO_ARGS).of(new TestType()).withArgs().andNoReturnType().bindTo(global());
         assertThat(result).isNotNull();
     }
 
@@ -109,7 +110,7 @@ public class FunctionPointerTest extends MemorySessionEnabledTest {
     void when_manual_bind_private_method_then_throw_exception() {
         var methodName = "privateMethod";
         assertThatThrownBy(
-            () -> pointer().toCFunc(methodName).of(new TestType()).withArgs().andNoReturnType().bindToGlobalSession())
+            () -> pointer().toCFunc(methodName).of(new TestType()).withArgs().andNoReturnType().bindToGlobalScope())
                 .isInstanceOf(FluffyMemoryException.class)
                 .hasMessage("Cannot create function pointer to non accessible JVM methods.");
     }
@@ -118,7 +119,7 @@ public class FunctionPointerTest extends MemorySessionEnabledTest {
     void when_manual_bind_synthetic_method_then_throw_exception() {
         var methodName = "compare";
         assertThatThrownBy(() -> pointer().toCFunc(methodName).of(new BridgeMethodDemo()).withoutArgs()
-            .andNoReturnType().bindTo(session))
+            .andNoReturnType().bindTo(scope))
                 .isInstanceOf(FluffyMemoryException.class)
                 .hasMessage("Cannot create function pointer to synthetic JVM methods.");
     }
@@ -130,14 +131,14 @@ public class FunctionPointerTest extends MemorySessionEnabledTest {
     }
 
     @Test
-    void test_auto_bind_happy_path_custom_session() {
-        var result = pointer().toCFunc(TEST_FUNC).of(new TestType()).autoBindTo(session);
+    void test_auto_bind_happy_path_custom_scope() {
+        var result = pointer().toCFunc(TEST_FUNC).of(new TestType()).autoBindTo(scope);
 
-        assertThat(result.session().isAlive()).isTrue();
+        assertThat(result.scope().isAlive()).isTrue();
 
-        session.close();
+        arena.close();
 
-        assertThat(result.session().isAlive()).isFalse();
+        assertThat(result.scope().isAlive()).isFalse();
     }
 
     @Test
@@ -234,7 +235,7 @@ public class FunctionPointerTest extends MemorySessionEnabledTest {
     @Test
     void autoBindTo_uses_typeConv() {
         var convSpy = spy(new CDataTypeConverter());
-        pointer().toFunc(TEST_FUNC).ofType(new TestType()).withTypeConverter(convSpy).autoBindTo(session);
+        pointer().toFunc(TEST_FUNC).ofType(new TestType()).withTypeConverter(convSpy).autoBindTo(scope);
 
         verify(convSpy).getNativeTypes(any());
     }
@@ -290,7 +291,7 @@ public class FunctionPointerTest extends MemorySessionEnabledTest {
 
     @Test
     void autoBindTo_does_not_accept_null() {
-        assertNullArgNotAccepted(() -> pointer().toCFunc(TEST_FUNC).of(new TestType()).autoBindTo(null), "session");
+        assertNullArgNotAccepted(() -> pointer().toCFunc(TEST_FUNC).of(new TestType()).autoBindTo(null), "scope");
     }
 
     @Test
@@ -302,7 +303,7 @@ public class FunctionPointerTest extends MemorySessionEnabledTest {
     @Test
     void bindTo_does_not_accept_null() {
         assertNullArgNotAccepted(
-            () -> pointer().toCFunc(TEST_FUNC).of(TEST_FUNC).withoutArgs().andNoReturnType().bindTo(null), "session");
+            () -> pointer().toCFunc(TEST_FUNC).of(TEST_FUNC).withoutArgs().andNoReturnType().bindTo(null), "scope");
     }
 
     // Will only be used to bind a MethodType in a test

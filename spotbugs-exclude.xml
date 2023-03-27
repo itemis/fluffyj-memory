@@ -11,8 +11,13 @@
     <Match>
         <Class name="com.itemis.fluffyj.memory.internal.impl.FluffyPointerImpl" />
         <!-- This is a constructor match -->
-        <Method name="&lt;init&gt;" params="java.lang.foreign.MemoryAddress,java.lang.foreign.MemorySession" />
+        <Method name="&lt;init&gt;" params="long,java.lang.foreign.SegmentScope" />
         <Bug pattern="EI_EXPOSE_REP2" />
+    </Match>
+    <Match>
+        <Class name="com.itemis.fluffyj.memory.internal.impl.FluffyPointerImpl" />
+        <Method name="getValue" />
+        <Bug pattern="EI_EXPOSE_REP" />
     </Match>
     <Match>
         <Class name="com.itemis.fluffyj.memory.internal.impl.FluffySegmentImpl" />
@@ -23,7 +28,7 @@
     <Match>
         <Class name="com.itemis.fluffyj.memory.internal.PointerOfThing" />
         <!-- This is a constructor match -->
-        <Method name="&lt;init&gt;" params="java.lang.foreign.MemorySession" />
+        <Method name="&lt;init&gt;" params="java.lang.foreign.SegmentScope" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
     <Match>
@@ -35,7 +40,7 @@
     <Match>
         <Class name="com.itemis.fluffyj.memory.FluffyMemoryPointerBuilder$FluffyMemoryTypedPointerBuilder" />
         <!-- This is a constructor match -->
-        <Method name="&lt;init&gt;" params="java.lang.foreign.MemoryAddress" />
+        <Method name="&lt;init&gt;" params="long" />
         <Bug pattern="EI_EXPOSE_REP2" />
     </Match>
 </FindBugsFilter>

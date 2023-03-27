@@ -9,7 +9,7 @@ import com.itemis.fluffyj.memory.internal.IntSegment;
 import com.itemis.fluffyj.memory.internal.LongSegment;
 import com.itemis.fluffyj.memory.internal.StringSegment;
 
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 
 /**
  * Helps with allocating areas of off heap memory. An allocated area of off heap memory is called a
@@ -29,30 +29,30 @@ public final class FluffyMemoryScalarSegmentAllocator<T> {
     }
 
     /**
-     * @return A freshly allocated segment attached to the global session.
+     * @return A freshly allocated segment attached to the global scope.
      */
     public FluffyScalarSegment<T> allocate() {
-        return allocate(MemorySession.global());
+        return allocate(SegmentScope.global());
     }
 
     /**
-     * @return A freshly allocated segment attached to {@code session}.
+     * @return A freshly allocated segment attached to {@code scope}.
      */
     // We cannot convince the compiler at this point anyway so we need to make sure about type
     // safety via tests
     @SuppressWarnings("unchecked")
-    public FluffyScalarSegment<T> allocate(MemorySession session) {
-        requireNonNull(session, "session");
+    public FluffyScalarSegment<T> allocate(SegmentScope scope) {
+        requireNonNull(scope, "scope");
 
         Object result = null;
         if (initialValue instanceof Long) {
-            result = new LongSegment((Long) initialValue, session);
+            result = new LongSegment((Long) initialValue, scope);
         } else if (initialValue instanceof Integer) {
-            result = new IntSegment((Integer) initialValue, session);
+            result = new IntSegment((Integer) initialValue, scope);
         } else if (initialValue instanceof String) {
-            result = new StringSegment((String) initialValue, session);
+            result = new StringSegment((String) initialValue, scope);
         } else if (initialValue instanceof Byte) {
-            result = new ByteSegment((Byte) initialValue, session);
+            result = new ByteSegment((Byte) initialValue, scope);
         } else {
             throw new FluffyMemoryException(
                 "Cannot allocate scalar segment of unknown type: " + initialValue.getClass().getCanonicalName());

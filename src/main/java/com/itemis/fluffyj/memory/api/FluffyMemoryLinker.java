@@ -1,8 +1,8 @@
 package com.itemis.fluffyj.memory.api;
 
-import java.lang.foreign.Addressable;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
+import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 
@@ -29,5 +29,5 @@ public interface FluffyMemoryLinker {
      * @return A {@link MethodHandle} instance with which it is possible to call native code via JVM
      *         semantics.
      */
-    MethodHandle link(Addressable symbol, FunctionDescriptor srcFuncDescr);
+    MethodHandle link(MemorySegment symbol, FunctionDescriptor srcFuncDescr);
 }

@@ -2,14 +2,14 @@
 Adding some fluff to [Java's Foreign Function and Memory API](https://openjdk.org/jeps/424) ❤
 
 ## Prerequisites
-This software requires Java 19 and Maven >= 3.3.x. However, it is best to use a current Maven version, i. e. >= 3.8.x.
+This software requires Java 20 and Maven >= 3.3.x. However, it is best to use a current Maven version, i. e. >= 3.9.x.
 
 ## Build
 Usually a `mvn clean install` should be enough.
 
 ## IDE Setup
-Due to the usage of Java 19 preview code, the following special setup is required:  
-* Add the following to the startup JVM option of your IDE (e. g. eclipse.ini):
+Due to the usage of Java 20 preview code, the following special setup is required:  
+* Add the following to the startup JVM options of your IDE (e. g. eclipse.ini):
 
 ```
 --enable-preview
@@ -42,7 +42,7 @@ System.out.println(seg.getValue());  // Prints contents of nativeSeg interpreted
 ### Pointing to an off heap Long
 
 ```
-MemoryAddress nativeAddress = someNativeCode.getPtr();
+MemorySegment nativeAddress = someNativeCode.getPtr();
 FluffyScalarPointer<Long> valuePtr = FluffyMemory.pointer().to(nativeAddress).as(long.class).allocate();
 System.out.println(valuePtr.dereference()); // prints contents of segment valuePtr points to, interpreted as Long
 ```
@@ -64,7 +64,7 @@ System.out.println(seg.getValue());  // Prints contents of nativeSeg interpreted
 ### Pointing to an off heap Array
 
 ```
-MemoryAddress nativeAddress = someNativeCode.getPtr();
+MemorySegment nativeAddress = someNativeCode.getPtr();
 FluffyVectorPointer<Byte> valuePtr = FluffyMemory.pointer().to(nativeAddress).asArray(arraySizeInBytes).of(Byte[].class).allocate();
 System.out.println(valuePtr.dereference()); // prints contents of segment valuePtr points to, interpreted as Long
 ```
@@ -73,7 +73,7 @@ System.out.println(valuePtr.dereference()); // prints contents of segment valueP
   
 ```
 String testStr = "testStr";
-MemoryAddress ptr = FluffyMemory.segment().of(testStr).allocate().address();
+MemorySegment ptr = FluffyMemory.segment().of(testStr).allocate().address();
 NativeMethodHandle<Long> strlen = FluffyNativeMethodHandle
     .fromCStdLib()
     .returnType(long.class)
@@ -100,7 +100,7 @@ FluffyNativeMethodHandle<Void> qsort = FluffyNativeMethodHandle.fromCStdLib()
     .func("qsort")
     .args(ValueLayout.ADDRESS, ValueLayout.JAVA_INT, ValueLayout.JAVA_INT, ValueLayout.ADDRESS);
   
-MemoryAddress comparator = FluffyMemory.pointer()
+MemorySegment comparator = FluffyMemory.pointer()
     .toCFunc("qsort_comparator")
     .of(new QSortComparator())
     .autoBind();
@@ -112,11 +112,11 @@ System.out.println(Arrays.toString(bufSeg.getValue())); // Prints sorted buf
 ...
   
 // 0.. equal, -1.. left larger, 1.. right larger
-public int qsort_comparator(MemoryAddress left, MemoryAddress right) {
-    MemorySession session = MemorySession.global();
+public int qsort_comparator(MemorySegment left, MemorySegment right) {
+    SegmentScope scope = SegmentScope.global();
     long sizeOfOneElmInByte = 1L;
-    Byte leftByte = wrap(MemorySegment.ofAddress(left, 1, session)).as(Byte.class).getValue();
-    Byte rightByte = wrap(MemorySegment.ofAddress(right, 1, session)).as(Byte.class).getValue();
+    Byte leftByte = pointer().to(left.address()).as(Byte.class).allocate(scope).dereference();
+    Byte rightByte = pointer().to(right.address()).as(Byte.class).allocate(scope).dereference();
         
     int result = 0;
     if (leftByte < rightByte) {

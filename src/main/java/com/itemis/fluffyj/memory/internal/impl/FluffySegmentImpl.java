@@ -1,13 +1,12 @@
 package com.itemis.fluffyj.memory.internal.impl;
 
-import static java.lang.foreign.SegmentAllocator.newNativeArena;
-import static java.util.Objects.requireNonNull;
+import static java.lang.foreign.MemorySegment.ofAddress;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 /**
@@ -16,7 +15,7 @@ import java.lang.foreign.ValueLayout;
 public abstract class FluffySegmentImpl implements FluffySegment {
 
     protected final MemorySegment backingSeg;
-    protected final MemorySession session;
+    protected final SegmentScope scope;
 
     /**
      * Wrap the provided {@link MemorySegment}.
@@ -25,28 +24,31 @@ public abstract class FluffySegmentImpl implements FluffySegment {
      */
     public FluffySegmentImpl(MemorySegment backingSeg) {
         this.backingSeg = backingSeg;
-        this.session = backingSeg.session();
+        this.scope = backingSeg.scope();
     }
 
     /**
      * Allocate new segment.
      *
      * @param initialValue - The new segment will hold this value.
-     * @param session - The new segment will be attached to this session, i. e. if this session is
-     *        closed, the segment will not be alive anymore.
+     * @param scope - The new segment will be attached to this scope.
      */
-    public FluffySegmentImpl(byte[] initialValue, MemorySession session) {
-        this(newNativeArena(requireNonNull(initialValue, "initialValue").length, requireNonNull(session, "session"))
-            .allocateArray(ValueLayout.JAVA_BYTE, initialValue));
+    public FluffySegmentImpl(byte[] initialValue, SegmentScope scope) {
+        this(SegmentAllocator.nativeAllocator(scope).allocateArray(ValueLayout.JAVA_BYTE, initialValue));
     }
 
     @Override
     public boolean isAlive() {
-        return session.isAlive();
+        return scope.isAlive();
     }
 
     @Override
-    public MemoryAddress address() {
+    public MemorySegment address() {
+        return ofAddress(rawAddress(), 0, scope);
+    }
+
+    @Override
+    public long rawAddress() {
         return backingSeg.address();
     }
 }
