@@ -1,14 +1,13 @@
 package com.itemis.fluffyj.memory.internal.impl;
 
-import static java.lang.foreign.MemorySegment.allocateNative;
-import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.util.Objects.requireNonNull;
+import static java.lang.foreign.MemorySegment.ofAddress;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentAllocator;
+import java.lang.foreign.SegmentScope;
 
 /**
  * Default implementation of a pointer.
@@ -16,31 +15,39 @@ import java.lang.foreign.MemorySession;
 public abstract class FluffyPointerImpl implements FluffyPointer {
 
     protected final MemorySegment addressSeg;
-    protected final MemorySession session;
+    protected final SegmentScope scope;
 
     /**
      * @param addressPointedTo - The address this pointer will point to.
-     * @param session - The session to attach this pointer to. If the session is closed, the pointer
-     *        will not be alive anymore.
+     * @param scope - The scope to attach this pointer to.
      */
-    public FluffyPointerImpl(MemoryAddress addressPointedTo, MemorySession session) {
-        this.addressSeg = allocateNative(ADDRESS, requireNonNull(session, "session"));
-        addressSeg.set(ADDRESS, 0, addressPointedTo);
-        this.session = session;
+    public FluffyPointerImpl(long addressPointedTo, SegmentScope scope) {
+        this.addressSeg = SegmentAllocator.nativeAllocator(scope).allocate(JAVA_LONG, addressPointedTo);
+        this.scope = scope;
     }
 
     @Override
     public final boolean isAlive() {
-        return session.isAlive();
+        return scope.isAlive();
     }
 
     @Override
-    public final MemoryAddress address() {
+    public final long address() {
         return addressSeg.address();
     }
 
     @Override
-    public final MemoryAddress getValue() {
-        return addressSeg.get(ADDRESS, 0);
+    public MemorySegment addressAsSeg() {
+        return ofAddress(address(), 0, scope);
+    }
+
+    @Override
+    public final long getValue() {
+        return addressSeg.get(JAVA_LONG, 0);
+    }
+
+    @Override
+    public MemorySegment getValueAsSeg() {
+        return addressSeg;
     }
 }

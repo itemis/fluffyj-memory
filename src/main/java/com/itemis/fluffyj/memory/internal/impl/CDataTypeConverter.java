@@ -5,8 +5,8 @@ import static java.util.Objects.requireNonNull;
 import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 
 public class CDataTypeConverter implements FluffyMemoryTypeConverter {
@@ -40,7 +40,7 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
             result = ValueLayout.JAVA_SHORT;
         } else if (byte.class.equals(jvmType) || Byte.class.equals(jvmType)) {
             result = ValueLayout.JAVA_BYTE;
-        } else if (MemoryAddress.class.isAssignableFrom(jvmType)) {
+        } else if (MemorySegment.class.isAssignableFrom(jvmType)) {
             result = ValueLayout.ADDRESS;
         } else {
             throw new FluffyMemoryException(
@@ -67,7 +67,7 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
         } else if (ValueLayout.JAVA_SHORT.equals(nativeType)) {
             result = short.class;
         } else if (ValueLayout.ADDRESS.equals(nativeType)) {
-            result = MemoryAddress.class;
+            result = MemorySegment.class;
         } else {
             throw new FluffyMemoryException("Cannot provide JVM type for native memory layout " + nativeType.name());
         }

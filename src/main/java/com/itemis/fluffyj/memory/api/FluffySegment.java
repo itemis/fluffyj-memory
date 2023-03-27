@@ -1,8 +1,7 @@
 package com.itemis.fluffyj.memory.api;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 
 /**
  * A representation of an allocated area of off heap memory.
@@ -10,12 +9,18 @@ import java.lang.foreign.MemorySession;
 public interface FluffySegment {
 
     /**
-     * @see MemorySession#isAlive()
+     * @see SegmentScope#isAlive()
      */
     boolean isAlive();
 
     /**
      * @see MemorySegment#address()
      */
-    MemoryAddress address();
+    long address();
+
+    /**
+     * @return The address of this segment modeled as a zero size {@link MemorySegment}. Note that
+     *         {@link #address()} == {@link addressAsSeg().address()}
+     */
+    MemorySegment addressAsSeg();
 }

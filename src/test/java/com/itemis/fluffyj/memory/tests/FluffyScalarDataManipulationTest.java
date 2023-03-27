@@ -14,14 +14,12 @@ import com.itemis.fluffyj.memory.api.FluffySegment;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
-import java.lang.foreign.ValueLayout;
+import java.lang.foreign.SegmentScope;
 import java.util.Iterator;
 
-public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionEnabledTest {
+public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopeEnabledTest {
 
     private final Iterator<FluffyMemoryScalarTestValue<T>> testValueIter;
     private final MemoryLayout segmentLayout;
@@ -58,10 +56,10 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
     }
 
     @Test
-    void when_session_is_closed_then_segment_is_not_alive_anymore() {
-        var underTest = allocateSessionSeg(session);
+    void when_scope_is_closed_then_segment_is_not_alive_anymore() {
+        var underTest = allocateScopedSeg(scope);
 
-        session.close();
+        arena.close();
 
         assertThat(underTest.isAlive()).isFalse();
     }
@@ -96,12 +94,12 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
     }
 
     @Test
-    void wrapped_seg_and_native_seg_share_same_session() {
+    void wrapped_seg_and_native_seg_share_same_scope() {
         var nativeSeg = allocateNativeSeg(firstTestValue.rawValue());
         var underTest = wrapNativeSeg(nativeSeg);
 
         assertThat(underTest.isAlive()).isTrue();
-        nativeSeg.session().close();
+        arena.close();
         assertThat(underTest.isAlive()).isFalse();
     }
 
@@ -116,7 +114,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
     void null_pointer_points_to_null() {
         var result = allocateNullPointer();
 
-        assertThat(result.getValue()).isEqualTo(MemoryAddress.NULL);
+        assertThat(result.getValue()).isEqualTo(MemorySegment.NULL.address());
     }
 
     @Test
@@ -136,11 +134,11 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
     }
 
     @Test
-    void pointer_with_session_is_not_alive_when_session_is_closed() {
+    void pointer_with_scope_is_not_alive_when_scope_is_closed() {
         var addr = allocateSeg().address();
-        var underTest = allocateSessionPointer(addr, session);
+        var underTest = allocatescopePointer(addr, scope);
 
-        session.close();
+        arena.close();
 
         assertThat(underTest.isAlive()).isFalse();
     }
@@ -161,26 +159,16 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
     }
 
     @Test
-    void can_create_empty_typed_pointer_tied_to_a_session() {
-        var result = pointer().of(testValueType).allocate(session);
+    void can_create_empty_typed_pointer_tied_to_a_scope() {
+        var result = pointer().of(testValueType).allocate(scope);
 
         assertThat(result.isAlive()).isTrue();
-        session.close();
+        arena.close();
         assertThat(result.isAlive()).isFalse();
     }
 
-    @Test
-    void pointer_does_reflect_manual_address_change() {
-        var expectedAddress = 123L;
-        var underTest = allocateNullPointer();
-
-        assertThat(underTest.getValue()).isEqualTo(MemoryAddress.NULL);
-        underTest.address().set(ValueLayout.JAVA_LONG, 0, expectedAddress);
-        assertThat(underTest.getValue()).isEqualTo(MemoryAddress.ofLong(expectedAddress));
-    }
-
     protected final MemorySegment allocateNativeSeg(byte[] rawContents) {
-        var result = allocateNative(segmentLayout, session);
+        var result = allocateNative(segmentLayout, scope);
         result.asByteBuffer().put(rawContents);
         return result;
     }
@@ -189,21 +177,21 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
         return segment().of(firstTestValue.typedValue()).allocate();
     }
 
-    protected final FluffyScalarSegment<? extends T> allocateSessionSeg(MemorySession session) {
-        return segment().of(firstTestValue.typedValue()).allocate(session);
+    protected final FluffyScalarSegment<? extends T> allocateScopedSeg(SegmentScope scope) {
+        return segment().of(firstTestValue.typedValue()).allocate(scope);
     }
 
     protected final FluffyScalarSegment<? extends T> wrapNativeSeg(MemorySegment nativeSeg) {
         return wrap(nativeSeg).as(testValueType);
     }
 
-    protected final FluffyScalarPointer<? extends T> allocatePointer(MemoryAddress address) {
+    protected final FluffyScalarPointer<? extends T> allocatePointer(long address) {
         return pointer().to(address).as(testValueType).allocate();
     }
 
-    protected final FluffyScalarPointer<? extends T> allocateSessionPointer(MemoryAddress address,
-            MemorySession session) {
-        return pointer().to(address).as(testValueType).allocate(session);
+    protected final FluffyScalarPointer<? extends T> allocatescopePointer(long address,
+            SegmentScope scope) {
+        return pointer().to(address).as(testValueType).allocate(scope);
     }
 
     protected final FluffyScalarPointer<? extends T> allocatePointer(FluffyScalarSegment<? extends T> seg) {
@@ -211,7 +199,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemorySessionE
     }
 
     protected final FluffyScalarPointer<? extends T> allocateNullPointer() {
-        return allocatePointer(MemoryAddress.NULL);
+        return allocatePointer(MemorySegment.NULL.address());
     }
 
     protected static abstract class FluffyMemoryScalarTestValueIterator<V>

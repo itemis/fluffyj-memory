@@ -2,14 +2,14 @@
 Adding some fluff to [Java's Foreign Function and Memory API](https://openjdk.org/jeps/424) ❤
 
 ## Prerequisites
-This software requires Java 19 and Maven >= 3.3.x. However, it is best to use a current Maven version, i. e. >= 3.8.x.
+This software requires Java 20 and Maven >= 3.3.x. However, it is best to use a current Maven version, i. e. >= 3.9.x.
 
 ## Build
 Usually a `mvn clean install` should be enough.
 
 ## IDE Setup
-Due to the usage of Java 19 preview code, the following special setup is required:  
-* Add the following to the startup JVM option of your IDE (e. g. eclipse.ini):
+Due to the usage of Java 20 preview code, the following special setup is required:  
+* Add the following to the startup JVM options of your IDE (e. g. eclipse.ini):
 
 ```
 --enable-preview

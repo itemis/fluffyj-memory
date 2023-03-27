@@ -1,9 +1,11 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.util.Objects.requireNonNull;
+
 import com.itemis.fluffyj.memory.internal.impl.FluffyPointerImpl;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentScope;
 
 /**
  * An arbitrary pointer that just holds an address and cannot be dereferenced via Fluffy API. It is
@@ -13,10 +15,10 @@ import java.lang.foreign.MemorySession;
 public class PointerOfThing extends FluffyPointerImpl {
 
     /**
-     * @param session - The session to attach this pointer to. If the session is closed, the pointer
-     *        will not be alive anymore.
+     * @param scope - The scope to attach this pointer to. If the scope is closed, the pointer will
+     *        not be alive anymore.
      */
-    public PointerOfThing(MemorySession session) {
-        super(MemoryAddress.NULL, session);
+    public PointerOfThing(SegmentScope scope) {
+        super(MemorySegment.NULL.address(), requireNonNull(scope, "scope"));
     }
 }

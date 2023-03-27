@@ -8,8 +8,7 @@ import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.PointerOfBlob;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 
 /**
  * Helps with allocating pointers to off heap memory areas that hold arrays.
@@ -17,7 +16,7 @@ import java.lang.foreign.MemorySession;
  * @param <T> - The type of data the allocated pointer points to.
  */
 public final class FluffyMemoryVectorPointerAllocator<T> {
-    private final MemoryAddress initialValue;
+    private final long initialValue;
     private final long byteSize;
     private final Class<? extends T[]> type;
 
@@ -39,37 +38,37 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
      * @param byteSize - The size of the array the pointer shall point to in bytes.
      * @param arrayType - Type of the array the provided address points to.
      */
-    public FluffyMemoryVectorPointerAllocator(MemoryAddress address, long byteSize, Class<? extends T[]> arrayType) {
+    public FluffyMemoryVectorPointerAllocator(long address, long byteSize, Class<? extends T[]> arrayType) {
         this.initialValue = requireNonNull(address, "address");
         this.byteSize = byteSize;
         this.type = requireNonNull(arrayType, "typeOfData");
     }
 
     /**
-     * Allocate the pointer. Its session will be the global session.
+     * Allocate the pointer. Its scope will be the global scope.
      *
      * @return A new {@link FluffyPointer} instance.
      */
     public FluffyVectorPointer<T> allocate() {
-        return allocate(MemorySession.global());
+        return allocate(SegmentScope.global());
     }
 
     /**
-     * Allocate the pointer and attach it to the provided {@code session}.
+     * Allocate the pointer and attach it to the provided {@code scope}.
      *
-     * @param session - {@link MemorySession} of the pointer.
+     * @param scope - {@link SegmentScope} of the pointer.
      * @return A new {@link FluffyPointer} instance.
      */
     // The cast is indeed unsafe but it won't produce any ClassCastExceptions since the value the
     // pointer points to will be interpreted as T anyway which may be false but does not cause any
     // error at the time the cast is done.
     @SuppressWarnings({"unchecked"})
-    public FluffyVectorPointer<T> allocate(MemorySession session) {
-        requireNonNull(session, "session");
+    public FluffyVectorPointer<T> allocate(SegmentScope scope) {
+        requireNonNull(scope, "scope");
 
         Object result = null;
         if (type.isAssignableFrom(Byte[].class)) {
-            result = new PointerOfBlob(initialValue, byteSize, session);
+            result = new PointerOfBlob(initialValue, byteSize, scope);
         } else {
             throw new FluffyMemoryException(
                 "Cannot allocate vector pointer of unknown type: " + type.getCanonicalName());

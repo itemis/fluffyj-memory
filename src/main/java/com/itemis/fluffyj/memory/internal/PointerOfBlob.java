@@ -4,8 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.internal.impl.FluffyVectorPointerImpl;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
@@ -13,20 +13,21 @@ public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
     /**
      * Allocate a new pointer.
      *
-     * @param addressPointedTo - The {@link MemoryAddress} the new pointer will point to.
+     * @param addressPointedTo - The address the new pointer will point to.
      * @param byteSize - Size of the vector this pointer points to in bytes.
-     * @param session - Attach the new pointer to this session.
+     * @param scope - Attach the new pointer to this scope.
      */
-    public PointerOfBlob(MemoryAddress addressPointedTo, long byteSize, MemorySession session) {
-        super(requireNonNull(addressPointedTo, "addressPointedTo"), byteSize, requireNonNull(session, "session"));
+    public PointerOfBlob(long addressPointedTo, long byteSize, SegmentScope scope) {
+        super(requireNonNull(addressPointedTo, "addressPointedTo"), byteSize, requireNonNull(scope, "scope"));
     }
 
     @Override
     public Byte[] dereference() {
         var addr = getValue();
         var result = new Byte[(int) byteSize];
+        var seg = MemorySegment.ofAddress(addr, byteSize, scope);
         for (var i = 0; i < result.length; i++) {
-            result[i] = addr.get(ValueLayout.JAVA_BYTE, i);
+            result[i] = seg.get(ValueLayout.JAVA_BYTE, i);
         }
 
         return result;

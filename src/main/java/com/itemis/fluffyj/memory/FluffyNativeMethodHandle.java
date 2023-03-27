@@ -13,8 +13,8 @@ import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
 import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 import java.util.Optional;
@@ -41,7 +41,7 @@ public final class FluffyNativeMethodHandle<T> {
      * Execute the native method this handle stands for.
      *
      * @param args - All required arguments of the native method as JVM instances. For pointers use
-     *        instances of {@link MemoryAddress}.
+     *        zero length instances of {@link MemorySegment}.
      * @return The return value of the method or {@code null} if the method is not supposed to
      *         return anything.
      */
@@ -184,7 +184,7 @@ public final class FluffyNativeMethodHandle<T> {
         private SymbolLookup lib;
         private FluffyMemoryLinker linker;
         private FluffyMemoryTypeConverter conv;
-        private MemoryAddress symbol;
+        private MemorySegment symbol;
         private Class<?> jvmReturnType;
         private Optional<MemoryLayout> cReturnType = empty();
 
@@ -247,11 +247,10 @@ public final class FluffyNativeMethodHandle<T> {
             return args();
         }
 
-        private static MemoryAddress loadSymbol(SymbolLookup lookup, String symbolName) {
-            return lookup.lookup(symbolName)
+        private static MemorySegment loadSymbol(SymbolLookup lookup, String symbolName) {
+            return lookup.find(symbolName)
                 .orElseThrow(() -> new FluffyMemoryException(
-                    "Could not find symbol '" + symbolName + "' in library '" + lookup.toString() + "'."))
-                .address();
+                    "Could not find symbol '" + symbolName + "' in library '" + lookup.toString() + "'."));
         }
     }
 }

@@ -6,8 +6,8 @@ import static java.util.Objects.requireNonNull;
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.internal.impl.FluffyScalarPointerImpl;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 /**
@@ -18,16 +18,16 @@ public class PointerOfInt extends FluffyScalarPointerImpl<Integer> {
     /**
      * Allocate a new pointer.
      *
-     * @param addressPointedTo - The {@link MemoryAddress} the new pointer will point to.
-     * @param session - Attach the new pointer to this session.
+     * @param addressPointedTo - The address the new pointer will point to.
+     * @param scope - Attach the new pointer to this scope.
      */
-    public PointerOfInt(MemoryAddress addressPointedTo, MemorySession session) {
+    public PointerOfInt(long addressPointedTo, SegmentScope scope) {
         super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_INT.byteSize(),
-            requireNonNull(session, "session"));
+            requireNonNull(scope, "scope"));
     }
 
     @Override
     public Integer dereference() {
-        return getValue().get(ValueLayout.JAVA_INT, 0);
+        return MemorySegment.ofAddress(getValue(), JAVA_INT.byteSize(), scope).get(ValueLayout.JAVA_INT, 0);
     }
 }

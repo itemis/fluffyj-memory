@@ -6,8 +6,8 @@ import static java.util.Objects.requireNonNull;
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.internal.impl.FluffyScalarPointerImpl;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 /**
@@ -18,16 +18,16 @@ public class PointerOfByte extends FluffyScalarPointerImpl<Byte> {
     /**
      * Allocate a new pointer.
      *
-     * @param addressPointedTo - The {@link MemoryAddress} the new pointer will point to.
-     * @param session - Attach the new pointer to this session.
+     * @param addressPointedTo - The address the new pointer will point to.
+     * @param scope - Attach the new pointer to this scope.
      */
-    public PointerOfByte(MemoryAddress addressPointedTo, MemorySession session) {
+    public PointerOfByte(long addressPointedTo, SegmentScope scope) {
         super(requireNonNull(addressPointedTo, "addressPointedTo"), JAVA_INT.byteSize(),
-            requireNonNull(session, "session"));
+            requireNonNull(scope, "scope"));
     }
 
     @Override
     public Byte dereference() {
-        return getValue().get(ValueLayout.JAVA_BYTE, 0);
+        return MemorySegment.ofAddress(getValue(), 1, scope).get(ValueLayout.JAVA_BYTE, 0);
     }
 }

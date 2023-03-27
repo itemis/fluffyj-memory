@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory;
 
+import static java.lang.foreign.MemorySegment.NULL;
 import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
@@ -10,8 +11,7 @@ import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.F
 import com.itemis.fluffyj.memory.internal.PointerOfThing;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 
 /**
  * Intermediate pointer creation helper.
@@ -45,7 +45,7 @@ public final class FluffyMemoryPointerBuilder {
      * @return A {@link FluffyMemoryScalarPointerAllocator} instance that is able to allocate
      *         pointers to data of type {@code T}.
      */
-    public FluffyMemoryTypedPointerBuilder to(MemoryAddress address) {
+    public FluffyMemoryTypedPointerBuilder to(long address) {
         requireNonNull(address, "address");
         return new FluffyMemoryTypedPointerBuilder(address);
     }
@@ -55,25 +55,25 @@ public final class FluffyMemoryPointerBuilder {
      * API and is thought to be used in cases where an API writes an address into an "empty"
      * pointer.
      *
-     * @return A new instance of {@link FluffyPointer} tied to the global session.
+     * @return A new instance of {@link FluffyPointer} tied to the global scope.
      */
     public FluffyPointer allocate() {
-        return allocate(MemorySession.global());
+        return allocate(SegmentScope.global());
     }
 
     /**
      * Like {@link #allocate()} but ties the newly created pointer's lifecycle to the provided
-     * {@code session}.
+     * {@code scope}.
      *
-     * @param session - The session to tie the pointer to.
+     * @param scope - The scope to tie the pointer to.
      * @return A new instance of {@link FluffyPointer}.
      */
-    public FluffyPointer allocate(MemorySession session) {
-        return new PointerOfThing(requireNonNull(session, "session"));
+    public FluffyPointer allocate(SegmentScope scope) {
+        return new PointerOfThing(requireNonNull(scope, "scope"));
     }
 
     public <T> FluffyMemoryScalarPointerAllocator<T> of(Class<? extends T> type) {
-        return new FluffyMemoryTypedPointerBuilder(MemoryAddress.NULL).as(type);
+        return new FluffyMemoryTypedPointerBuilder(NULL.address()).as(type);
     }
 
     /**
@@ -101,14 +101,14 @@ public final class FluffyMemoryPointerBuilder {
      * A builder that helps with creating native pointers to scalar and array types.
      */
     public static final class FluffyMemoryTypedPointerBuilder {
-        private final MemoryAddress address;
+        private final long address;
 
         /**
          * Create a new instance.
          *
          * @param address - Created pointer will point to this address.
          */
-        public FluffyMemoryTypedPointerBuilder(MemoryAddress address) {
+        public FluffyMemoryTypedPointerBuilder(long address) {
             requireNonNull(address, "address");
             this.address = address;
         }
@@ -137,7 +137,7 @@ public final class FluffyMemoryPointerBuilder {
      */
     public static final class FluffyMemoryTypedArrayPointerBuilder {
         private final long byteSize;
-        private final MemoryAddress address;
+        private final long address;
 
         /**
          * Create a new instance.
@@ -145,7 +145,7 @@ public final class FluffyMemoryPointerBuilder {
          * @param address - Created pointer will point to this address.
          * @param byteSize - Size of the array to point to in bytes.
          */
-        public FluffyMemoryTypedArrayPointerBuilder(MemoryAddress address, long byteSize) {
+        public FluffyMemoryTypedArrayPointerBuilder(long address, long byteSize) {
             this.address = requireNonNull(address, "address");
             this.byteSize = byteSize;
         }

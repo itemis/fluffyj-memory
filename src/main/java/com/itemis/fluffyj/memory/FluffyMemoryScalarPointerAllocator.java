@@ -11,8 +11,7 @@ import com.itemis.fluffyj.memory.internal.PointerOfInt;
 import com.itemis.fluffyj.memory.internal.PointerOfLong;
 import com.itemis.fluffyj.memory.internal.PointerOfString;
 
-import java.lang.foreign.MemoryAddress;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 
 /**
  * Helps with allocating pointers to off heap memory areas.
@@ -20,7 +19,7 @@ import java.lang.foreign.MemorySession;
  * @param <T> - The type of data the allocated pointer points to.
  */
 public final class FluffyMemoryScalarPointerAllocator<T> {
-    private final MemoryAddress initialValue;
+    private final long initialValue;
     private final Class<? extends T> type;
 
     /**
@@ -40,41 +39,41 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
      * @param address - The constructed pointer will point to this address.
      * @param typeOfData - Type of data the segment the provided address points to.
      */
-    public FluffyMemoryScalarPointerAllocator(MemoryAddress address, Class<? extends T> typeOfData) {
+    public FluffyMemoryScalarPointerAllocator(long address, Class<? extends T> typeOfData) {
         initialValue = requireNonNull(address, "address");
         type = requireNonNull(typeOfData, "typeOfData");
     }
 
     /**
-     * Allocate the pointer. Its session will be the global session.
+     * Allocate the pointer. Its scope will be the global scope.
      *
      * @return A new {@link FluffyPointer} instance.
      */
     public FluffyScalarPointer<T> allocate() {
-        return allocate(MemorySession.global());
+        return allocate(SegmentScope.global());
     }
 
     /**
-     * Allocate the pointer and attach it to the provided {@code session}.
+     * Allocate the pointer and attach it to the provided {@code scope}.
      *
-     * @param session - {@link MemorySession} of the pointer.
+     * @param scope - {@link MemoryScope} of the pointer.
      * @return A new {@link FluffyPointer} instance.
      */
     // The cast is indeed unsafe but it won't produce any ClassCastExceptions since the value the
-    // pointer points to will be interpreted as T which may be false but does not cause any error.
+    // pointer points to will be interpreted as T which may be wrong but does not cause any error.
     @SuppressWarnings("unchecked")
-    public FluffyScalarPointer<T> allocate(MemorySession session) {
-        requireNonNull(session, "session");
+    public FluffyScalarPointer<T> allocate(SegmentScope scope) {
+        requireNonNull(scope, "scope");
 
         Object result = null;
         if (type.isAssignableFrom(Long.class)) {
-            result = new PointerOfLong(initialValue, session);
+            result = new PointerOfLong(initialValue, scope);
         } else if (type.isAssignableFrom(Integer.class)) {
-            result = new PointerOfInt(initialValue, session);
+            result = new PointerOfInt(initialValue, scope);
         } else if (type.isAssignableFrom(String.class)) {
-            result = new PointerOfString(initialValue, session);
+            result = new PointerOfString(initialValue, scope);
         } else if (type.isAssignableFrom(Byte.class)) {
-            result = new PointerOfByte(initialValue, session);
+            result = new PointerOfByte(initialValue, scope);
         } else {
             throw new FluffyMemoryException(
                 "Cannot allocate scalar pointer of unknown type: " + type.getCanonicalName());

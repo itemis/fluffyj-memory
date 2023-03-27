@@ -7,7 +7,7 @@ import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.internal.impl.FluffySegmentImpl;
 
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 /**
@@ -19,11 +19,10 @@ public class ByteSegment extends FluffySegmentImpl implements FluffyScalarSegmen
      * Allocate a new segment.
      *
      * @param initialValue - The new segment will hold this value.
-     * @param session - The new segment will be attached to this session, i. e. if the session is
-     *        closed, the new segment will not be alive anymore.
+     * @param scope - The new segment will be attached to this scope.
      */
-    public ByteSegment(byte initialValue, MemorySession session) {
-        super(new byte[] {initialValue}, requireNonNull(session, "session"));
+    public ByteSegment(byte initialValue, SegmentScope scope) {
+        super(new byte[] {initialValue}, requireNonNull(scope, "session"));
     }
 
     /**

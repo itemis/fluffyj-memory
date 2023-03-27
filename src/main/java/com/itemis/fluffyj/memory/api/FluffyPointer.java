@@ -1,8 +1,7 @@
 package com.itemis.fluffyj.memory.api;
 
-import java.lang.foreign.MemoryAddress;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
+import java.lang.foreign.SegmentScope;
 
 /**
  * Provides convenience methods that help with working with {@link MemorySegment}s that hold
@@ -11,18 +10,29 @@ import java.lang.foreign.MemorySession;
 public interface FluffyPointer {
 
     /**
-     * @see MemorySession#isAlive()
+     * @see SegmentScope#isAlive()
      */
     boolean isAlive();
 
     /**
      * @return The address of this pointer's segment, i. e. the address of the pointer itself.
      */
-    MemoryAddress address();
+    long address();
 
     /**
-     * The address this pointer points to. Will be {@link MemoryAddress#NULL} if this is a null
+     * @return The address of this pointer's segment modeled as a zero size {@link MemorySegment}.
+     *         Note that {@link #address()} == {@link addressAsSeg().address()}
+     */
+    MemorySegment addressAsSeg();
+
+    /**
+     * The address this pointer points to. Will be 0L if this is a null pointer.
+     */
+    long getValue();
+
+    /**
+     * The address this pointer points to. Will be {@link MemorySegment#NULL} if this is a null
      * pointer.
      */
-    MemoryAddress getValue();
+    MemorySegment getValueAsSeg();
 }

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -52,8 +54,8 @@
     </organization>
 
     <properties>
-        <java.version>19</java.version>
-        <maven.compiler.release>19</maven.compiler.release>
+        <java.version>20</java.version>
+        <maven.compiler.release>20</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
@@ -62,9 +64,11 @@
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <build.timestamp.formatted>${maven.build.timestamp}</build.timestamp.formatted>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm.ssZ</maven.build.timestamp.format>
-        <!-- Make sure we can use variables like ${variable.name} in resource 
-            files. These will be expanded by the maven build as soon as the resources 
-            plugin processes all contents of the configured resources directories. -->
+        <!-- Make sure we can use variables like ${variable.name} in resource
+        files. These will be expanded by the maven build as soon as the
+        resources 
+            plugin processes all contents of the configured
+        resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
         <guava.version>31.1-jre</guava.version>
         <mockito.version>5.2.0</mockito.version>
@@ -72,7 +76,7 @@
         <spotbugs.plugin.version>4.7.3.2</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <junit.version>5.9.2</junit.version>
-        <jacoco.plugin.version>0.8.8</jacoco.plugin.version>
+        <jacoco.plugin.version>0.8.9-SNAPSHOT</jacoco.plugin.version>
         <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
         <assertj.version>3.24.2</assertj.version>
         <logback.version>1.4.6</logback.version>
@@ -85,6 +89,20 @@
         </custom.jvm.options>
     </properties>
 
+    <!-- As of 2023-03-27: JaCoCo has not yet released a plugin version that is compatible with Java 20 -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>JaCoCo Snapshots</id>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <dependencyManagement>
         <dependencies>
             <!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
@@ -95,12 +113,14 @@
             </dependency>
             <dependency>
                 <!-- Required to support null annotation checks according 
-                    to JSR-305 -->
+                    to
+                JSR-305 -->
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs</artifactId>
                 <version>${spotbugs.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
+            <!--
+            https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
@@ -116,13 +136,15 @@
                 <artifactId>fluffyj.tests</artifactId>
                 <version>${fluffyj.tests.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+            <!--
+            https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <version>${junit.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
+            <!--
+            https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
@@ -133,7 +155,8 @@
                 <artifactId>junit-jupiter-params</artifactId>
                 <version>${junit.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5 -->
+            <!--
+            https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5 -->
             <dependency>
                 <groupId>com.tngtech.archunit</groupId>
                 <artifactId>archunit-junit5</artifactId>
@@ -145,7 +168,8 @@
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
+            <!--
+            https://mvnrepository.com/artifact/org.mockito/mockito-junit-jupiter -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-junit-jupiter</artifactId>
@@ -163,7 +187,8 @@
                 <artifactId>assertj-core</artifactId>
                 <version>${assertj.version}</version>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/nl.jqno.equalsverifier/equalsverifier -->
+            <!--
+            https://mvnrepository.com/artifact/nl.jqno.equalsverifier/equalsverifier -->
             <dependency>
                 <groupId>nl.jqno.equalsverifier</groupId>
                 <artifactId>equalsverifier</artifactId>
@@ -280,8 +305,12 @@
                                             <limit>
                                                 <counter>LINE</counter>
                                                 <value>COVEREDRATIO</value>
-                                                <!-- Cannot reach 100%, bc JaCoCo does not calculate coverage correct on code paths that throw an 
-                                                exception without declaring it. -->
+                                                <!-- Cannot reach 100%, bc
+                                                JaCoCo does not calculate
+                                                coverage correct on code paths
+                                                that throw an 
+                                                exception
+                                                without declaring it. -->
                                                 <minimum>98%</minimum>
                                             </limit>
                                         </limits>
@@ -378,7 +407,8 @@
                     </excludeProperties>
                     <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
+                    <generateGitPropertiesFilename>
+                        ${project.build.outputDirectory}/git.properties</generateGitPropertiesFilename>
                 </configuration>
             </plugin>
             <plugin>
@@ -390,14 +420,19 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <!-- 
-                        When specifying <reuseForks>false</reuseForks>, 
-                        the tests run directly in the mvn JVM. This means, the argLine cannot be 
-                        passed to some JVM, because it is already running. The solution is to use 
-                        MAVEN_OPTS="\-\-add-modules .. mvn clean verify".
+                        When specifying
+                    <reuseForks>false</reuseForks>, 
+                        the
+                    tests run directly in the mvn JVM. This means, the argLine
+                    cannot be 
+                        passed to some JVM,
+                    because it is already running. The solution is to use
+                    MAVEN_OPTS="\-\-add-modules .. mvn clean verify".
                     -->
                     <reuseForks>true</reuseForks>
                     <forkCount>1</forkCount>
-                    <!-- $argLine is 'injected' by JaCoCo and contains instructions 
+                    <!-- $argLine is 'injected' by JaCoCo and contains
+                    instructions 
                         to setup its agent -->
                     <argLine>@{argLine} @{custom.jvm.options}</argLine>
                     <parallel>all</parallel>
@@ -408,7 +443,8 @@
             <plugin>
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
-            <!-- For warnings about illegal reflective access see https://issues.apache.org/jira/browse/GROOVY-8339 -->
+            <!-- For warnings about illegal reflective access see
+            https://issues.apache.org/jira/browse/GROOVY-8339 -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
