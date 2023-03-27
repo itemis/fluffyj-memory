@@ -16,29 +16,9 @@ import com.itemis.fluffyj.memory.internal.PointerOfString;
 
 import org.junit.jupiter.api.Test;
 
-import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.Linker;
-import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.SegmentScope;
-import java.lang.foreign.ValueLayout;
-
 class ClassBasicsTest {
 
     private static final int A_LONG = 1;
-
-    @Test
-    void strlen() throws Throwable {
-        var cString = SegmentAllocator.nativeAllocator(SegmentScope.global()).allocateUtf8String("test");
-        var linker = Linker.nativeLinker();
-        var lookup = linker.defaultLookup();
-        var strlenSymbol = lookup.find("strlen").get();
-        var funcDescr = FunctionDescriptor.of(ValueLayout.JAVA_LONG, ValueLayout.ADDRESS);
-        var handle = linker.downcallHandle(strlenSymbol, funcDescr);
-        var ptrSeg = MemorySegment.ofAddress(cString.address());
-        long result = (long) handle.invoke(ptrSeg);
-        System.err.println(result);
-    }
 
     @Test
     void is_static_helper() {

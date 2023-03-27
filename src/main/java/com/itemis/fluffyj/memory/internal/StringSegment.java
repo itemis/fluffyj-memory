@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory.internal;
 
+import static java.lang.foreign.MemorySegment.ofAddress;
 import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
@@ -42,13 +43,13 @@ public class StringSegment implements FluffyScalarSegment<String> {
     }
 
     @Override
-    public long address() {
-        return backingSeg.address();
+    public MemorySegment address() {
+        return ofAddress(rawAddress(), 0, scope);
     }
 
     @Override
-    public MemorySegment addressAsSeg() {
-        return MemorySegment.ofAddress(address(), 0, scope);
+    public long rawAddress() {
+        return backingSeg.address();
     }
 
     @Override

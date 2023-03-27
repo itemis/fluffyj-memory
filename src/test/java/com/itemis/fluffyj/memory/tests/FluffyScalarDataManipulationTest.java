@@ -90,7 +90,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopeEna
         var nativeSeg = allocateNativeSeg(firstTestValue.rawValue());
         var underTest = wrapNativeSeg(nativeSeg);
 
-        assertThat(underTest.address()).isEqualTo(nativeSeg.address());
+        assertThat(underTest.rawAddress()).isEqualTo(nativeSeg.address());
     }
 
     @Test
@@ -114,7 +114,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopeEna
     void null_pointer_points_to_null() {
         var result = allocateNullPointer();
 
-        assertThat(result.getValue()).isEqualTo(MemorySegment.NULL.address());
+        assertThat(result.getRawValue()).isEqualTo(MemorySegment.NULL.address());
     }
 
     @Test
@@ -122,20 +122,20 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopeEna
         var longSegment = allocateSeg();
         var underTest = allocatePointer(longSegment);
 
-        assertThat(underTest.getValue()).isEqualTo(longSegment.address());
+        assertThat(underTest.getRawValue()).isEqualTo(longSegment.rawAddress());
     }
 
     @Test
     void pointer_of_address_points_to_address() {
-        var expectedAddress = allocateSeg().address();
+        var expectedAddress = allocateSeg().rawAddress();
         var underTest = allocatePointer(expectedAddress);
 
-        assertThat(underTest.getValue()).isEqualTo(expectedAddress);
+        assertThat(underTest.getRawValue()).isEqualTo(expectedAddress);
     }
 
     @Test
     void pointer_with_scope_is_not_alive_when_scope_is_closed() {
-        var addr = allocateSeg().address();
+        var addr = allocateSeg().rawAddress();
         var underTest = allocatescopePointer(addr, scope);
 
         arena.close();

@@ -37,10 +37,10 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
         var rndStr = randomAlphanumeric(expectedStringLength);
 
         var cStr = new StringSegment(rndStr, scope);
-        var ptrCStr = new PointerOfString(cStr.address(), scope);
+        var ptrCStr = new PointerOfString(cStr.rawAddress(), scope);
 
-        assertThat(strlen(cStr.addressAsSeg())).isEqualTo(expectedStringLength);
-        assertThat(strlen(ptrCStr.getValueAsSeg())).isEqualTo(expectedStringLength);
+        assertThat(strlen(cStr.address())).isEqualTo(expectedStringLength);
+        assertThat(strlen(ptrCStr.getValue())).isEqualTo(expectedStringLength);
     }
 
     @Test
@@ -53,9 +53,9 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
         var strSeg = nativeAllocator(scope).allocateUtf8String(rndStr);
         var wrappedStrSeg = wrap(strSeg).as(String.class);
 
-        assertThat(strlen(cStr.addressAsSeg())).isEqualTo(expectedStringLength);
-        assertThat(strlen(ptrCStr.getValueAsSeg())).isEqualTo(expectedStringLength);
-        assertThat(strlen(wrappedStrSeg.addressAsSeg())).isEqualTo(expectedStringLength);
+        assertThat(strlen(cStr.address())).isEqualTo(expectedStringLength);
+        assertThat(strlen(ptrCStr.getValue())).isEqualTo(expectedStringLength);
+        assertThat(strlen(wrappedStrSeg.address())).isEqualTo(expectedStringLength);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
     @Test
     void handle_construction_via_shortcut_works() {
         var testStr = "testString";
-        var ptr = segment().of(testStr).allocate(scope).addressAsSeg();
+        var ptr = segment().of(testStr).allocate(scope).address();
 
         assertThat(strlen_shortcut_construction(ptr)).isEqualTo(testStr.length());
     }
@@ -99,11 +99,11 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
         var autoCompar = createComparPointerAuto();
         var manualCompar = createComparPointerManual();
 
-        qsort.call(bufSeg.addressAsSeg(), buf.length, 1, autoCompar);
+        qsort.call(bufSeg.address(), buf.length, 1, autoCompar);
         var actualResult = bufSeg.getValue();
         assertThat(actualResult).isEqualTo(expectedResult);
 
-        qsort.call(bufSeg.addressAsSeg(), buf.length, 1, manualCompar);
+        qsort.call(bufSeg.address(), buf.length, 1, manualCompar);
         actualResult = bufSeg.getValue();
         assertThat(actualResult).isEqualTo(expectedResult);
     }

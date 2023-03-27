@@ -23,11 +23,11 @@ public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
 
     @Override
     public Byte[] dereference() {
-        var addr = getValue();
+        var addr = getRawValue();
+        var valSeg = MemorySegment.ofAddress(addr, byteSize, scope);
         var result = new Byte[(int) byteSize];
-        var seg = MemorySegment.ofAddress(addr, byteSize, scope);
         for (var i = 0; i < result.length; i++) {
-            result[i] = seg.get(ValueLayout.JAVA_BYTE, i);
+            result[i] = valSeg.get(ValueLayout.JAVA_BYTE, i);
         }
 
         return result;

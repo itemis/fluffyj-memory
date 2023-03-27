@@ -43,12 +43,12 @@ public abstract class FluffySegmentImpl implements FluffySegment {
     }
 
     @Override
-    public long address() {
-        return backingSeg.address();
+    public MemorySegment address() {
+        return ofAddress(rawAddress(), 0, scope);
     }
 
     @Override
-    public MemorySegment addressAsSeg() {
-        return ofAddress(address(), 0, scope);
+    public long rawAddress() {
+        return backingSeg.address();
     }
 }

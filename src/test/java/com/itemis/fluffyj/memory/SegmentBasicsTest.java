@@ -4,6 +4,7 @@ import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
 import static java.lang.foreign.MemorySegment.allocateNative;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
@@ -23,6 +24,12 @@ class SegmentBasicsTest extends MemoryScopeEnabledTest {
     @BeforeEach
     void setUp() {
         nativeSeg = allocateNative(1, scope);
+    }
+
+    @Test
+    void address_rawAddress_equality() {
+        var segment = new FluffyMemoryScalarSegmentAllocator<>("test").allocate(scope);
+        assertThat(segment.address().address()).isEqualTo(segment.rawAddress());
     }
 
     @Test

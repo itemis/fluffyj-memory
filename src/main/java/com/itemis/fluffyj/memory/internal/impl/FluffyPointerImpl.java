@@ -32,22 +32,22 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
     }
 
     @Override
-    public final long address() {
+    public final long rawAddress() {
         return addressSeg.address();
     }
 
     @Override
-    public MemorySegment addressAsSeg() {
-        return ofAddress(address(), 0, scope);
+    public MemorySegment address() {
+        return ofAddress(rawAddress(), 0, scope);
     }
 
     @Override
-    public final long getValue() {
+    public final long getRawValue() {
         return addressSeg.get(JAVA_LONG, 0);
     }
 
     @Override
-    public MemorySegment getValueAsSeg() {
+    public MemorySegment getValue() {
         return addressSeg;
     }
 }

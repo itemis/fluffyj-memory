@@ -17,22 +17,22 @@ public interface FluffyPointer {
     /**
      * @return The address of this pointer's segment, i. e. the address of the pointer itself.
      */
-    long address();
+    long rawAddress();
 
     /**
      * @return The address of this pointer's segment modeled as a zero size {@link MemorySegment}.
-     *         Note that {@link #address()} == {@link addressAsSeg().address()}
+     *         Note that {@link #rawAddress()} == {@link address().address()}
      */
-    MemorySegment addressAsSeg();
+    MemorySegment address();
 
     /**
-     * The address this pointer points to. Will be 0L if this is a null pointer.
+     * The raw address this pointer points to. Will be 0L if this is a null pointer.
      */
-    long getValue();
+    long getRawValue();
 
     /**
      * The address this pointer points to. Will be {@link MemorySegment#NULL} if this is a null
      * pointer.
      */
-    MemorySegment getValueAsSeg();
+    MemorySegment getValue();
 }

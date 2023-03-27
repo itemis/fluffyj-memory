@@ -27,30 +27,36 @@ public class PointerOfThingTest extends MemoryScopeEnabledTest {
     }
 
     @Test
-    void address_returns_a_value() {
+    void rawAddress_returns_a_value() {
         var underTest = new PointerOfThing(scope);
-        assertThat(underTest.address()).isInstanceOf(Long.class);
+        assertThat(underTest.rawAddress()).isInstanceOf(Long.class);
     }
 
     @Test
-    void addressAsSeg_returns_a_value() {
+    void address_returns_a_value() {
         var underTest = new PointerOfThing(scope);
-        assertThat(underTest.addressAsSeg()).isInstanceOf(MemorySegment.class);
+        assertThat(underTest.address()).isInstanceOf(MemorySegment.class);
+    }
+
+    @Test
+    void address_rawAddress_equality() {
+        var underTest = new PointerOfThing(scope);
+        assertThat(underTest.address().address()).isEqualTo(underTest.rawAddress());
+    }
+
+    @Test
+    void getRawValue_returns_a_value_that_is_not_pointers_address() {
+        var underTest = new PointerOfThing(scope);
+        var rawValue = underTest.getRawValue();
+        assertThat(rawValue).isInstanceOf(Long.class);
+        assertThat(rawValue).isNotSameAs(underTest.rawAddress());
     }
 
     @Test
     void getValue_returns_a_value_that_is_not_pointers_address() {
         var underTest = new PointerOfThing(scope);
         var value = underTest.getValue();
-        assertThat(value).isInstanceOf(Long.class);
-        assertThat(value).isNotSameAs(underTest.address());
-    }
-
-    @Test
-    void getValueAsSeg_returns_a_value_that_is_not_pointers_address() {
-        var underTest = new PointerOfThing(scope);
-        var value = underTest.getValueAsSeg();
         assertThat(value).isInstanceOf(MemorySegment.class);
-        assertThat(value.address()).isNotSameAs(underTest.address());
+        assertThat(value).isNotSameAs(underTest.address());
     }
 }

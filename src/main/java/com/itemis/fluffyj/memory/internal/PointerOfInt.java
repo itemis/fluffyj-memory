@@ -28,6 +28,6 @@ public class PointerOfInt extends FluffyScalarPointerImpl<Integer> {
 
     @Override
     public Integer dereference() {
-        return MemorySegment.ofAddress(getValue(), JAVA_INT.byteSize(), scope).get(ValueLayout.JAVA_INT, 0);
+        return MemorySegment.ofAddress(getRawValue(), JAVA_INT.byteSize(), scope).get(ValueLayout.JAVA_INT, 0);
     }
 }

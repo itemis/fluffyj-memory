@@ -35,23 +35,23 @@ public class PointerOfString implements FluffyScalarPointer<String> {
     }
 
     @Override
-    public long address() {
+    public long rawAddress() {
         return backingSeg.address();
     }
 
     @Override
-    public MemorySegment addressAsSeg() {
-        return ofAddress(address(), 0, scope);
+    public MemorySegment address() {
+        return ofAddress(rawAddress(), 0, scope);
     }
 
     @Override
-    public long getValue() {
+    public long getRawValue() {
         return backingSeg.get(JAVA_LONG, 0);
     }
 
     @Override
-    public MemorySegment getValueAsSeg() {
-        return ofAddress(getValue(), 0, scope);
+    public MemorySegment getValue() {
+        return ofAddress(getRawValue(), 0, scope);
     }
 
     @Override

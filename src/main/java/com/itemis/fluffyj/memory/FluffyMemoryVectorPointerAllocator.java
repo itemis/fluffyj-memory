@@ -27,7 +27,7 @@ public final class FluffyMemoryVectorPointerAllocator<T> {
      */
     public FluffyMemoryVectorPointerAllocator(FluffyVectorSegment<? extends T> toHere) {
         requireNonNull(toHere, "toHere");
-        initialValue = toHere.address();
+        initialValue = toHere.rawAddress();
         byteSize = toHere.byteSize();
         type = toHere.getContainedType();
     }

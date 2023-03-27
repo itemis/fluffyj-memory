@@ -29,7 +29,7 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
      */
     public FluffyMemoryScalarPointerAllocator(FluffyScalarSegment<? extends T> toHere) {
         requireNonNull(toHere, "toHere");
-        initialValue = toHere.address();
+        initialValue = toHere.rawAddress();
         type = toHere.getContainedType();
     }
 

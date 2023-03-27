@@ -16,12 +16,7 @@
     </Match>
     <Match>
         <Class name="com.itemis.fluffyj.memory.internal.impl.FluffyPointerImpl" />
-        <Method name="addressSeg" />
-        <Bug pattern="EI_EXPOSE_REP" />
-    </Match>
-    <Match>
-        <Class name="com.itemis.fluffyj.memory.internal.impl.FluffyPointerImpl" />
-        <Method name="getValueAsSeg" />
+        <Method name="getValue" />
         <Bug pattern="EI_EXPOSE_REP" />
     </Match>
     <Match>
