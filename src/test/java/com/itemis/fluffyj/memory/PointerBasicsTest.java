@@ -23,7 +23,7 @@ class PointerBasicsTest extends MemoryScopeEnabledTest {
     }
 
     @Test
-    void allocate_scalar_pointer_and_session_with_unknown_type_yields_exception() {
+    void allocate_scalar_pointer_and_scope_with_unknown_type_yields_exception() {
         assertThatThrownBy(() -> pointer().to(0L).as(MyType.class).allocate(scope))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Cannot allocate scalar pointer of unknown type: " + MyType.class.getCanonicalName());
@@ -37,7 +37,7 @@ class PointerBasicsTest extends MemoryScopeEnabledTest {
     }
 
     @Test
-    void allocate_vector_pointer_and_session_with_unknown_type_yields_exception() {
+    void allocate_vector_pointer_and_scope_with_unknown_type_yields_exception() {
         assertThatThrownBy(() -> pointer().to(0L).asArray(1).of(MyType[].class).allocate(scope))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Cannot allocate vector pointer of unknown type: " + MyType[].class.getCanonicalName());
@@ -62,7 +62,7 @@ class PointerBasicsTest extends MemoryScopeEnabledTest {
     }
 
     @Test
-    void can_create_sessiond_empty_pointer() {
+    void can_create_scoped_empty_pointer() {
         var result = pointer().allocate(scope);
         assertThat(result).isInstanceOf(FluffyPointer.class);
     }

@@ -22,12 +22,12 @@ public class ByteSegment extends FluffySegmentImpl implements FluffyScalarSegmen
      * @param scope - The new segment will be attached to this scope.
      */
     public ByteSegment(byte initialValue, SegmentScope scope) {
-        super(new byte[] {initialValue}, requireNonNull(scope, "session"));
+        super(new byte[] {initialValue}, requireNonNull(scope, "scope"));
     }
 
     /**
      * Wrap the provided {@code backingSeg}. The constructed segment will be attached to the same
-     * session as the {@code backingSeg}.
+     * scope as the {@code backingSeg}.
      *
      * @param backingSeg - The raw segment to wrap.
      */

@@ -32,7 +32,7 @@ public class IntSegment extends FluffySegmentImpl implements FluffyScalarSegment
 
     /**
      * Wrap the provided {@code backingSeg}. The constructed segment will be attached to the same
-     * session as the {@code backingSeg}.
+     * scope as the {@code backingSeg}.
      *
      * @param backingSeg - The raw segment to wrap.
      */
