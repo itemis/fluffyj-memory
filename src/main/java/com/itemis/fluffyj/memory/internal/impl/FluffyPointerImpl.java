@@ -8,6 +8,7 @@ import com.itemis.fluffyj.memory.api.FluffyPointer;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.SegmentScope;
+import java.lang.foreign.ValueLayout;
 
 /**
  * Default implementation of a pointer.
@@ -21,7 +22,7 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
      * @param addressPointedTo - The address this pointer will point to.
      * @param scope - The scope to attach this pointer to.
      */
-    public FluffyPointerImpl(long addressPointedTo, SegmentScope scope) {
+    protected FluffyPointerImpl(long addressPointedTo, SegmentScope scope) {
         this.addressSeg = SegmentAllocator.nativeAllocator(scope).allocate(JAVA_LONG, addressPointedTo);
         this.scope = scope;
     }
@@ -48,6 +49,6 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
 
     @Override
     public MemorySegment getValue() {
-        return addressSeg;
+        return addressSeg.get(ValueLayout.ADDRESS.asUnbounded(), 0);
     }
 }

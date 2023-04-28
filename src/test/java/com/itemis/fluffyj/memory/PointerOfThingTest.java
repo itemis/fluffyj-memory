@@ -1,6 +1,7 @@
 package com.itemis.fluffyj.memory;
 
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
+import static java.lang.foreign.ValueLayout.ADDRESS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.itemis.fluffyj.memory.internal.PointerOfThing;
@@ -9,6 +10,7 @@ import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
 import org.junit.jupiter.api.Test;
 
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 
 public class PointerOfThingTest extends MemoryScopeEnabledTest {
 
@@ -58,5 +60,26 @@ public class PointerOfThingTest extends MemoryScopeEnabledTest {
         var value = underTest.getValue();
         assertThat(value).isInstanceOf(MemorySegment.class);
         assertThat(value).isNotSameAs(underTest.address());
+    }
+
+    @Test
+    void getValue_of_a_freshly_instantiated_pointer_returns_zero() {
+        var underTest = new PointerOfThing(scope);
+        var value = underTest.getValue();
+
+        assertThat(value.address()).isEqualTo(0);
+    }
+
+    @Test
+    void rawDereference_returns_segment() {
+        var underTest = new PointerOfThing(scope);
+
+        var nativeSeg = MemorySegment.allocateNative(ValueLayout.JAVA_INT.byteSize(), scope);
+        var nativePtrSeg = MemorySegment.ofAddress(underTest.rawAddress(), ADDRESS.byteSize(), scope);
+        nativePtrSeg.set(ADDRESS, 0, nativeSeg);
+
+        var result = underTest.rawDereference();
+
+        assertThat(result.get(ADDRESS, 0).address()).isEqualTo(nativeSeg.address());
     }
 }

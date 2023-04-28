@@ -56,6 +56,11 @@ public class PointerOfString implements FluffyScalarPointer<String> {
 
     @Override
     public String dereference() {
-        return backingSeg.get(ADDRESS.asUnbounded(), 0).getUtf8String(0);
+        return rawDereference().getUtf8String(0);
+    }
+
+    @Override
+    public MemorySegment rawDereference() {
+        return backingSeg.get(ADDRESS.asUnbounded(), 0);
     }
 }

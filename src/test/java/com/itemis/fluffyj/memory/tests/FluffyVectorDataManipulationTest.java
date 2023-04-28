@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentScope;
+import java.lang.foreign.ValueLayout;
 import java.util.Iterator;
 
 public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopeEnabledTest {
@@ -150,6 +151,20 @@ public abstract class FluffyVectorDataManipulationTest<T> extends MemoryScopeEna
         var underTest = allocatePointer(nativeSeg.address());
 
         assertThat(underTest.dereference()).isEqualTo(firstTestValue.typedValue());
+    }
+
+    @Test
+    void rawDereference_returns_seg_of_data_pointed_to() {
+        var nativeSeg = allocateNativeSeg(firstTestValue.rawValue());
+        var underTest = allocatePointer(nativeSeg.address());
+
+        var dereferencedSeg = underTest.rawDereference();
+        assertThat(dereferencedSeg.address()).isEqualTo(nativeSeg.address());
+        byte[] buf = new byte[firstTestValue.length()];
+        for (int i = 0; i < buf.length; i++) {
+            buf[i] = dereferencedSeg.get(ValueLayout.JAVA_BYTE, i);
+        }
+        assertThat(buf).isEqualTo(firstTestValue.rawValue());
     }
 
     protected MemorySegment allocateNativeSeg(byte[] rawContents) {

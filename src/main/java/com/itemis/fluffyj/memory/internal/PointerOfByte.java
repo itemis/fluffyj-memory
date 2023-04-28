@@ -28,6 +28,11 @@ public class PointerOfByte extends FluffyScalarPointerImpl<Byte> {
 
     @Override
     public Byte dereference() {
-        return MemorySegment.ofAddress(getRawValue(), 1, scope).get(ValueLayout.JAVA_BYTE, 0);
+        return rawDereference().get(ValueLayout.JAVA_BYTE, 0);
+    }
+
+    @Override
+    public MemorySegment rawDereference() {
+        return MemorySegment.ofAddress(getRawValue(), 1, scope);
     }
 }
