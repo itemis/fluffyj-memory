@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -71,15 +71,15 @@
         resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
         <guava.version>31.1-jre</guava.version>
-        <mockito.version>5.2.0</mockito.version>
+        <mockito.version>5.3.1</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <spotbugs.plugin.version>4.7.3.2</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.7.3.4</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
-        <junit.version>5.9.2</junit.version>
-        <jacoco.plugin.version>0.8.9-SNAPSHOT</jacoco.plugin.version>
+        <junit.version>5.9.3</junit.version>
+        <jacoco.plugin.version>0.8.10</jacoco.plugin.version>
         <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
         <assertj.version>3.24.2</assertj.version>
-        <logback.version>1.4.6</logback.version>
+        <logback.version>1.4.7</logback.version>
         <equalsverifier.version>3.14.1</equalsverifier.version>
         <arch.unit.version>1.0.1</arch.unit.version>
         <fluffyj.version>1.12.0</fluffyj.version>
@@ -88,20 +88,6 @@
             --enable-native-access=ALL-UNNAMED --enable-preview
         </custom.jvm.options>
     </properties>
-
-    <!-- As of 2023-03-27: JaCoCo has not yet released a plugin version that is compatible with Java 20 -->
-    <pluginRepositories>
-        <pluginRepository>
-            <id>JaCoCo Snapshots</id>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>

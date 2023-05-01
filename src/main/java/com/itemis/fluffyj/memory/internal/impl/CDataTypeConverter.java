@@ -41,7 +41,7 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
         } else if (byte.class.equals(jvmType) || Byte.class.equals(jvmType)) {
             result = ValueLayout.JAVA_BYTE;
         } else if (MemorySegment.class.isAssignableFrom(jvmType)) {
-            result = ValueLayout.ADDRESS;
+            result = ValueLayout.ADDRESS.asUnbounded();
         } else {
             throw new FluffyMemoryException(
                 "Cannot provide native memory layout for JVM type " + jvmType.getCanonicalName());
@@ -66,7 +66,7 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
             result = float.class;
         } else if (ValueLayout.JAVA_SHORT.equals(nativeType)) {
             result = short.class;
-        } else if (ValueLayout.ADDRESS.equals(nativeType)) {
+        } else if (ValueLayout.ADDRESS.equals(nativeType) || ValueLayout.ADDRESS.asUnbounded().equals(nativeType)) {
             result = MemorySegment.class;
         } else {
             throw new FluffyMemoryException("Cannot provide JVM type for native memory layout " + nativeType.name());

@@ -31,8 +31,12 @@ public interface FluffyPointer {
     long getRawValue();
 
     /**
-     * The address this pointer points to. Will be {@link MemorySegment#NULL} if this is a null
-     * pointer.
+     * The address this pointer points to modeled as a zero length {@link MemorySegment}.
      */
     MemorySegment getValue();
+
+    /**
+     * @return The native segment that holds the value that this pointer points to.
+     */
+    MemorySegment rawDereference();
 }

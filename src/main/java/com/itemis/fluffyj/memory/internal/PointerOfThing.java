@@ -19,6 +19,11 @@ public class PointerOfThing extends FluffyPointerImpl {
      *        not be alive anymore.
      */
     public PointerOfThing(SegmentScope scope) {
-        super(MemorySegment.NULL.address(), requireNonNull(scope, "scope"));
+        super(0L, requireNonNull(scope, "scope"));
+    }
+
+    @Override
+    public MemorySegment rawDereference() {
+        return addressSeg;
     }
 }

@@ -23,6 +23,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.ValueLayout;
 import java.util.stream.Stream;
 
 public class CDataTypeConverterTest {
@@ -43,6 +44,13 @@ public class CDataTypeConverterTest {
         var actualNativeType = underTest.getNativeType(jvmInputType);
         assertThat(actualNativeType).isEqualTo(expectedNativeType);
         assertThat(underTest.getJvmType(actualNativeType)).isEqualTo(expectedJvmType);
+    }
+
+    @Test
+    void native_type_to_jvm_type_and_back_special_address_case() {
+        var actualNativeType = underTest.getNativeType(MemorySegment.class);
+        assertThat(actualNativeType).isEqualTo(ValueLayout.ADDRESS.asUnbounded());
+        assertThat(underTest.getJvmType(ValueLayout.ADDRESS)).isEqualTo(MemorySegment.class);
     }
 
     @Test
@@ -156,6 +164,6 @@ public class CDataTypeConverterTest {
             Arguments.of(Short.class, JAVA_SHORT, short.class),
             Arguments.of(byte.class, JAVA_BYTE, byte.class),
             Arguments.of(Byte.class, JAVA_BYTE, byte.class),
-            Arguments.of(MemorySegment.class, ADDRESS, MemorySegment.class));
+            Arguments.of(MemorySegment.class, ADDRESS.asUnbounded(), MemorySegment.class));
     }
 }

@@ -28,6 +28,11 @@ public class PointerOfLong extends FluffyScalarPointerImpl<Long> {
 
     @Override
     public Long dereference() {
-        return MemorySegment.ofAddress(getRawValue(), JAVA_LONG.byteSize(), scope).get(ValueLayout.JAVA_LONG, 0);
+        return rawDereference().get(ValueLayout.JAVA_LONG, 0);
+    }
+
+    @Override
+    public MemorySegment rawDereference() {
+        return MemorySegment.ofAddress(getRawValue(), JAVA_LONG.byteSize(), scope);
     }
 }
