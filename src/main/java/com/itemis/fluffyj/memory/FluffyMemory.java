@@ -41,4 +41,25 @@ public final class FluffyMemory {
         return new FluffyMemorySegmentWrapper(nativeSeg);
     }
 
+    /**
+     * Dereference the provided {@code nativePtr} into a typed instance.
+     *
+     * @param nativePtr - Dereference the address found inside this ptr segment.
+     * @return - Entry point for easy dereferenciation.
+     */
+    public static FluffyMemoryDereferencer dereference(MemorySegment nativePtr) {
+        return new FluffyMemoryDereferencer(wrap(nativePtr), nativePtr);
+    }
+
+    /**
+     * Dereference the provided {@code address} into a typed instance.
+     *
+     * @param address - Dereference this address.
+     * @return - Entry point for easy dereferenciation.
+     */
+    public static FluffyMemoryDereferencer dereference(long address) {
+        var nativeSeg = MemorySegment.ofAddress(address);
+        return dereference(nativeSeg);
+    }
+
 }

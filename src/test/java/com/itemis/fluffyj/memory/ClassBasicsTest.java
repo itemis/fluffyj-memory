@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory;
 
+import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertFinal;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertIsStaticHelper;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
@@ -36,6 +37,7 @@ class ClassBasicsTest {
         assertFinal(FluffyMemoryVectorSegmentAllocator.class);
         assertFinal(FluffyMemorySegmentBuilder.class);
         assertFinal(FluffyMemorySegmentWrapper.class);
+        assertFinal(FluffyMemoryDereferencer.class);
     }
 
     @Test
@@ -55,5 +57,7 @@ class ClassBasicsTest {
         assertNullArgNotAccepted(() -> new PointerOfBlob(NULL.address(), A_LONG, null) {}, "scope");
         assertNullArgNotAccepted(() -> new PointerOfString(NULL.address(), null) {}, "scope");
         assertNullArgNotAccepted(() -> new PointerOfByte(NULL.address(), null) {}, "scope");
+        assertNullArgNotAccepted(() -> new FluffyMemoryDereferencer(null, NULL), "wrapper");
+        assertNullArgNotAccepted(() -> new FluffyMemoryDereferencer(wrap(NULL), null), "nativePtr");
     }
 }

@@ -51,4 +51,9 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
     public MemorySegment getValue() {
         return addressSeg.get(ValueLayout.ADDRESS.asUnbounded(), 0);
     }
+
+    @Override
+    public MemorySegment rawDereference() {
+        return MemorySegment.ofAddress(getRawValue(), Long.MAX_VALUE, scope);
+    }
 }

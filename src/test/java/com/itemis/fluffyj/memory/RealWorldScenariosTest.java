@@ -126,8 +126,8 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
     }
 
     int qsort_compar(MemorySegment left, MemorySegment right) {
-        var leftByte = pointer().to(left.address()).as(Byte.class).allocate(scope).dereference();
-        var rightByte = pointer().to(right.address()).as(Byte.class).allocate(scope).dereference();
+        var leftByte = wrap(left).asPointerOf(Byte.class).allocate(scope).dereference();
+        var rightByte = wrap(right).asPointerOf(Byte.class).allocate(scope).dereference();
         var result = 0;
         if (leftByte < rightByte) {
             result = -1;

@@ -66,13 +66,13 @@ public final class FluffyMemoryScalarPointerAllocator<T> {
         requireNonNull(scope, "scope");
 
         Object result = null;
-        if (type.isAssignableFrom(Long.class)) {
+        if (type.isAssignableFrom(Long.class) || type.isAssignableFrom(long.class)) {
             result = new PointerOfLong(initialValue, scope);
-        } else if (type.isAssignableFrom(Integer.class)) {
+        } else if (type.isAssignableFrom(Integer.class) || type.isAssignableFrom(int.class)) {
             result = new PointerOfInt(initialValue, scope);
         } else if (type.isAssignableFrom(String.class)) {
             result = new PointerOfString(initialValue, scope);
-        } else if (type.isAssignableFrom(Byte.class)) {
+        } else if (type.isAssignableFrom(Byte.class) || type.isAssignableFrom(byte.class)) {
             result = new PointerOfByte(initialValue, scope);
         } else {
             throw new FluffyMemoryException(

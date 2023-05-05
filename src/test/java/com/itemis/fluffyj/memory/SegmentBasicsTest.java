@@ -14,8 +14,12 @@ import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.lang.foreign.MemorySegment;
+import java.util.stream.Stream;
 
 class SegmentBasicsTest extends MemoryScopeEnabledTest {
 
@@ -109,6 +113,25 @@ class SegmentBasicsTest extends MemoryScopeEnabledTest {
     void wrap_to_unknown_vector_type_yields_exception() {
         assertThatThrownBy(() -> wrap(nativeSeg).asArray(MyType[].class)).isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Cannot wrap vector segment of unknown type: " + MyType[].class.getCanonicalName());
+    }
+
+    @ParameterizedTest
+    @MethodSource("typeMappings")
+    void wrap_should_support_known_types(Class<?> inputType, Class<?> expectedOutputType) {
+        var actualOutputType = wrap(nativeSeg).as(inputType).getContainedType();
+
+        assertThat(actualOutputType).isEqualTo(expectedOutputType);
+    }
+
+    private static Stream<Arguments> typeMappings() {
+        return Stream.of(Arguments.of(long.class, Long.class),
+            Arguments.of(Long.class, Long.class),
+            Arguments.of(int.class, Integer.class),
+            Arguments.of(Integer.class, Integer.class),
+            Arguments.of(byte.class, Byte.class),
+            Arguments.of(Byte.class, Byte.class),
+            Arguments.of(byte.class, Byte.class),
+            Arguments.of(String.class, String.class));
     }
 
     private static final class MyType {
