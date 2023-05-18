@@ -77,7 +77,7 @@
         <spotbugs.version>4.7.3</spotbugs.version>
         <junit.version>5.9.3</junit.version>
         <jacoco.plugin.version>0.8.10</jacoco.plugin.version>
-        <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
+        <git-commit-id-plugin.version>6.0.0</git-commit-id-plugin.version>
         <assertj.version>3.24.2</assertj.version>
         <logback.version>1.4.7</logback.version>
         <equalsverifier.version>3.14.1</equalsverifier.version>
