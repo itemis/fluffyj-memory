@@ -1,5 +1,6 @@
 package com.itemis.fluffyj.memory.tests;
 
+import static com.itemis.fluffyj.memory.FluffyMemory.dereference;
 import static com.itemis.fluffyj.memory.FluffyMemory.pointer;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
@@ -7,6 +8,7 @@ import static java.lang.foreign.MemorySegment.allocateNative;
 import static java.util.Objects.requireNonNull;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.itemis.fluffyj.memory.FluffyMemory;
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarPointer;
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
@@ -137,7 +139,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopeEna
     @Test
     void pointer_with_scope_is_not_alive_when_scope_is_closed() {
         var addr = allocateSeg().rawAddress();
-        var underTest = allocatescopePointer(addr, scope);
+        var underTest = allocateScopedPointer(addr, scope);
 
         arena.close();
 
@@ -182,6 +184,30 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopeEna
         assertThat(buf).isEqualTo(firstTestValue.rawValue());
     }
 
+    @Test
+    void wrapped_pointer_works() {
+        var nativeSeg = allocateNativeSeg(firstTestValue.rawValue());
+        var result = wrap(nativeSeg).asPointerOf(testValueType).allocate(scope);
+        assertThat(result).isNotNull();
+        assertThat(result.dereference()).isEqualTo(firstTestValue.typedValue());
+    }
+
+    @Test
+    void native_dereference_shortcut_works() {
+        var nativeSeg = allocateNativeSeg(firstTestValue.rawValue());
+        var nativePtr = FluffyMemory.pointer().to(nativeSeg.address()).as(testValueType).allocate(scope);
+        var result = dereference(nativePtr.getValue()).as(testValueType);
+        assertThat(result).isEqualTo(firstTestValue.typedValue());
+    }
+
+    @Test
+    void address_dereference_shortcut_works() {
+        var nativeSeg = allocateNativeSeg(firstTestValue.rawValue());
+        var nativePtr = FluffyMemory.pointer().to(nativeSeg.address()).as(testValueType).allocate(scope);
+        var result = dereference(nativePtr.getRawValue()).as(testValueType);
+        assertThat(result).isEqualTo(firstTestValue.typedValue());
+    }
+
     protected final MemorySegment allocateNativeSeg(byte[] rawContents) {
         var result = allocateNative(segmentLayout, scope);
         result.asByteBuffer().put(rawContents);
@@ -204,7 +230,7 @@ public abstract class FluffyScalarDataManipulationTest<T> extends MemoryScopeEna
         return pointer().to(address).as(testValueType).allocate();
     }
 
-    protected final FluffyScalarPointer<? extends T> allocatescopePointer(long address,
+    protected final FluffyScalarPointer<? extends T> allocateScopedPointer(long address,
             SegmentScope scope) {
         return pointer().to(address).as(testValueType).allocate(scope);
     }

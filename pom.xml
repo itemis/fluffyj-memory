@@ -8,11 +8,11 @@
     <parent>
         <groupId>com.itemis</groupId>
         <artifactId>org-parent</artifactId>
-        <version>5.7.0</version>
+        <version>5.8.1</version>
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.6.0</version>
+    <version>1.7.0</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -58,8 +58,7 @@
         <maven.compiler.release>20</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven-surefire-plugin.version>3.0.0</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.0.0-M8</maven-failsafe-plugin.version>
+        <maven-surefire-plugin.version>3.1.0</maven-surefire-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
         <build.timestamp.formatted>${maven.build.timestamp}</build.timestamp.formatted>
@@ -77,13 +76,13 @@
         <spotbugs.version>4.7.3</spotbugs.version>
         <junit.version>5.9.3</junit.version>
         <jacoco.plugin.version>0.8.10</jacoco.plugin.version>
-        <git-commit-id-plugin.version>5.0.0</git-commit-id-plugin.version>
+        <git-commit-id-plugin.version>6.0.0</git-commit-id-plugin.version>
         <assertj.version>3.24.2</assertj.version>
         <logback.version>1.4.7</logback.version>
         <equalsverifier.version>3.14.1</equalsverifier.version>
         <arch.unit.version>1.0.1</arch.unit.version>
-        <fluffyj.version>1.12.0</fluffyj.version>
-        <fluffyj.tests.version>1.7.0</fluffyj.tests.version>
+        <fluffyj.version>1.13.0</fluffyj.version>
+        <fluffyj.tests.version>1.7.1</fluffyj.tests.version>
         <custom.jvm.options>
             --enable-native-access=ALL-UNNAMED --enable-preview
         </custom.jvm.options>
@@ -307,11 +306,6 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>${version.maven-source-plugin}</version>
-                </plugin>
-                <plugin>
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>${spotbugs.plugin.version}</version>
@@ -351,20 +345,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-help-plugin</artifactId>
-                    <version>${version.maven-help-plugin}</version>
-                    <executions>
-                        <execution>
-                            <id>show-profiles</id>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>active-profiles</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>${version.maven-install-plugin}</version>
                 </plugin>
@@ -398,10 +378,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
@@ -427,9 +403,22 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-source-plugin</artifactId>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
-            <!-- For warnings about illegal reflective access see
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>            <!--
+            For warnings about illegal reflective access see
             https://issues.apache.org/jira/browse/GROOVY-8339 -->
             <plugin>
                 <groupId>com.github.spotbugs</groupId>

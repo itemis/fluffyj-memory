@@ -4,7 +4,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.internal.impl.FluffyPointerImpl;
 
-import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentScope;
 
 /**
@@ -20,10 +19,5 @@ public class PointerOfThing extends FluffyPointerImpl {
      */
     public PointerOfThing(SegmentScope scope) {
         super(0L, requireNonNull(scope, "scope"));
-    }
-
-    @Override
-    public MemorySegment rawDereference() {
-        return addressSeg;
     }
 }

@@ -48,7 +48,23 @@ System.out.println(valuePtr.dereference()); // prints contents of segment valueP
 ```
   
 Please note that due to reasons, primitive array types (i. e. byte[]) are not supported at the moment. Please consider using their object-counterparts instead (i. e. Byte[]).
+
+### Dereferencing an arbitrary address as Long
   
+```
+MemorySegment valueSeg = SegmentAllocator.nativeAllocator(scope).allocate(ValueLayout.JAVA_LONG, 123);
+long value = FluffyMemory.dereference(valueSeg.address()).as(long.class);
+System.out.println(value); // 123
+```
+
+### Dereferencing MemorySegment as Long
+  
+```
+MemorySegment valueSeg = SegmentAllocator.nativeAllocator(scope).allocate(ValueLayout.JAVA_LONG, 123);
+long value = FluffyMemory.dereference(valueSeg).as(long.class);
+System.out.println(value); // 123
+```
+
 ### Allocating an off heap Array
 
 ```

@@ -2,6 +2,7 @@ package com.itemis.fluffyj.memory;
 
 import static java.util.Objects.requireNonNull;
 
+import com.itemis.fluffyj.memory.FluffyMemoryPointerBuilder.FluffyMemoryTypedPointerBuilder;
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
@@ -44,18 +45,22 @@ public final class FluffyMemorySegmentWrapper {
         requireNonNull(type, "type");
 
         Object result = null;
-        if (type.isAssignableFrom(Long.class)) {
+        if (type.isAssignableFrom(Long.class) || type.isAssignableFrom(long.class)) {
             result = new LongSegment(nativeSegment);
-        } else if (type.isAssignableFrom(Integer.class)) {
+        } else if (type.isAssignableFrom(Integer.class) || type.isAssignableFrom(int.class)) {
             result = new IntSegment(nativeSegment);
         } else if (type.isAssignableFrom(String.class)) {
             result = new StringSegment(nativeSegment);
-        } else if (type.isAssignableFrom(Byte.class)) {
+        } else if (type.isAssignableFrom(Byte.class) || type.isAssignableFrom(byte.class)) {
             result = new ByteSegment(nativeSegment);
         } else {
             throw new FluffyMemoryException("Cannot wrap scalar segment of unknown type: " + type.getCanonicalName());
         }
         return (FluffyScalarSegment<T>) result;
+    }
+
+    public <T> FluffyMemoryScalarPointerAllocator<T> asPointerOf(Class<? extends T> type) {
+        return new FluffyMemoryTypedPointerBuilder(nativeSegment.address()).as(type);
     }
 
     /**
