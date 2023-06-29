@@ -79,7 +79,7 @@
         <git-commit-id-plugin.version>6.0.0</git-commit-id-plugin.version>
         <assertj.version>3.24.2</assertj.version>
         <logback.version>1.4.8</logback.version>
-        <equalsverifier.version>3.14.2</equalsverifier.version>
+        <equalsverifier.version>3.14.3</equalsverifier.version>
         <arch.unit.version>1.0.1</arch.unit.version>
         <fluffyj.version>1.13.0</fluffyj.version>
         <fluffyj.tests.version>1.7.1</fluffyj.tests.version>
