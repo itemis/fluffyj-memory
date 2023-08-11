@@ -69,7 +69,7 @@
             plugin processes all contents of the configured
         resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
-        <guava.version>32.1.1-jre</guava.version>
+        <guava.version>32.1.2-jre</guava.version>
         <mockito.version>5.4.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <spotbugs.plugin.version>4.7.3.5</spotbugs.plugin.version>
