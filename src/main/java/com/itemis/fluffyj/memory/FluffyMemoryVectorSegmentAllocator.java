@@ -6,7 +6,7 @@ import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.BlobSegment;
 
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.Arena;
 
 /**
  * Helps with allocating areas of off heap memory that contain vectorized data, i. e. arrays.
@@ -19,34 +19,33 @@ public final class FluffyMemoryVectorSegmentAllocator<T> {
     /**
      * @param initialValue - The allocated segment will hold this value.
      */
-    public FluffyMemoryVectorSegmentAllocator(T[] initialValue) {
+    public FluffyMemoryVectorSegmentAllocator(final T[] initialValue) {
         requireNonNull(initialValue, "initialValue");
         this.initialValue = initialValue;
     }
 
     /**
-     * @return A freshly allocated segment attached to the global scope.
+     * @return A freshly allocated segment attached to the auto scope.
      */
     public FluffyVectorSegment<T> allocate() {
-        return allocate(SegmentScope.global());
+        return allocate(Arena.ofAuto());
     }
 
     /**
-     * @return A freshly allocated segment attached to {@code scope}.
+     * @return A freshly allocated segment attached to the provided {@code arena}.
      */
     // We cannot convince the compiler at this point anyway so we need to make sure about type
     // safety via tests
     @SuppressWarnings("unchecked")
-    public FluffyVectorSegment<T> allocate(SegmentScope scope) {
-        requireNonNull(scope, "scope");
+    public FluffyVectorSegment<T> allocate(final Arena arena) {
+        requireNonNull(arena, "arena");
 
         Object result = null;
-        if (initialValue.getClass().componentType().isAssignableFrom(Byte.class)) {
-            result = new BlobSegment((Byte[]) initialValue, scope);
-        } else {
+        if (!initialValue.getClass().componentType().isAssignableFrom(Byte.class)) {
             throw new FluffyMemoryException(
                 "Cannot allocate vector segment of unknown type: " + initialValue.getClass().getCanonicalName());
         }
+        result = new BlobSegment((Byte[]) initialValue, arena);
 
         return (FluffyVectorSegment<T>) result;
     }

@@ -5,10 +5,8 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import com.itemis.fluffyj.memory.api.FluffyPointer;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.SegmentScope;
-import java.lang.foreign.ValueLayout;
 
 /**
  * Default implementation of a pointer.
@@ -16,20 +14,20 @@ import java.lang.foreign.ValueLayout;
 public abstract class FluffyPointerImpl implements FluffyPointer {
 
     protected final MemorySegment addressSeg;
-    protected final SegmentScope scope;
+    protected final Arena arena;
 
     /**
      * @param addressPointedTo - The address this pointer will point to.
-     * @param scope - The scope to attach this pointer to.
+     * @param arena - The arena to attach this pointer to.
      */
-    protected FluffyPointerImpl(long addressPointedTo, SegmentScope scope) {
-        this.addressSeg = SegmentAllocator.nativeAllocator(scope).allocate(JAVA_LONG, addressPointedTo);
-        this.scope = scope;
+    protected FluffyPointerImpl(final long addressPointedTo, final Arena arena) {
+        this.addressSeg = arena.allocate(JAVA_LONG, addressPointedTo);
+        this.arena = arena;
     }
 
     @Override
     public final boolean isAlive() {
-        return scope.isAlive();
+        return arena.scope().isAlive();
     }
 
     @Override
@@ -39,7 +37,7 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
 
     @Override
     public MemorySegment address() {
-        return ofAddress(rawAddress(), 0, scope);
+        return ofAddress(rawAddress());
     }
 
     @Override
@@ -49,11 +47,11 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
 
     @Override
     public MemorySegment getValue() {
-        return addressSeg.get(ValueLayout.ADDRESS.asUnbounded(), 0);
+        return MemorySegment.ofAddress(getRawValue());
     }
 
     @Override
     public MemorySegment rawDereference() {
-        return MemorySegment.ofAddress(getRawValue(), Long.MAX_VALUE, scope);
+        return MemorySegment.ofAddress(getRawValue()).reinterpret(Long.MAX_VALUE, arena, null);
     }
 }

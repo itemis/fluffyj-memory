@@ -2,7 +2,6 @@ package com.itemis.fluffyj.memory;
 
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertFinal;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
-import static java.lang.foreign.MemorySegment.allocateNative;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.invoke.MethodType.methodType;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,7 +22,7 @@ import com.itemis.fluffyj.memory.api.FluffyMemoryLinker;
 import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
-import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
+import com.itemis.fluffyj.memory.tests.ArenafiedTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +34,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
+public class FluffyNativeMethodHandleTest extends ArenafiedTest {
 
     private SymbolLookup libMock;
     private FluffyMemoryLinker linkerMock;
@@ -48,8 +47,8 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
         libMock = mock(SymbolLookup.class);
         convSpy = spy(new CDataTypeConverter());
 
-        var publicLookup = MethodHandles.publicLookup();
-        var methodType = methodType(int.class);
+        final var publicLookup = MethodHandles.publicLookup();
+        final var methodType = methodType(int.class);
         realMethodHandle = publicLookup.findVirtual(String.class, "length", methodType);
 
         when(linkerMock.link(any(), any())).thenReturn(realMethodHandle);
@@ -62,31 +61,31 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     @Test
     void test_correct_stage_order() {
-        var knownSymbol = "strlen";
+        final var knownSymbol = "strlen";
         addKnownSymbol(knownSymbol);
 
-        var firstStage = FluffyNativeMethodHandle.fromLib(libMock);
+        final var firstStage = FluffyNativeMethodHandle.fromLib(libMock);
         assertThat(firstStage).isInstanceOf(ReturnTypeStage.class);
 
-        var secondStage = firstStage.withLinker(linkerMock);
+        final var secondStage = firstStage.withLinker(linkerMock);
         assertThat(secondStage).isInstanceOf(LinkerStage.class);
 
-        var thirdStage = secondStage.withTypeConverter(convSpy);
+        final var thirdStage = secondStage.withTypeConverter(convSpy);
         assertThat(thirdStage).isInstanceOf(FuncStage.class);
 
-        var fourthStage = thirdStage.returnType(Integer.class);
+        final var fourthStage = thirdStage.returnType(Integer.class);
         assertThat(fourthStage).isInstanceOf(FuncStage.class);
 
-        var otherFourthStage = thirdStage.noReturnType();
+        final var otherFourthStage = thirdStage.noReturnType();
         assertThat(otherFourthStage).isInstanceOf(FuncStage.class);
 
-        var fifthStage = fourthStage.func(knownSymbol);
+        final var fifthStage = fourthStage.func(knownSymbol);
         assertThat(fifthStage).isInstanceOf(ArgsStage.class);
 
-        var sixthStage = fifthStage.args(ADDRESS);
+        final var sixthStage = fifthStage.args(ADDRESS);
         assertThat(sixthStage).isInstanceOf(FluffyNativeMethodHandle.class);
 
-        var otherSixthStage = fifthStage.noArgs();
+        final var otherSixthStage = fifthStage.noArgs();
         assertThat(otherSixthStage).isInstanceOf(FluffyNativeMethodHandle.class);
     }
 
@@ -122,7 +121,7 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     @Test
     void func_loads_symbol_from_lib() {
-        var expectedSymbolName = "expectedSymbolName";
+        final var expectedSymbolName = "expectedSymbolName";
         addKnownSymbol(expectedSymbolName);
         FluffyNativeMethodHandle.fromLib(libMock).withLinker(linkerMock).withTypeConverter(convSpy)
             .returnType(Long.class)
@@ -133,7 +132,7 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     @Test
     void unknown_func_name_yields_exception() {
-        var unknownSymbol = "unknownSymbol";
+        final var unknownSymbol = "unknownSymbol";
         removeSymbol(unknownSymbol);
 
         assertThatThrownBy(
@@ -146,7 +145,7 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     @Test
     void returnType_calls_typeConverter() {
-        var returnType = long.class;
+        final var returnType = long.class;
         FluffyNativeMethodHandle.fromLib(libMock).withLinker(linkerMock).withTypeConverter(convSpy)
             .returnType(returnType);
 
@@ -155,13 +154,13 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     @Test
     void cStdLib_shortcut_returns_correct_stage() {
-        var resultStage = FluffyNativeMethodHandle.fromCStdLib();
+        final var resultStage = FluffyNativeMethodHandle.fromCStdLib();
         assertThat(resultStage).isInstanceOf(ReturnTypeStage.class);
     }
 
     @Test
     void cLib_shortcut_returns_correct_stage() {
-        var resultStage = FluffyNativeMethodHandle.fromCLib(libMock);
+        final var resultStage = FluffyNativeMethodHandle.fromCLib(libMock);
         assertThat(resultStage).isInstanceOf(ReturnTypeStage.class);
     }
 
@@ -179,10 +178,10 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     @Test
     void test_no_return_type() {
-        var knownSymbol = "knownSymbol";
+        final var knownSymbol = "knownSymbol";
         addKnownSymbol(knownSymbol);
 
-        var handle = FluffyNativeMethodHandle.fromLib(libMock).withLinker(linkerMock).withTypeConverter(convSpy)
+        final var handle = FluffyNativeMethodHandle.fromLib(libMock).withLinker(linkerMock).withTypeConverter(convSpy)
             .noReturnType().func(knownSymbol).noArgs();
 
         assertThat(handle).isNotNull();
@@ -190,10 +189,10 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     @Test
     void test_Void_return_type_no_args() {
-        var knownSymbol = "knownSymbol";
+        final var knownSymbol = "knownSymbol";
         addKnownSymbol(knownSymbol);
 
-        var handle = FluffyNativeMethodHandle.fromLib(libMock).withLinker(linkerMock).withTypeConverter(convSpy)
+        final var handle = FluffyNativeMethodHandle.fromLib(libMock).withLinker(linkerMock).withTypeConverter(convSpy)
             .returnType(Void.class).func(knownSymbol).args();
 
         assertThat(handle).isNotNull();
@@ -201,21 +200,21 @@ public class FluffyNativeMethodHandleTest extends MemoryScopeEnabledTest {
 
     @Test
     void test_void_return_type_no_args() {
-        var knownSymbol = "knownSymbol";
+        final var knownSymbol = "knownSymbol";
         addKnownSymbol(knownSymbol);
 
-        var handle = FluffyNativeMethodHandle.fromLib(libMock).withLinker(linkerMock).withTypeConverter(convSpy)
+        final var handle = FluffyNativeMethodHandle.fromLib(libMock).withLinker(linkerMock).withTypeConverter(convSpy)
             .returnType(void.class).func(knownSymbol).args();
 
         assertThat(handle).isNotNull();
     }
 
-    private void addKnownSymbol(String symbolName) {
-        var seg = allocateNative(1, scope);
+    private void addKnownSymbol(final String symbolName) {
+        final var seg = arena.allocate(1);
         when(libMock.find(symbolName)).thenReturn(Optional.of(seg));
     }
 
-    private void removeSymbol(String symbolName) {
+    private void removeSymbol(final String symbolName) {
         // The mock statement is required in order for eclipse to accept the next statement.
         // There seems to be a Java19 related bug wrt Mockito.when
         Mockito.mock(Supplier.class);

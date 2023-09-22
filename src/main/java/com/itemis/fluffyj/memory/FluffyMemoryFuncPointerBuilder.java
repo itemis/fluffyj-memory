@@ -1,7 +1,6 @@
 package com.itemis.fluffyj.memory;
 
 import static java.lang.foreign.Linker.nativeLinker;
-import static java.lang.foreign.SegmentScope.global;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.methodType;
 import static java.util.Arrays.stream;
@@ -17,10 +16,10 @@ import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.F
 import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.ReturnTypeStage;
 import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.TypeConverterStage;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentScope;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -50,7 +49,7 @@ public final class FluffyMemoryFuncPointerBuilder
      * @param conv - A {@link FluffyMemoryTypeConverter} that will be used to convert between JVM
      *        and native type arguments and return types.
      */
-    public FluffyMemoryFuncPointerBuilder(String funcName, FluffyMemoryTypeConverter conv) {
+    public FluffyMemoryFuncPointerBuilder(final String funcName, final FluffyMemoryTypeConverter conv) {
         this.funcName = requireNonNull(funcName, "funcName");
         this.typeConverter = requireNonNull(conv, "conv");
     }
@@ -61,30 +60,30 @@ public final class FluffyMemoryFuncPointerBuilder
      *
      * @param funcName - Name of the JVM method to point to.
      */
-    public FluffyMemoryFuncPointerBuilder(String funcName) {
+    public FluffyMemoryFuncPointerBuilder(final String funcName) {
         this.funcName = requireNonNull(funcName, "funcName");
     }
 
     @Override
-    public ArgsStage of(Object receiver) {
+    public ArgsStage of(final Object receiver) {
         this.receiver = requireNonNull(receiver, "receiver");
         return this;
     }
 
     @Override
-    public TypeConverterStage ofType(Object receiver) {
+    public TypeConverterStage ofType(final Object receiver) {
         this.receiver = requireNonNull(receiver, "receiver");
         return this;
     }
 
     @Override
-    public ArgsStage withTypeConverter(FluffyMemoryTypeConverter conv) {
+    public ArgsStage withTypeConverter(final FluffyMemoryTypeConverter conv) {
         this.typeConverter = requireNonNull(conv, "conv");
         return this;
     }
 
     @Override
-    public ReturnTypeStage withArgs(MemoryLayout... args) {
+    public ReturnTypeStage withArgs(final MemoryLayout... args) {
         nativeArgTypes = requireNonNull(args, "args");
         javaArgTypes = typeConverter.getJvmTypes(args);
         return this;
@@ -97,14 +96,14 @@ public final class FluffyMemoryFuncPointerBuilder
 
     @Override
     public MemorySegment autoBind() {
-        return autoBindTo(global());
+        return autoBindTo(Arena.global());
     }
 
     @Override
-    public MemorySegment autoBindTo(SegmentScope scope) {
-        requireNonNull(scope, "scope");
+    public MemorySegment autoBindTo(final Arena arena) {
+        requireNonNull(arena, "arena");
 
-        var candidateMethods = extractMethodCandidates();
+        final var candidateMethods = extractMethodCandidates();
 
         if (candidateMethods.isEmpty()) {
             throwCannotFindMethod(null);
@@ -114,7 +113,7 @@ public final class FluffyMemoryFuncPointerBuilder
             throw new FluffyMemoryException(
                 "Cannot autobind overloaded method '" + funcName + "'. Please perform manual bind.");
         }
-        var method = candidateMethods.get(0);
+        final var method = candidateMethods.get(0);
 
         if (!method.canAccess(receiver)) {
             throwCannotBindNonAccessibleMethod();
@@ -123,7 +122,7 @@ public final class FluffyMemoryFuncPointerBuilder
         javaArgTypes = method.getParameterTypes();
         try {
             nativeArgTypes = typeConverter.getNativeTypes(javaArgTypes);
-        } catch (FluffyMemoryException e) {
+        } catch (final FluffyMemoryException e) {
             throw new FluffyMemoryException(
                 "Method '" + funcName + "' of type " + receiver.getClass().getCanonicalName()
                     + " has unsupported argument types.",
@@ -133,21 +132,22 @@ public final class FluffyMemoryFuncPointerBuilder
         if (javaReturnType.equals(Void.class)) {
             throw new FluffyMemoryException("Return type " + Void.class.getCanonicalName() + " is unsupported. Use "
                 + void.class.getCanonicalName());
-        } else if (!(javaReturnType.equals(void.class))) {
+        }
+        if (!(javaReturnType.equals(void.class))) {
             try {
                 nativeReturnType = Optional.of(typeConverter.getNativeType(javaReturnType));
-            } catch (FluffyMemoryException e) {
+            } catch (final FluffyMemoryException e) {
                 throw new FluffyMemoryException(
                     "Method '" + funcName + "' of type " + receiver.getClass().getCanonicalName()
                         + " has unsupported return type.",
                     e);
             }
         }
-        return bindTo(scope);
+        return bindTo(arena);
     }
 
     @Override
-    public BinderStage andReturnType(MemoryLayout returnType) {
+    public BinderStage andReturnType(final MemoryLayout returnType) {
         requireNonNull(returnType, "returnType");
 
         nativeReturnType = Optional.of(returnType);
@@ -162,8 +162,8 @@ public final class FluffyMemoryFuncPointerBuilder
     }
 
     @Override
-    public MemorySegment bindTo(SegmentScope scope) {
-        requireNonNull(scope, "scope");
+    public MemorySegment bindTo(final Arena arena) {
+        requireNonNull(arena, "arena");
 
         if (extractMethodCandidates().stream().anyMatch(Method::isSynthetic)) {
             throwCannotBindSynthMethod();
@@ -172,23 +172,22 @@ public final class FluffyMemoryFuncPointerBuilder
         MethodHandle callback = null;
         try {
             callback = lookup().bind(receiver, funcName, methodType(javaReturnType, javaArgTypes));
-        } catch (NoSuchMethodException e) {
+        } catch (final NoSuchMethodException e) {
             throwCannotFindMethod(e);
-        } catch (IllegalAccessException e) {
+        } catch (final IllegalAccessException e) {
             throwCannotBindNonAccessibleMethod();
         }
 
         if (nativeReturnType.isPresent()) {
             return nativeLinker()
-                .upcallStub(callback, FunctionDescriptor.of(nativeReturnType.get(), nativeArgTypes), scope);
-        } else {
-            return nativeLinker().upcallStub(callback, FunctionDescriptor.ofVoid(nativeArgTypes), scope);
+                .upcallStub(callback, FunctionDescriptor.of(nativeReturnType.get(), nativeArgTypes), arena);
         }
+        return nativeLinker().upcallStub(callback, FunctionDescriptor.ofVoid(nativeArgTypes), arena);
     }
 
     @Override
-    public MemorySegment bindToGlobalScope() {
-        return bindTo(SegmentScope.global());
+    public MemorySegment bindToGlobalArena() {
+        return bindTo(Arena.global());
     }
 
     private List<Method> extractMethodCandidates() {
@@ -204,12 +203,11 @@ public final class FluffyMemoryFuncPointerBuilder
         throw new FluffyMemoryException("Cannot create function pointer to non accessible JVM methods.");
     }
 
-    private void throwCannotFindMethod(Throwable cause) {
-        var errMsg = "Could not find method '" + funcName + "' in type " + receiver.getClass().getCanonicalName();
+    private void throwCannotFindMethod(final Throwable cause) {
+        final var errMsg = "Could not find method '" + funcName + "' in type " + receiver.getClass().getCanonicalName();
         if (cause == null) {
             throw new FluffyMemoryException(errMsg);
-        } else {
-            throw new FluffyMemoryException(errMsg, cause);
         }
+        throw new FluffyMemoryException(errMsg, cause);
     }
 }

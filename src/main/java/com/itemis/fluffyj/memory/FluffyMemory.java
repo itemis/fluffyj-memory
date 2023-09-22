@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import com.itemis.fluffyj.exceptions.InstantiationNotPermittedException;
 import com.itemis.fluffyj.memory.api.FluffySegment;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
 /**
@@ -36,7 +37,7 @@ public final class FluffyMemory {
      *
      * @param nativeSeg - The raw {@link MemorySegment} to wrap.
      */
-    public static FluffyMemorySegmentWrapper wrap(MemorySegment nativeSeg) {
+    public static FluffyMemorySegmentWrapper wrap(final MemorySegment nativeSeg) {
         requireNonNull(nativeSeg, "nativeSeg");
         return new FluffyMemorySegmentWrapper(nativeSeg);
     }
@@ -47,8 +48,8 @@ public final class FluffyMemory {
      * @param nativePtr - Dereference the address found inside this ptr segment.
      * @return - Entry point for easy dereferenciation.
      */
-    public static FluffyMemoryDereferencer dereference(MemorySegment nativePtr) {
-        return new FluffyMemoryDereferencer(wrap(nativePtr), nativePtr);
+    public static FluffyMemoryDereferencer dereference(final MemorySegment nativePtr) {
+        return new FluffyMemoryDereferencer(wrap(nativePtr), Arena.ofAuto());
     }
 
     /**
@@ -57,9 +58,8 @@ public final class FluffyMemory {
      * @param address - Dereference this address.
      * @return - Entry point for easy dereferenciation.
      */
-    public static FluffyMemoryDereferencer dereference(long address) {
-        var nativeSeg = MemorySegment.ofAddress(address);
-        return dereference(nativeSeg);
+    public static FluffyMemoryDereferencer dereference(final long address) {
+        return dereference(MemorySegment.ofAddress(address));
     }
 
 }

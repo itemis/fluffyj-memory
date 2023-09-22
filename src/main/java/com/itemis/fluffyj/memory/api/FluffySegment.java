@@ -1,7 +1,7 @@
 package com.itemis.fluffyj.memory.api;
 
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.MemorySegment.Scope;
 
 /**
  * A representation of an allocated area of off heap memory.
@@ -9,7 +9,7 @@ import java.lang.foreign.SegmentScope;
 public interface FluffySegment {
 
     /**
-     * @see SegmentScope#isAlive()
+     * @see Scope#isAlive()
      */
     boolean isAlive();
 

@@ -27,7 +27,7 @@ public final class FluffyMemorySegmentWrapper {
      *
      * @param nativeSegment - This segment will be wrapped.
      */
-    public FluffyMemorySegmentWrapper(MemorySegment nativeSegment) {
+    public FluffyMemorySegmentWrapper(final MemorySegment nativeSegment) {
         requireNonNull(nativeSegment, "nativeSegment");
         this.nativeSegment = nativeSegment;
     }
@@ -36,12 +36,12 @@ public final class FluffyMemorySegmentWrapper {
      * <T> - Type of data the segment shall point to.
      *
      * @return A view of the native segment interpreted as {@link FluffyScalarSegment} of
-     *         {@code type}. The constructed {@link FluffyScalarSegment} will have the same scope as
-     *         the native segment.
+     *         {@code type}. The constructed {@link FluffyScalarSegment} will belong to the same
+     *         arena as the native segment.
      */
     // The cast is indeed unsafe. We need to make sure with good test coverage.
     @SuppressWarnings("unchecked")
-    public <T> FluffyScalarSegment<T> as(Class<? extends T> type) {
+    public <T> FluffyScalarSegment<T> as(final Class<? extends T> type) {
         requireNonNull(type, "type");
 
         Object result = null;
@@ -59,26 +59,25 @@ public final class FluffyMemorySegmentWrapper {
         return (FluffyScalarSegment<T>) result;
     }
 
-    public <T> FluffyMemoryScalarPointerAllocator<T> asPointerOf(Class<? extends T> type) {
+    public <T> FluffyMemoryScalarPointerAllocator<T> asPointerOf(final Class<? extends T> type) {
         return new FluffyMemoryTypedPointerBuilder(nativeSegment.address()).as(type);
     }
 
     /**
      * @return A view of the native segment interpreted as {@link FluffyVectorSegment} of
-     *         {@code type}. The constructed {@link FluffyVectorSegment} will have the same scope as
-     *         the native segment.
+     *         {@code type}. The constructed {@link FluffyVectorSegment} will belong to the same
+     *         arena as the native segment.
      */
     // The cast is indeed unsafe. We need to make sure with good test coverage.
     @SuppressWarnings("unchecked")
-    public <T> FluffyVectorSegment<T> asArray(Class<? extends T[]> type) {
+    public <T> FluffyVectorSegment<T> asArray(final Class<? extends T[]> type) {
         requireNonNull(type, "type");
 
         Object result = null;
-        if (type.isAssignableFrom(Byte[].class)) {
-            result = new BlobSegment(nativeSegment);
-        } else {
+        if (!type.isAssignableFrom(Byte[].class)) {
             throw new FluffyMemoryException("Cannot wrap vector segment of unknown type: " + type.getCanonicalName());
         }
+        result = new BlobSegment(nativeSegment);
         return (FluffyVectorSegment<T>) result;
     }
 }

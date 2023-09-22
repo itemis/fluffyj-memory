@@ -6,16 +6,16 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.lang.foreign.Arena;
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.MemorySegment.Scope;
 
-public abstract class MemoryScopeEnabledTest {
+public abstract class ArenafiedTest {
 
     protected Arena arena;
-    protected SegmentScope scope;
+    protected Scope scope;
 
     @BeforeEach
-    void setUpScope() {
-        arena = Arena.openConfined();
+    void setUpArenaAndScope() {
+        arena = Arena.ofShared();
         scope = arena.scope();
     }
 
@@ -24,7 +24,7 @@ public abstract class MemoryScopeEnabledTest {
         if (arena != null && scope != null && scope.isAlive()) {
             try {
                 arena.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 fail("Could not close test arena.", e);
             }
         }

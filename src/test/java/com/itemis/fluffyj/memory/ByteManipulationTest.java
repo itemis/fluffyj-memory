@@ -15,8 +15,11 @@ class ByteManipulationTest extends FluffyScalarDataManipulationTest<Byte> {
 
             @Override
             public FluffyMemoryScalarTestValue<Byte> next() {
-                var buf = new byte[1];
+                final var buf = new byte[1];
                 rnd.nextBytes(buf);
+                if (buf[0] < 0) {
+                    buf[0] = (byte) (buf[0] * (-1));
+                }
                 return new FluffyMemoryScalarTestValue<>(buf[0], buf);
             }
         }, JAVA_BYTE);

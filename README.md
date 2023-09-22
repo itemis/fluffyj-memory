@@ -42,7 +42,7 @@ System.out.println(seg.getValue());  // Prints contents of nativeSeg interpreted
 ### Pointing to an off heap Long
 
 ```
-MemorySegment nativeAddress = someNativeCode.getPtr();
+long nativeAddress = someNativeCode.getPtr();
 FluffyScalarPointer<Long> valuePtr = FluffyMemory.pointer().to(nativeAddress).as(long.class).allocate();
 System.out.println(valuePtr.dereference()); // prints contents of segment valuePtr points to, interpreted as Long
 ```
@@ -52,7 +52,7 @@ Please note that due to reasons, primitive array types (i. e. byte[]) are not su
 ### Dereferencing an arbitrary address as Long
   
 ```
-MemorySegment valueSeg = SegmentAllocator.nativeAllocator(scope).allocate(ValueLayout.JAVA_LONG, 123);
+MemorySegment valueSeg = Arena.ofAuto().allocate(ValueLayout.JAVA_LONG, 123L);
 long value = FluffyMemory.dereference(valueSeg.address()).as(long.class);
 System.out.println(value); // 123
 ```
@@ -60,7 +60,7 @@ System.out.println(value); // 123
 ### Dereferencing MemorySegment as Long
   
 ```
-MemorySegment valueSeg = SegmentAllocator.nativeAllocator(scope).allocate(ValueLayout.JAVA_LONG, 123);
+MemorySegment valueSeg = Arena.ofAuto().allocate(ValueLayout.JAVA_LONG, 123L);
 long value = FluffyMemory.dereference(valueSeg).as(long.class);
 System.out.println(value); // 123
 ```
@@ -80,7 +80,7 @@ System.out.println(seg.getValue());  // Prints contents of nativeSeg interpreted
 ### Pointing to an off heap Array
 
 ```
-MemorySegment nativeAddress = someNativeCode.getPtr();
+long nativeAddress = someNativeCode.getPtr();
 FluffyVectorPointer<Byte> valuePtr = FluffyMemory.pointer().to(nativeAddress).asArray(arraySizeInBytes).of(Byte[].class).allocate();
 System.out.println(valuePtr.dereference()); // prints contents of segment valuePtr points to, interpreted as Long
 ```
@@ -118,7 +118,7 @@ FluffyNativeMethodHandle<Void> qsort = FluffyNativeMethodHandle.fromCStdLib()
   
 MemorySegment comparator = FluffyMemory.pointer()
     .toCFunc("qsort_comparator")
-    .of(new QSortComparator())
+    .of(this)
     .autoBind();
   
 // array base addr, length of array in bytes, length of one element in bytes, pointer to comparator func
@@ -129,10 +129,9 @@ System.out.println(Arrays.toString(bufSeg.getValue())); // Prints sorted buf
   
 // 0.. equal, -1.. left larger, 1.. right larger
 public int qsort_comparator(MemorySegment left, MemorySegment right) {
-    SegmentScope scope = SegmentScope.global();
-    long sizeOfOneElmInByte = 1L;
-    Byte leftByte = pointer().to(left.address()).as(Byte.class).allocate(scope).dereference();
-    Byte rightByte = pointer().to(right.address()).as(Byte.class).allocate(scope).dereference();
+    Arena arena = Arena.ofAuto();
+    Byte leftByte = pointer().to(left.address()).as(Byte.class).allocate(arena).dereference();
+    Byte rightByte = pointer().to(right.address()).as(Byte.class).allocate(arena).dereference();
         
     int result = 0;
     if (leftByte < rightByte) {

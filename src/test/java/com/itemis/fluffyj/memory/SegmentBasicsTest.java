@@ -3,14 +3,13 @@ package com.itemis.fluffyj.memory;
 import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.tests.FluffyTestHelper.assertNullArgNotAccepted;
-import static java.lang.foreign.MemorySegment.allocateNative;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 import com.itemis.fluffyj.memory.error.FluffyMemoryException;
-import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
+import com.itemis.fluffyj.memory.tests.ArenafiedTest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,28 +20,28 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.lang.foreign.MemorySegment;
 import java.util.stream.Stream;
 
-class SegmentBasicsTest extends MemoryScopeEnabledTest {
+class SegmentBasicsTest extends ArenafiedTest {
 
     private MemorySegment nativeSeg;
 
     @BeforeEach
     void setUp() {
-        nativeSeg = allocateNative(1, scope);
+        nativeSeg = arena.allocate(1);
     }
 
     @Test
     void address_rawAddress_equality() {
-        var segment = new FluffyMemoryScalarSegmentAllocator<>("test").allocate(scope);
+        final var segment = new FluffyMemoryScalarSegmentAllocator<>("test").allocate(arena);
         assertThat(segment.address().address()).isEqualTo(segment.rawAddress());
     }
 
     @Test
     void allocate_with_null_yields_npe() {
-        var pointerAlloc = new FluffyMemoryScalarPointerAllocator<>(0L, Object.class);
-        assertNullArgNotAccepted(() -> pointerAlloc.allocate(null), "scope");
+        final var pointerAlloc = new FluffyMemoryScalarPointerAllocator<>(0L, Object.class);
+        assertNullArgNotAccepted(() -> pointerAlloc.allocate(null), "arena");
 
-        var segmentAlloc = new FluffyMemoryScalarSegmentAllocator<>(0L);
-        assertNullArgNotAccepted(() -> segmentAlloc.allocate(null), "scope");
+        final var segmentAlloc = new FluffyMemoryScalarSegmentAllocator<>(0L);
+        assertNullArgNotAccepted(() -> segmentAlloc.allocate(null), "arena");
     }
 
     @Test
@@ -53,15 +52,15 @@ class SegmentBasicsTest extends MemoryScopeEnabledTest {
     }
 
     @Test
-    void allocate_scalar_seg_with_scope_and_unknown_type_yields_exception() {
-        assertThatThrownBy(() -> segment().of(new MyType()).allocate(scope))
+    void allocate_scalar_seg_with_arena_and_unknown_type_yields_exception() {
+        assertThatThrownBy(() -> segment().of(new MyType()).allocate(arena))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Cannot allocate scalar segment of unknown type: " + MyType.class.getCanonicalName());
     }
 
     @Test
-    void allocate_vector_seg_with_scope_and_unknown_type_yields_exception() {
-        assertThatThrownBy(() -> segment().ofArray(new MyType[0]).allocate(scope))
+    void allocate_vector_seg_with_arena_and_unknown_type_yields_exception() {
+        assertThatThrownBy(() -> segment().ofArray(new MyType[0]).allocate(arena))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage(
                 "Cannot allocate vector segment of unknown type: " + MyType.class.arrayType().getCanonicalName());
@@ -78,13 +77,13 @@ class SegmentBasicsTest extends MemoryScopeEnabledTest {
 
     @Test
     void to_null_seg_yields_npe() {
-        var underTest = new FluffyMemoryPointerBuilder();
+        final var underTest = new FluffyMemoryPointerBuilder();
         assertNullArgNotAccepted(() -> underTest.to((FluffyScalarSegment<?>) null), "toHere");
     }
 
     @Test
     void to_null_array_seg_yields_npe() {
-        var underTest = new FluffyMemoryPointerBuilder();
+        final var underTest = new FluffyMemoryPointerBuilder();
         assertNullArgNotAccepted(() -> underTest.toArray((FluffyVectorSegment<?>) null), "toHere");
     }
 
@@ -117,8 +116,8 @@ class SegmentBasicsTest extends MemoryScopeEnabledTest {
 
     @ParameterizedTest
     @MethodSource("typeMappings")
-    void wrap_should_support_known_types(Class<?> inputType, Class<?> expectedOutputType) {
-        var actualOutputType = wrap(nativeSeg).as(inputType).getContainedType();
+    void wrap_should_support_known_types(final Class<?> inputType, final Class<?> expectedOutputType) {
+        final var actualOutputType = wrap(nativeSeg).as(inputType).getContainedType();
 
         assertThat(actualOutputType).isEqualTo(expectedOutputType);
     }
