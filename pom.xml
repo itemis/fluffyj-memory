@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.7.1</version>
+    <version>1.7.2</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -72,17 +72,18 @@
         <guava.version>32.1.2-jre</guava.version>
         <mockito.version>5.5.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <spotbugs.plugin.version>4.7.3.5</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.7.3.6</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <junit.version>5.10.0</junit.version>
         <jacoco.plugin.version>0.8.10</jacoco.plugin.version>
         <git-commit-id-plugin.version>6.0.0</git-commit-id-plugin.version>
         <assertj.version>3.24.2</assertj.version>
         <logback.version>1.4.11</logback.version>
-        <equalsverifier.version>3.15.1</equalsverifier.version>
+        <equalsverifier.version>3.15.2</equalsverifier.version>
         <arch.unit.version>1.1.0</arch.unit.version>
-        <fluffyj.version>1.13.0</fluffyj.version>
-        <fluffyj.tests.version>1.7.1</fluffyj.tests.version>
+        <apache.commons.lang.version>3.13.0</apache.commons.lang.version>
+        <fluffyj.version>1.13.1</fluffyj.version>
+        <fluffyj.tests.version>1.7.2</fluffyj.tests.version>
         <custom.jvm.options>
             --enable-native-access=ALL-UNNAMED --enable-preview
         </custom.jvm.options>
@@ -95,14 +96,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
-            </dependency>
-            <dependency>
-                <!-- Required to support null annotation checks according 
-                    to
-                JSR-305 -->
-                <groupId>com.github.spotbugs</groupId>
-                <artifactId>spotbugs</artifactId>
-                <version>${spotbugs.version}</version>
             </dependency>
             <!--
             https://mvnrepository.com/artifact/ch.qos.logback/logback-classic -->
@@ -179,6 +172,11 @@
                 <artifactId>equalsverifier</artifactId>
                 <version>${equalsverifier.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${apache.commons.lang.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -190,12 +188,6 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-        </dependency>
-        <dependency>
-            <!-- Required to support null annotation checks according to 
-                JSR-305 -->
-            <groupId>com.github.spotbugs</groupId>
-            <artifactId>spotbugs</artifactId>
         </dependency>
         <dependency>
             <groupId>com.itemis</groupId>
@@ -250,6 +242,11 @@
         <dependency>
             <groupId>nl.jqno.equalsverifier</groupId>
             <artifactId>equalsverifier</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
             <scope>test</scope>
         </dependency>
         <!-- End of test dependencies -->
