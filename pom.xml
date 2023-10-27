@@ -367,6 +367,7 @@
                         <excludeProperty>git.closest.tag.*</excludeProperty>
                         <excludeProperty>git.commit.message.*</excludeProperty>
                         <excludeProperty>git.commit.user.*</excludeProperty>
+                        <excludeProperty>git.build.host</excludeProperty>
                     </excludeProperties>
                     <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
