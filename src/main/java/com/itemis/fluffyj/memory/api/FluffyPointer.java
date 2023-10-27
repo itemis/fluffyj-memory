@@ -1,7 +1,7 @@
 package com.itemis.fluffyj.memory.api;
 
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.MemorySegment.Scope;
 
 /**
  * Provides convenience methods that help with working with {@link MemorySegment}s that hold
@@ -10,7 +10,7 @@ import java.lang.foreign.SegmentScope;
 public interface FluffyPointer {
 
     /**
-     * @see SegmentScope#isAlive()
+     * @see Scope#isAlive()
      */
     boolean isAlive();
 

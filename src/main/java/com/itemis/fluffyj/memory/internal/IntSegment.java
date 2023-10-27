@@ -4,9 +4,8 @@ import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 import com.itemis.fluffyj.memory.api.FluffySegment;
 import com.itemis.fluffyj.memory.internal.impl.FluffySegmentImpl;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 /**
@@ -24,19 +23,19 @@ public class IntSegment extends FluffySegmentImpl implements FluffyScalarSegment
      * Allocate a new segment.
      *
      * @param initialValue - The new segment will hold this value.
-     * @param scope - The new segment will be attached to this scope.
+     * @param arena - The new segment will be attached to this arena.
      */
-    public IntSegment(int initialValue, SegmentScope scope) {
-        this(SegmentAllocator.nativeAllocator(scope).allocate(ValueLayout.JAVA_INT, initialValue));
+    public IntSegment(final int initialValue, final Arena arena) {
+        this(arena.allocate(ValueLayout.JAVA_INT, initialValue));
     }
 
     /**
      * Wrap the provided {@code backingSeg}. The constructed segment will be attached to the same
-     * scope as the {@code backingSeg}.
+     * arena as the {@code backingSeg}.
      *
      * @param backingSeg - The raw segment to wrap.
      */
-    public IntSegment(MemorySegment backingSeg) {
+    public IntSegment(final MemorySegment backingSeg) {
         super(backingSeg);
     }
 

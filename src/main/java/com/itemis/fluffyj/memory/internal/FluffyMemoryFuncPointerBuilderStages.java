@@ -3,9 +3,9 @@ package com.itemis.fluffyj.memory.internal;
 import com.itemis.fluffyj.exceptions.InstantiationNotPermittedException;
 import com.itemis.fluffyj.memory.api.FluffyMemoryTypeConverter;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentScope;
 
 public final class FluffyMemoryFuncPointerBuilderStages {
 
@@ -32,7 +32,7 @@ public final class FluffyMemoryFuncPointerBuilderStages {
 
         MemorySegment autoBind();
 
-        MemorySegment autoBindTo(SegmentScope scope);
+        MemorySegment autoBindTo(Arena arena);
     }
 
     public interface ReturnTypeStage {
@@ -42,8 +42,8 @@ public final class FluffyMemoryFuncPointerBuilderStages {
     }
 
     public interface BinderStage {
-        MemorySegment bindToGlobalScope();
+        MemorySegment bindToGlobalArena();
 
-        MemorySegment bindTo(SegmentScope scope);
+        MemorySegment bindTo(Arena arena);
     }
 }

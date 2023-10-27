@@ -5,7 +5,6 @@ import static com.itemis.fluffyj.memory.FluffyMemory.segment;
 import static com.itemis.fluffyj.memory.FluffyMemory.wrap;
 import static com.itemis.fluffyj.memory.FluffyNativeMethodHandle.fromCStdLib;
 import static java.lang.foreign.Linker.nativeLinker;
-import static java.lang.foreign.SegmentAllocator.nativeAllocator;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.util.Arrays.sort;
@@ -19,7 +18,7 @@ import com.itemis.fluffyj.memory.error.FluffyMemoryException;
 import com.itemis.fluffyj.memory.internal.PointerOfString;
 import com.itemis.fluffyj.memory.internal.StringSegment;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
-import com.itemis.fluffyj.memory.tests.MemoryScopeEnabledTest;
+import com.itemis.fluffyj.memory.tests.ArenafiedTest;
 
 import org.junit.jupiter.api.Test;
 
@@ -27,17 +26,17 @@ import java.lang.foreign.MemorySegment;
 import java.lang.invoke.WrongMethodTypeException;
 import java.util.Random;
 
-public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
+public class RealWorldScenariosTest extends ArenafiedTest {
 
     private static final int MAX_RND_STR_LENGTH = 100;
 
     @Test
     void can_call_strlen_with_address_of_string_seg() {
-        var expectedStringLength = new Random().nextInt(MAX_RND_STR_LENGTH);
-        var rndStr = randomAlphanumeric(expectedStringLength);
+        final var expectedStringLength = new Random().nextInt(MAX_RND_STR_LENGTH);
+        final var rndStr = randomAlphanumeric(expectedStringLength);
 
-        var cStr = new StringSegment(rndStr, scope);
-        var ptrCStr = new PointerOfString(cStr.rawAddress(), scope);
+        final var cStr = new StringSegment(rndStr, arena);
+        final var ptrCStr = new PointerOfString(cStr.rawAddress(), arena);
 
         assertThat(strlen(cStr.address())).isEqualTo(expectedStringLength);
         assertThat(strlen(ptrCStr.getValue())).isEqualTo(expectedStringLength);
@@ -45,13 +44,13 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
 
     @Test
     void can_call_strlen_with_results_of_fluffy_memory_builder() {
-        var expectedStringLength = new Random().nextInt(MAX_RND_STR_LENGTH);
-        var rndStr = randomAlphanumeric(expectedStringLength);
+        final var expectedStringLength = new Random().nextInt(MAX_RND_STR_LENGTH);
+        final var rndStr = randomAlphanumeric(expectedStringLength);
 
-        var cStr = segment().of(rndStr).allocate(scope);
-        var ptrCStr = pointer().to(cStr).allocate(scope);
-        var strSeg = nativeAllocator(scope).allocateUtf8String(rndStr);
-        var wrappedStrSeg = wrap(strSeg).as(String.class);
+        final var cStr = segment().of(rndStr).allocate(arena);
+        final var ptrCStr = pointer().to(cStr).allocate(arena);
+        final var strSeg = arena.allocateUtf8String(rndStr);
+        final var wrappedStrSeg = wrap(strSeg).as(String.class);
 
         assertThat(strlen(cStr.address())).isEqualTo(expectedStringLength);
         assertThat(strlen(ptrCStr.getValue())).isEqualTo(expectedStringLength);
@@ -60,14 +59,15 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
 
     @Test
     void call_throws_exception_when_error_is_encountered() {
-        var underTest =
+        final var underTest =
             FluffyNativeMethodHandle
                 .fromCStdLib()
                 .returnType(long.class)
                 .func("strlen")
                 .args(ADDRESS);
 
-        var expectedCause = new WrongMethodTypeException("cannot convert MethodHandle(MemorySegment)long to ()Object");
+        final var expectedCause =
+            new WrongMethodTypeException("cannot convert MethodHandle(MemorySegment)long to ()Object");
         assertThatThrownBy(() -> underTest.call())
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Calling native code failed: " + ThrowablePrettyfier.pretty(expectedCause))
@@ -76,28 +76,28 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
 
     @Test
     void handle_construction_via_shortcut_works() {
-        var testStr = "testString";
-        var ptr = segment().of(testStr).allocate(scope).address();
+        final var testStr = "testString";
+        final var ptr = segment().of(testStr).allocate(arena).address();
 
         assertThat(strlen_shortcut_construction(ptr)).isEqualTo(testStr.length());
     }
 
     @Test
     void test_qsort() {
-        var primitiveBuf = new byte[new Random().nextInt(MAX_RND_STR_LENGTH) + 1];
+        final var primitiveBuf = new byte[new Random().nextInt(MAX_RND_STR_LENGTH) + 1];
         new Random().nextBytes(primitiveBuf);
-        var buf = toObject(primitiveBuf);
+        final var buf = toObject(primitiveBuf);
 
-        var expectedResult = toObject(primitiveBuf);
+        final var expectedResult = toObject(primitiveBuf);
         sort(expectedResult);
 
-        var bufSeg = segment().ofArray(buf).allocate();
-        var qsort = fromCStdLib()
+        final var bufSeg = segment().ofArray(buf).allocate();
+        final var qsort = fromCStdLib()
             .noReturnType()
             .func("qsort")
             .args(ADDRESS, JAVA_INT, JAVA_INT, ADDRESS);
-        var autoCompar = createComparPointerAuto();
-        var manualCompar = createComparPointerManual();
+        final var autoCompar = createComparPointerAuto();
+        final var manualCompar = createComparPointerManual();
 
         qsort.call(bufSeg.address(), buf.length, 1, autoCompar);
         var actualResult = bufSeg.getValue();
@@ -112,7 +112,7 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
         return pointer()
             .toCFunc("qsort_compar")
             .of(this)
-            .autoBindTo(scope);
+            .autoBindTo(arena);
     }
 
     private MemorySegment createComparPointerManual() {
@@ -122,12 +122,12 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
             .withTypeConverter(new CDataTypeConverter())
             .withArgs(ADDRESS, ADDRESS)
             .andReturnType(JAVA_INT)
-            .bindTo(scope);
+            .bindTo(arena);
     }
 
-    int qsort_compar(MemorySegment left, MemorySegment right) {
-        var leftByte = wrap(left).asPointerOf(Byte.class).allocate(scope).dereference();
-        var rightByte = wrap(right).asPointerOf(Byte.class).allocate(scope).dereference();
+    int qsort_compar(final MemorySegment left, final MemorySegment right) {
+        final var leftByte = wrap(left).asPointerOf(Byte.class).allocate(arena).dereference();
+        final var rightByte = wrap(right).asPointerOf(Byte.class).allocate(arena).dereference();
         var result = 0;
         if (leftByte < rightByte) {
             result = -1;
@@ -137,8 +137,8 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
         return result;
     }
 
-    private long strlen_shortcut_construction(MemorySegment pointerToString) {
-        var underTest =
+    private long strlen_shortcut_construction(final MemorySegment pointerToString) {
+        final var underTest =
             FluffyNativeMethodHandle
                 .fromCStdLib()
                 .returnType(long.class)
@@ -148,8 +148,8 @@ public class RealWorldScenariosTest extends MemoryScopeEnabledTest {
         return underTest.call(pointerToString);
     }
 
-    private long strlen(MemorySegment pointerToString) {
-        var underTest =
+    private long strlen(final MemorySegment pointerToString) {
+        final var underTest =
             FluffyNativeMethodHandle
                 .fromLib(nativeLinker().defaultLookup())
                 .withLinker((symbol, srcFuncType) -> nativeLinker().downcallHandle(symbol, srcFuncType))

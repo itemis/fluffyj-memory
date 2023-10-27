@@ -5,36 +5,35 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarSegment;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.MemorySegment.Scope;
 
 public class StringSegment implements FluffyScalarSegment<String> {
 
-    private final SegmentScope scope;
+    private final Scope scope;
     private final MemorySegment backingSeg;
 
     /**
      * Allocate a new segment.
      *
      * @param initialValue - The new segment will hold this value.
-     * @param scope - The new segment will be attached to this scope.
+     * @param arena - The new segment will be attached to this arena.
      */
-    public StringSegment(String initialValue, SegmentScope scope) {
-        this.scope = requireNonNull(scope, "scope");
-        this.backingSeg = SegmentAllocator.nativeAllocator(scope)
-            .allocateUtf8String(requireNonNull(initialValue, "initialValue"));
+    public StringSegment(final String initialValue, final Arena arena) {
+        this.scope = requireNonNull(arena, "arena").scope();
+        this.backingSeg = arena.allocateUtf8String(requireNonNull(initialValue, "initialValue"));
     }
 
     /**
      * Wrap the provided {@code backingSeg}. The constructed segment will be attached to the same
-     * scope as the {@code backingSeg}.
+     * arena as the {@code backingSeg}.
      *
      * @param backingSeg - The raw segment to wrap.
      */
-    public StringSegment(MemorySegment backingSeg) {
-        this.scope = backingSeg.scope();
+    public StringSegment(final MemorySegment backingSeg) {
         this.backingSeg = requireNonNull(backingSeg, "backingSeg");
+        this.scope = backingSeg.scope();
     }
 
     @Override
@@ -44,7 +43,7 @@ public class StringSegment implements FluffyScalarSegment<String> {
 
     @Override
     public MemorySegment address() {
-        return ofAddress(rawAddress(), 0, scope);
+        return ofAddress(rawAddress());
     }
 
     @Override
@@ -54,7 +53,7 @@ public class StringSegment implements FluffyScalarSegment<String> {
 
     @Override
     public boolean isAlive() {
-        return backingSeg.scope().isAlive();
+        return scope.isAlive();
     }
 
     @Override
