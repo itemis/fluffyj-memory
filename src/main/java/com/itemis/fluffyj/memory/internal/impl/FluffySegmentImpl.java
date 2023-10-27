@@ -4,9 +4,9 @@ import static java.lang.foreign.MemorySegment.ofAddress;
 
 import com.itemis.fluffyj.memory.api.FluffySegment;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.MemorySegment.Scope;
 import java.lang.foreign.ValueLayout;
 
 /**
@@ -15,14 +15,14 @@ import java.lang.foreign.ValueLayout;
 public abstract class FluffySegmentImpl implements FluffySegment {
 
     protected final MemorySegment backingSeg;
-    protected final SegmentScope scope;
+    protected final Scope scope;
 
     /**
      * Wrap the provided {@link MemorySegment}.
      *
      * @param backingSeg - The raw segment to wrap.
      */
-    public FluffySegmentImpl(MemorySegment backingSeg) {
+    public FluffySegmentImpl(final MemorySegment backingSeg) {
         this.backingSeg = backingSeg;
         this.scope = backingSeg.scope();
     }
@@ -31,10 +31,10 @@ public abstract class FluffySegmentImpl implements FluffySegment {
      * Allocate new segment.
      *
      * @param initialValue - The new segment will hold this value.
-     * @param scope - The new segment will be attached to this scope.
+     * @param arena - The new segment will be attached to this arena.
      */
-    public FluffySegmentImpl(byte[] initialValue, SegmentScope scope) {
-        this(SegmentAllocator.nativeAllocator(scope).allocateArray(ValueLayout.JAVA_BYTE, initialValue));
+    public FluffySegmentImpl(final byte[] initialValue, final Arena arena) {
+        this(arena.allocateArray(ValueLayout.JAVA_BYTE, initialValue));
     }
 
     @Override
@@ -44,7 +44,7 @@ public abstract class FluffySegmentImpl implements FluffySegment {
 
     @Override
     public MemorySegment address() {
-        return ofAddress(rawAddress(), 0, scope);
+        return ofAddress(rawAddress());
     }
 
     @Override

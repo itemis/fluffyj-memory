@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.internal.impl.FluffyPointerImpl;
 
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.Arena;
 
 /**
  * An arbitrary pointer that just holds an address and cannot be dereferenced via Fluffy API. It is
@@ -14,10 +14,10 @@ import java.lang.foreign.SegmentScope;
 public class PointerOfThing extends FluffyPointerImpl {
 
     /**
-     * @param scope - The scope to attach this pointer to. If the scope is closed, the pointer will
-     *        not be alive anymore.
+     * @param arena - The arena to attach this pointer to. If the arena's scope has been closed, the
+     *        pointer will not be alive anymore.
      */
-    public PointerOfThing(SegmentScope scope) {
-        super(0L, requireNonNull(scope, "scope"));
+    public PointerOfThing(final Arena arena) {
+        super(0L, requireNonNull(arena, "arena"));
     }
 }

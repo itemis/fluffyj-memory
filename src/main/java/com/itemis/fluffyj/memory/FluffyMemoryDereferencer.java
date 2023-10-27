@@ -2,15 +2,15 @@ package com.itemis.fluffyj.memory;
 
 import static java.util.Objects.requireNonNull;
 
-import java.lang.foreign.MemorySegment;
+import java.lang.foreign.Arena;
 
 /**
  * Provides shortcuts for dereferencing pointers.
  */
 public final class FluffyMemoryDereferencer {
 
-    private FluffyMemorySegmentWrapper wrapper;
-    private MemorySegment nativePtr;
+    private final FluffyMemorySegmentWrapper wrapper;
+    private final Arena arena;
 
     /**
      * Construct a new instance.
@@ -19,9 +19,9 @@ public final class FluffyMemoryDereferencer {
      *        {@link FluffyMemory#wrap(java.lang.foreign.MemorySegment)}.
      * @param nativePtr - The segment that was wrapped with the {@code wrapper}.
      */
-    FluffyMemoryDereferencer(FluffyMemorySegmentWrapper wrapper, MemorySegment nativePtr) {
+    FluffyMemoryDereferencer(final FluffyMemorySegmentWrapper wrapper, final Arena arena) {
         this.wrapper = requireNonNull(wrapper, "wrapper");
-        this.nativePtr = requireNonNull(nativePtr, "nativePtr");
+        this.arena = requireNonNull(arena, "arena");
     }
 
     /**
@@ -31,7 +31,7 @@ public final class FluffyMemoryDereferencer {
      * @param targetType - An instance of this class will be returned.
      * @return An instance of T that was read from an address of off heap memory.
      */
-    public <T> T as(Class<? extends T> targetType) {
-        return wrapper.asPointerOf(targetType).allocate(nativePtr.scope()).dereference();
+    public <T> T as(final Class<? extends T> targetType) {
+        return wrapper.asPointerOf(targetType).allocate(arena).dereference();
     }
 }

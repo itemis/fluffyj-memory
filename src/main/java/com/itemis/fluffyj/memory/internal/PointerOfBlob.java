@@ -4,8 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.internal.impl.FluffyVectorPointerImpl;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentScope;
 import java.lang.foreign.ValueLayout;
 
 public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
@@ -15,16 +15,16 @@ public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
      *
      * @param addressPointedTo - The address the new pointer will point to.
      * @param byteSize - Size of the vector this pointer points to in bytes.
-     * @param scope - Attach the new pointer to this scope.
+     * @param arena - Attach the new pointer to this arena.
      */
-    public PointerOfBlob(long addressPointedTo, long byteSize, SegmentScope scope) {
-        super(requireNonNull(addressPointedTo, "addressPointedTo"), byteSize, requireNonNull(scope, "scope"));
+    public PointerOfBlob(final long addressPointedTo, final long byteSize, final Arena arena) {
+        super(requireNonNull(addressPointedTo, "addressPointedTo"), byteSize, requireNonNull(arena, "arena"));
     }
 
     @Override
     public Byte[] dereference() {
-        var valSeg = rawDereference();
-        var result = new Byte[(int) byteSize];
+        final var valSeg = rawDereference();
+        final var result = new Byte[(int) byteSize];
         for (var i = 0; i < result.length; i++) {
             result[i] = valSeg.get(ValueLayout.JAVA_BYTE, i);
         }
@@ -34,6 +34,6 @@ public class PointerOfBlob extends FluffyVectorPointerImpl<Byte> {
 
     @Override
     public MemorySegment rawDereference() {
-        return MemorySegment.ofAddress(getRawValue(), byteSize, scope);
+        return MemorySegment.ofAddress(getRawValue()).reinterpret(byteSize, arena, null);
     }
 }

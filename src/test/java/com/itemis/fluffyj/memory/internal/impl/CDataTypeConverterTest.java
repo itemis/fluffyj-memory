@@ -39,17 +39,17 @@ public class CDataTypeConverterTest {
 
     @ParameterizedTest
     @MethodSource("expectedTypeMappings")
-    void native_type_to_jvm_type_and_back(Class<?> jvmInputType, MemoryLayout expectedNativeType,
-            Class<?> expectedJvmType) {
-        var actualNativeType = underTest.getNativeType(jvmInputType);
+    void native_type_to_jvm_type_and_back(final Class<?> jvmInputType, final MemoryLayout expectedNativeType,
+            final Class<?> expectedJvmType) {
+        final var actualNativeType = underTest.getNativeType(jvmInputType);
         assertThat(actualNativeType).isEqualTo(expectedNativeType);
         assertThat(underTest.getJvmType(actualNativeType)).isEqualTo(expectedJvmType);
     }
 
     @Test
     void native_type_to_jvm_type_and_back_special_address_case() {
-        var actualNativeType = underTest.getNativeType(MemorySegment.class);
-        assertThat(actualNativeType).isEqualTo(ValueLayout.ADDRESS.asUnbounded());
+        final var actualNativeType = underTest.getNativeType(MemorySegment.class);
+        assertThat(actualNativeType).isEqualTo(ValueLayout.ADDRESS);
         assertThat(underTest.getJvmType(ValueLayout.ADDRESS)).isEqualTo(MemorySegment.class);
     }
 
@@ -60,7 +60,7 @@ public class CDataTypeConverterTest {
 
     @Test
     void memory_layout_of_unknown_type_yields_exception() {
-        var unknownType = Object.class;
+        final var unknownType = Object.class;
         assertThatThrownBy(() -> underTest.getNativeType(unknownType))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Cannot provide native memory layout for JVM type " + unknownType.getCanonicalName());
@@ -68,7 +68,7 @@ public class CDataTypeConverterTest {
 
     @Test
     void JVM_type_of_unknown_memory_layout_yields_exception() {
-        var unknownMemoryLayout = sequenceLayout(3, JAVA_INT);
+        final var unknownMemoryLayout = sequenceLayout(3, JAVA_INT);
 
         assertThatThrownBy(() -> underTest.getJvmType(unknownMemoryLayout))
             .isInstanceOf(FluffyMemoryException.class)
@@ -77,7 +77,8 @@ public class CDataTypeConverterTest {
 
     @ParameterizedTest
     @MethodSource("expectedTypeMappings")
-    void jvmTypes_returns_correct_types(Class<?> unused, MemoryLayout input, Class<?> expectedOutput) {
+    void jvmTypes_returns_correct_types(final Class<?> unused, final MemoryLayout input,
+            final Class<?> expectedOutput) {
         assertThat(underTest.getJvmTypes(input)).isEqualTo(new Class<?>[] {expectedOutput});
     }
 
@@ -130,7 +131,8 @@ public class CDataTypeConverterTest {
 
     @ParameterizedTest
     @MethodSource("expectedTypeMappings")
-    void nativeTypes_with_one_type_yields_correct_type(Class<?> input, MemoryLayout expectedOutput, Class<?> unused) {
+    void nativeTypes_with_one_type_yields_correct_type(final Class<?> input, final MemoryLayout expectedOutput,
+            final Class<?> unused) {
         assertThat(underTest.getNativeTypes(input)).hasOnlyOneElementSatisfying(elm -> elm.equals(expectedOutput));
     }
 
@@ -142,7 +144,7 @@ public class CDataTypeConverterTest {
 
     @Test
     void nativeTypes_throws_exception_on_unknown_type() {
-        var unknownJvmType = String.class;
+        final var unknownJvmType = String.class;
         assertThatThrownBy(() -> underTest.getNativeTypes(long.class, unknownJvmType, double.class))
             .isInstanceOf(FluffyMemoryException.class)
             .hasMessage("Cannot provide native memory layout for JVM type " + unknownJvmType.getCanonicalName());
@@ -164,6 +166,6 @@ public class CDataTypeConverterTest {
             Arguments.of(Short.class, JAVA_SHORT, short.class),
             Arguments.of(byte.class, JAVA_BYTE, byte.class),
             Arguments.of(Byte.class, JAVA_BYTE, byte.class),
-            Arguments.of(MemorySegment.class, ADDRESS.asUnbounded(), MemorySegment.class));
+            Arguments.of(MemorySegment.class, ADDRESS, MemorySegment.class));
     }
 }

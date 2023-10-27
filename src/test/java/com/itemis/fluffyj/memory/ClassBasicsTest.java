@@ -17,6 +17,8 @@ import com.itemis.fluffyj.memory.internal.PointerOfString;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.foreign.Arena;
+
 class ClassBasicsTest {
 
     private static final int A_LONG = 1;
@@ -52,12 +54,12 @@ class ClassBasicsTest {
         assertNullArgNotAccepted(() -> new FluffyMemoryScalarSegmentAllocator<>(null), "initialValue");
         assertNullArgNotAccepted(() -> new FluffyMemoryVectorSegmentAllocator<>(null), "initialValue");
         assertNullArgNotAccepted(() -> new FluffyMemorySegmentWrapper(null), "nativeSegment");
-        assertNullArgNotAccepted(() -> new PointerOfInt(NULL.address(), null) {}, "scope");
-        assertNullArgNotAccepted(() -> new PointerOfLong(NULL.address(), null) {}, "scope");
-        assertNullArgNotAccepted(() -> new PointerOfBlob(NULL.address(), A_LONG, null) {}, "scope");
-        assertNullArgNotAccepted(() -> new PointerOfString(NULL.address(), null) {}, "scope");
-        assertNullArgNotAccepted(() -> new PointerOfByte(NULL.address(), null) {}, "scope");
-        assertNullArgNotAccepted(() -> new FluffyMemoryDereferencer(null, NULL), "wrapper");
-        assertNullArgNotAccepted(() -> new FluffyMemoryDereferencer(wrap(NULL), null), "nativePtr");
+        assertNullArgNotAccepted(() -> new PointerOfInt(NULL.address(), null) {}, "arena");
+        assertNullArgNotAccepted(() -> new PointerOfLong(NULL.address(), null) {}, "arena");
+        assertNullArgNotAccepted(() -> new PointerOfBlob(NULL.address(), A_LONG, null) {}, "arena");
+        assertNullArgNotAccepted(() -> new PointerOfString(NULL.address(), null) {}, "arena");
+        assertNullArgNotAccepted(() -> new PointerOfByte(NULL.address(), null) {}, "arena");
+        assertNullArgNotAccepted(() -> new FluffyMemoryDereferencer(null, Arena.global()), "wrapper");
+        assertNullArgNotAccepted(() -> new FluffyMemoryDereferencer(wrap(NULL), null), "arena");
     }
 }

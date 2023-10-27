@@ -12,10 +12,10 @@ import java.lang.foreign.ValueLayout;
 public class CDataTypeConverter implements FluffyMemoryTypeConverter {
 
     @Override
-    public MemoryLayout[] getNativeTypes(Class<?>... jvmTypes) {
+    public MemoryLayout[] getNativeTypes(final Class<?>... jvmTypes) {
         requireNonNull(jvmTypes, "jvmTypes");
 
-        var result = new MemoryLayout[jvmTypes.length];
+        final var result = new MemoryLayout[jvmTypes.length];
         for (var i = 0; i < result.length; i++) {
             result[i] = getNativeType(jvmTypes[i]);
         }
@@ -24,7 +24,7 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
     }
 
     @Override
-    public MemoryLayout getNativeType(Class<?> jvmType) {
+    public MemoryLayout getNativeType(final Class<?> jvmType) {
         MemoryLayout result;
         if (long.class.equals(jvmType) || Long.class.equals(jvmType)) {
             result = ValueLayout.JAVA_LONG;
@@ -41,7 +41,7 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
         } else if (byte.class.equals(jvmType) || Byte.class.equals(jvmType)) {
             result = ValueLayout.JAVA_BYTE;
         } else if (MemorySegment.class.isAssignableFrom(jvmType)) {
-            result = ValueLayout.ADDRESS.asUnbounded();
+            result = ValueLayout.ADDRESS;
         } else {
             throw new FluffyMemoryException(
                 "Cannot provide native memory layout for JVM type " + jvmType.getCanonicalName());
@@ -50,7 +50,7 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
     }
 
     @Override
-    public Class<?> getJvmType(MemoryLayout nativeType) {
+    public Class<?> getJvmType(final MemoryLayout nativeType) {
         Class<?> result;
         if (ValueLayout.JAVA_LONG.equals(nativeType)) {
             result = long.class;
@@ -66,7 +66,7 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
             result = float.class;
         } else if (ValueLayout.JAVA_SHORT.equals(nativeType)) {
             result = short.class;
-        } else if (ValueLayout.ADDRESS.equals(nativeType) || ValueLayout.ADDRESS.asUnbounded().equals(nativeType)) {
+        } else if (ValueLayout.ADDRESS.equals(nativeType)) {
             result = MemorySegment.class;
         } else {
             throw new FluffyMemoryException("Cannot provide JVM type for native memory layout " + nativeType.name());
@@ -76,9 +76,9 @@ public class CDataTypeConverter implements FluffyMemoryTypeConverter {
     }
 
     @Override
-    public Class<?>[] getJvmTypes(MemoryLayout... nativeTypes) {
+    public Class<?>[] getJvmTypes(final MemoryLayout... nativeTypes) {
         requireNonNull(nativeTypes, "nativeTypes");
-        var result = new Class<?>[nativeTypes.length];
+        final var result = new Class<?>[nativeTypes.length];
         for (var i = 0; i < nativeTypes.length; i++) {
             result[i] = getJvmType(nativeTypes[i]);
         }

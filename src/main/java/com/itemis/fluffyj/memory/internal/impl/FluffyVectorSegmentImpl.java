@@ -2,8 +2,8 @@ package com.itemis.fluffyj.memory.internal.impl;
 
 import com.itemis.fluffyj.memory.api.FluffyVectorSegment;
 
+import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.SegmentScope;
 
 /**
  * Default implementation of a generic segment that holds vectorized (i. e. array) data.
@@ -12,12 +12,12 @@ import java.lang.foreign.SegmentScope;
  */
 public abstract class FluffyVectorSegmentImpl<T> extends FluffySegmentImpl implements FluffyVectorSegment<T> {
 
-    public FluffyVectorSegmentImpl(MemorySegment backingSeg) {
+    public FluffyVectorSegmentImpl(final MemorySegment backingSeg) {
         super(backingSeg);
     }
 
-    public FluffyVectorSegmentImpl(byte[] initialValue, SegmentScope scope) {
-        super(initialValue, scope);
+    public FluffyVectorSegmentImpl(final byte[] initialValue, final Arena arena) {
+        super(initialValue, arena);
     }
 
     @Override

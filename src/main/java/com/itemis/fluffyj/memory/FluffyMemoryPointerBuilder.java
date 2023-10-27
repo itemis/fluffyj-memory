@@ -11,7 +11,7 @@ import com.itemis.fluffyj.memory.internal.FluffyMemoryFuncPointerBuilderStages.F
 import com.itemis.fluffyj.memory.internal.PointerOfThing;
 import com.itemis.fluffyj.memory.internal.impl.CDataTypeConverter;
 
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.Arena;
 
 /**
  * Intermediate pointer creation helper.
@@ -24,7 +24,7 @@ public final class FluffyMemoryPointerBuilder {
      * @return A {@link FluffyMemoryScalarPointerAllocator} instance that is able to allocate
      *         pointers to data of type {@code T}.
      */
-    public <T> FluffyMemoryScalarPointerAllocator<T> to(FluffyScalarSegment<? extends T> toHere) {
+    public <T> FluffyMemoryScalarPointerAllocator<T> to(final FluffyScalarSegment<? extends T> toHere) {
         requireNonNull(toHere, "toHere");
         return new FluffyMemoryScalarPointerAllocator<>(toHere);
     }
@@ -35,7 +35,7 @@ public final class FluffyMemoryPointerBuilder {
      * @return A {@link FluffyMemoryScalarPointerAllocator} instance that is able to allocate
      *         pointers to data of type {@code T}.
      */
-    public <T> FluffyMemoryVectorPointerAllocator<T> toArray(FluffyVectorSegment<? extends T> toHere) {
+    public <T> FluffyMemoryVectorPointerAllocator<T> toArray(final FluffyVectorSegment<? extends T> toHere) {
         requireNonNull(toHere, "toHere");
         return new FluffyMemoryVectorPointerAllocator<>(toHere);
     }
@@ -45,7 +45,7 @@ public final class FluffyMemoryPointerBuilder {
      * @return A {@link FluffyMemoryScalarPointerAllocator} instance that is able to allocate
      *         pointers to data of type {@code T}.
      */
-    public FluffyMemoryTypedPointerBuilder to(long address) {
+    public FluffyMemoryTypedPointerBuilder to(final long address) {
         requireNonNull(address, "address");
         return new FluffyMemoryTypedPointerBuilder(address);
     }
@@ -55,24 +55,24 @@ public final class FluffyMemoryPointerBuilder {
      * API and is thought to be used in cases where an API writes an address into an "empty"
      * pointer.
      *
-     * @return A new instance of {@link FluffyPointer} tied to the global scope.
+     * @return A new instance of {@link FluffyPointer} tied to the auto arena.
      */
     public FluffyPointer allocate() {
-        return allocate(SegmentScope.global());
+        return allocate(Arena.ofAuto());
     }
 
     /**
      * Like {@link #allocate()} but ties the newly created pointer's lifecycle to the provided
-     * {@code scope}.
+     * {@code arena}.
      *
-     * @param scope - The scope to tie the pointer to.
+     * @param arena - The arena to tie the pointer to.
      * @return A new instance of {@link FluffyPointer}.
      */
-    public FluffyPointer allocate(SegmentScope scope) {
-        return new PointerOfThing(requireNonNull(scope, "scope"));
+    public FluffyPointer allocate(final Arena arena) {
+        return new PointerOfThing(requireNonNull(arena, "arena"));
     }
 
-    public <T> FluffyMemoryScalarPointerAllocator<T> of(Class<? extends T> type) {
+    public <T> FluffyMemoryScalarPointerAllocator<T> of(final Class<? extends T> type) {
         return new FluffyMemoryTypedPointerBuilder(NULL.address()).as(type);
     }
 
@@ -82,7 +82,7 @@ public final class FluffyMemoryPointerBuilder {
      * @param funcName - Name of the JVM method to point to.
      * @return A builder that helps with creating the function pointer.
      */
-    public CFuncStage toCFunc(String funcName) {
+    public CFuncStage toCFunc(final String funcName) {
         return new FluffyMemoryFuncPointerBuilder(requireNonNull(funcName, "funcName"), new CDataTypeConverter());
     }
 
@@ -93,7 +93,7 @@ public final class FluffyMemoryPointerBuilder {
      * @param funcName - Name of the JVM method to point to.
      * @return A builder that helps with creating the function pointer.
      */
-    public FuncStage toFunc(String funcName) {
+    public FuncStage toFunc(final String funcName) {
         return new FluffyMemoryFuncPointerBuilder(requireNonNull(funcName, "funcName"));
     }
 
@@ -108,7 +108,7 @@ public final class FluffyMemoryPointerBuilder {
          *
          * @param address - Created pointer will point to this address.
          */
-        public FluffyMemoryTypedPointerBuilder(long address) {
+        public FluffyMemoryTypedPointerBuilder(final long address) {
             requireNonNull(address, "address");
             this.address = address;
         }
@@ -120,14 +120,14 @@ public final class FluffyMemoryPointerBuilder {
          * @param type - Type of scalar data to point to.
          * @return A new builder instance that helps with creating this kind of pointer.
          */
-        public <T> FluffyMemoryScalarPointerAllocator<T> as(Class<? extends T> type) {
+        public <T> FluffyMemoryScalarPointerAllocator<T> as(final Class<? extends T> type) {
             return new FluffyMemoryScalarPointerAllocator<>(address, type);
         }
 
         /**
          * @param byteSize - The size of the array the pointer shall point to in bytes.
          */
-        public FluffyMemoryTypedArrayPointerBuilder asArray(int byteSize) {
+        public FluffyMemoryTypedArrayPointerBuilder asArray(final int byteSize) {
             return new FluffyMemoryTypedArrayPointerBuilder(address, byteSize);
         }
     }
@@ -145,7 +145,7 @@ public final class FluffyMemoryPointerBuilder {
          * @param address - Created pointer will point to this address.
          * @param byteSize - Size of the array to point to in bytes.
          */
-        public FluffyMemoryTypedArrayPointerBuilder(long address, long byteSize) {
+        public FluffyMemoryTypedArrayPointerBuilder(final long address, final long byteSize) {
             this.address = requireNonNull(address, "address");
             this.byteSize = byteSize;
         }
@@ -156,7 +156,7 @@ public final class FluffyMemoryPointerBuilder {
          * @param <T> - Component type of the array to point to.
          * @return A new builder instance that helps with creating this kind of pointer.
          */
-        public <T> FluffyMemoryVectorPointerAllocator<T> of(Class<? extends T[]> arrayType) {
+        public <T> FluffyMemoryVectorPointerAllocator<T> of(final Class<? extends T[]> arrayType) {
             return new FluffyMemoryVectorPointerAllocator<>(address, byteSize, arrayType);
         }
     }

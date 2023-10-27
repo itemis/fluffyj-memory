@@ -4,7 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.itemis.fluffyj.memory.api.FluffyScalarPointer;
 
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.Arena;
 
 /**
  * Default implementation of a scalar pointer.
@@ -18,10 +18,10 @@ public abstract class FluffyScalarPointerImpl<T> extends FluffyPointerImpl imple
     /**
      * @param addressPointedTo - The address this pointer will point to.
      * @param byteSize - Size of the array this pointer points to in bytes.
-     * @param scope - The scope to attach this pointer to.
+     * @param arena - The arena to attach this pointer to.
      */
-    public FluffyScalarPointerImpl(long addressPointedTo, long byteSize, SegmentScope scope) {
-        super(addressPointedTo, scope);
+    public FluffyScalarPointerImpl(final long addressPointedTo, final long byteSize, final Arena arena) {
+        super(addressPointedTo, arena);
         this.byteSize = requireNonNull(byteSize);
     }
 }

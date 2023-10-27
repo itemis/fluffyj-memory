@@ -6,8 +6,7 @@ import static org.apache.commons.lang3.RandomStringUtils.randomAlphanumeric;
 import com.itemis.fluffyj.memory.tests.FluffyMemoryScalarTestValue;
 import com.itemis.fluffyj.memory.tests.FluffyScalarDataManipulationTest;
 
-import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.SegmentScope;
+import java.lang.foreign.Arena;
 import java.lang.foreign.ValueLayout;
 
 public class StringManipulationTest extends FluffyScalarDataManipulationTest<String> {
@@ -18,9 +17,9 @@ public class StringManipulationTest extends FluffyScalarDataManipulationTest<Str
         super(new FluffyMemoryScalarTestValueIterator<String>() {
             @Override
             public FluffyMemoryScalarTestValue<String> next() {
-                var typedValue = randomAlphanumeric(RND_STR_LENGTH);
-                var cString = SegmentAllocator.nativeAllocator(SegmentScope.auto()).allocateUtf8String(typedValue);
-                var rawValue = new byte[(int) cString.byteSize()];
+                final var typedValue = randomAlphanumeric(RND_STR_LENGTH);
+                final var cString = Arena.ofAuto().allocateUtf8String(typedValue);
+                final var rawValue = new byte[(int) cString.byteSize()];
                 cString.asByteBuffer().get(rawValue);
                 return new FluffyMemoryScalarTestValue<>(typedValue, rawValue);
             }
