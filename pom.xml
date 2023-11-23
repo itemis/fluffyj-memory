@@ -81,7 +81,7 @@
         <logback.version>1.4.11</logback.version>
         <equalsverifier.version>3.15.3</equalsverifier.version>
         <arch.unit.version>1.2.0</arch.unit.version>
-        <apache.commons.lang.version>3.13.0</apache.commons.lang.version>
+        <apache.commons.lang.version>3.14.0</apache.commons.lang.version>
         <fluffyj.version>1.13.1</fluffyj.version>
         <fluffyj.tests.version>1.7.2</fluffyj.tests.version>
         <custom.jvm.options>
