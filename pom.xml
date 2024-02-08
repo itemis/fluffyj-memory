@@ -77,7 +77,7 @@
         <junit.version>5.10.1</junit.version>
         <jacoco.plugin.version>0.8.11</jacoco.plugin.version>
         <git-commit-id-plugin.version>7.0.0</git-commit-id-plugin.version>
-        <assertj.version>3.25.2</assertj.version>
+        <assertj.version>3.25.3</assertj.version>
         <logback.version>1.4.14</logback.version>
         <equalsverifier.version>3.15.6</equalsverifier.version>
         <arch.unit.version>1.2.1</arch.unit.version>
