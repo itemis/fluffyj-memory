@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.3-SNAPSHOT</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
