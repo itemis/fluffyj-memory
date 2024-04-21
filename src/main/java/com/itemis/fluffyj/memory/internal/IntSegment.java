@@ -26,7 +26,7 @@ public class IntSegment extends FluffySegmentImpl implements FluffyScalarSegment
      * @param arena - The new segment will be attached to this arena.
      */
     public IntSegment(final int initialValue, final Arena arena) {
-        this(arena.allocate(ValueLayout.JAVA_INT, initialValue));
+        this(arena.allocateFrom(ValueLayout.JAVA_INT, initialValue));
     }
 
     /**

@@ -18,7 +18,7 @@ public class StringManipulationTest extends FluffyScalarDataManipulationTest<Str
             @Override
             public FluffyMemoryScalarTestValue<String> next() {
                 final var typedValue = randomAlphanumeric(RND_STR_LENGTH);
-                final var cString = Arena.ofAuto().allocateUtf8String(typedValue);
+                final var cString = Arena.ofAuto().allocateFrom(typedValue);
                 final var rawValue = new byte[(int) cString.byteSize()];
                 cString.asByteBuffer().get(rawValue);
                 return new FluffyMemoryScalarTestValue<>(typedValue, rawValue);

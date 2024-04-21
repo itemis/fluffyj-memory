@@ -34,7 +34,7 @@ public abstract class FluffySegmentImpl implements FluffySegment {
      * @param arena - The new segment will be attached to this arena.
      */
     public FluffySegmentImpl(final byte[] initialValue, final Arena arena) {
-        this(arena.allocateArray(ValueLayout.JAVA_BYTE, initialValue));
+        this(arena.allocateFrom(ValueLayout.JAVA_BYTE, initialValue));
     }
 
     @Override

@@ -26,7 +26,7 @@ public class LongSegment extends FluffySegmentImpl implements FluffyScalarSegmen
      * @param arena - The new segment will be attached to this arena.
      */
     public LongSegment(final long initialValue, final Arena arena) {
-        this(arena.allocate(ValueLayout.JAVA_LONG, initialValue));
+        this(arena.allocateFrom(ValueLayout.JAVA_LONG, initialValue));
     }
 
     /**

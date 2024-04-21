@@ -49,7 +49,7 @@ public class RealWorldScenariosTest extends ArenafiedTest {
 
         final var cStr = segment().of(rndStr).allocate(arena);
         final var ptrCStr = pointer().to(cStr).allocate(arena);
-        final var strSeg = arena.allocateUtf8String(rndStr);
+        final var strSeg = arena.allocateFrom(rndStr);
         final var wrappedStrSeg = wrap(strSeg).as(String.class);
 
         assertThat(strlen(cStr.address())).isEqualTo(expectedStringLength);
