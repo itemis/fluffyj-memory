@@ -8,11 +8,11 @@
     <parent>
         <groupId>com.itemis</groupId>
         <artifactId>org-parent</artifactId>
-        <version>5.8.3</version>
+        <version>5.8.4</version>
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.8.2</version>
+    <version>1.8.3</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -60,7 +60,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <build.timestamp.formatted>${maven.build.timestamp}</build.timestamp.formatted>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm.ssZ</maven.build.timestamp.format>
         <!-- Make sure we can use variables like ${variable.name} in resource
@@ -75,15 +75,15 @@
         <spotbugs.plugin.version>4.8.3.1</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <junit.version>5.10.2</junit.version>
-        <jacoco.plugin.version>0.8.11</jacoco.plugin.version>
-        <git-commit-id-plugin.version>8.0.1</git-commit-id-plugin.version>
+        <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
+        <git-commit-id-plugin.version>8.0.2</git-commit-id-plugin.version>
         <assertj.version>3.25.3</assertj.version>
-        <logback.version>1.5.3</logback.version>
-        <equalsverifier.version>3.15.8</equalsverifier.version>
+        <logback.version>1.5.6</logback.version>
+        <equalsverifier.version>3.16.1</equalsverifier.version>
         <arch.unit.version>1.2.1</arch.unit.version>
         <apache.commons.lang.version>3.14.0</apache.commons.lang.version>
-        <fluffyj.version>1.13.3</fluffyj.version>
-        <fluffyj.tests.version>1.7.4</fluffyj.tests.version>
+        <fluffyj.version>1.13.4</fluffyj.version>
+        <fluffyj.tests.version>1.7.5</fluffyj.tests.version>
         <custom.jvm.options>
             --enable-native-access=ALL-UNNAMED --enable-preview
         </custom.jvm.options>
