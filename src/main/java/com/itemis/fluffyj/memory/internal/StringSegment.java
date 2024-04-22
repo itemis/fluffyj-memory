@@ -22,7 +22,7 @@ public class StringSegment implements FluffyScalarSegment<String> {
      */
     public StringSegment(final String initialValue, final Arena arena) {
         this.scope = requireNonNull(arena, "arena").scope();
-        this.backingSeg = arena.allocateUtf8String(requireNonNull(initialValue, "initialValue"));
+        this.backingSeg = arena.allocateFrom(requireNonNull(initialValue, "initialValue"));
     }
 
     /**
@@ -58,6 +58,6 @@ public class StringSegment implements FluffyScalarSegment<String> {
 
     @Override
     public String getValue() {
-        return backingSeg.getUtf8String(0);
+        return backingSeg.getString(0);
     }
 }

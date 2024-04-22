@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.8.3</version>
+    <version>1.9.0</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -54,8 +54,8 @@
     </organization>
 
     <properties>
-        <java.version>21</java.version>
-        <maven.compiler.release>21</maven.compiler.release>
+        <java.version>22</java.version>
+        <maven.compiler.release>22</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
@@ -72,7 +72,7 @@
         <guava.version>33.1.0-jre</guava.version>
         <mockito.version>5.11.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
-        <spotbugs.plugin.version>4.8.3.1</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.8.4.0</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <junit.version>5.10.2</junit.version>
         <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
@@ -85,7 +85,7 @@
         <fluffyj.version>1.13.4</fluffyj.version>
         <fluffyj.tests.version>1.7.5</fluffyj.tests.version>
         <custom.jvm.options>
-            --enable-native-access=ALL-UNNAMED --enable-preview
+            --enable-native-access=ALL-UNNAMED
         </custom.jvm.options>
     </properties>
 
@@ -334,9 +334,6 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <compilerArgs>
-                            <compilerArg>--enable-preview</compilerArg>
-                        </compilerArgs>
                         <release>${java.version}</release>
                     </configuration>
                 </plugin>
@@ -444,9 +441,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <configuration>
-                    <additionalOptions>
-                        <option>--enable-preview</option>
-                    </additionalOptions>
                     <doclint>-missing</doclint>
                     <quiet>true</quiet>
                 </configuration>

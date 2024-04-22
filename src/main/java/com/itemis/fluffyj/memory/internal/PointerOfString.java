@@ -22,7 +22,7 @@ public class PointerOfString implements FluffyScalarPointer<String> {
     public PointerOfString(final long addressPointedTo, final Arena arena) {
         this.arena = requireNonNull(arena, "arena");
 
-        backingSeg = arena.allocate(JAVA_LONG, addressPointedTo);
+        backingSeg = arena.allocateFrom(JAVA_LONG, addressPointedTo);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class PointerOfString implements FluffyScalarPointer<String> {
 
     @Override
     public String dereference() {
-        return rawDereference().getUtf8String(0);
+        return rawDereference().getString(0);
     }
 
     @Override

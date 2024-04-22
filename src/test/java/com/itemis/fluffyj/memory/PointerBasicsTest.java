@@ -93,14 +93,14 @@ class PointerBasicsTest extends ArenafiedTest {
     }
 
     private static Stream<Arguments> typeMappings() {
-        final var longSeg = global().allocate(JAVA_LONG, 123L);
-        final var longSegPtr = global().allocate(ValueLayout.JAVA_LONG, longSeg.address());
-        final var intSeg = global().allocate(JAVA_INT, 123);
-        final var intSegPtr = global().allocate(ValueLayout.JAVA_LONG, intSeg.address());
-        final var byteSeg = global().allocate(JAVA_BYTE, (byte) 123);
-        final var byteSegPtr = global().allocate(ValueLayout.JAVA_LONG, byteSeg.address());
-        final var stringSeg = global().allocateUtf8String("123");
-        final var stringSegPtr = global().allocate(ValueLayout.JAVA_LONG, stringSeg.address());
+        final var longSeg = global().allocateFrom(JAVA_LONG, 123L);
+        final var longSegPtr = global().allocateFrom(ValueLayout.JAVA_LONG, longSeg.address());
+        final var intSeg = global().allocateFrom(JAVA_INT, 123);
+        final var intSegPtr = global().allocateFrom(ValueLayout.JAVA_LONG, intSeg.address());
+        final var byteSeg = global().allocateFrom(JAVA_BYTE, (byte) 123);
+        final var byteSegPtr = global().allocateFrom(ValueLayout.JAVA_LONG, byteSeg.address());
+        final var stringSeg = global().allocateFrom("123");
+        final var stringSegPtr = global().allocateFrom(ValueLayout.JAVA_LONG, stringSeg.address());
 
         return Stream.of(
             Arguments.of(longSegPtr, long.class, Long.class),
