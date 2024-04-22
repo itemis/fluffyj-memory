@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.itemis</groupId>
         <artifactId>org-parent</artifactId>
-        <version>5.8.3</version>
+        <version>5.8.4</version>
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
@@ -82,8 +82,8 @@
         <equalsverifier.version>3.16.1</equalsverifier.version>
         <arch.unit.version>1.2.1</arch.unit.version>
         <apache.commons.lang.version>3.14.0</apache.commons.lang.version>
-        <fluffyj.version>1.13.3</fluffyj.version>
-        <fluffyj.tests.version>1.7.4</fluffyj.tests.version>
+        <fluffyj.version>1.13.4</fluffyj.version>
+        <fluffyj.tests.version>1.7.5</fluffyj.tests.version>
         <custom.jvm.options>
             --enable-native-access=ALL-UNNAMED --enable-preview
         </custom.jvm.options>
