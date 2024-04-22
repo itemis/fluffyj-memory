@@ -21,7 +21,7 @@ public abstract class FluffyPointerImpl implements FluffyPointer {
      * @param arena - The arena to attach this pointer to.
      */
     protected FluffyPointerImpl(final long addressPointedTo, final Arena arena) {
-        this.addressSeg = arena.allocate(JAVA_LONG, addressPointedTo);
+        this.addressSeg = arena.allocateFrom(JAVA_LONG, addressPointedTo);
         this.arena = arena;
     }
 

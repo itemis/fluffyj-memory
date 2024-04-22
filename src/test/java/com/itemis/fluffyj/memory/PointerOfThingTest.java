@@ -75,7 +75,7 @@ public class PointerOfThingTest extends ArenafiedTest {
         final var underTest = new PointerOfThing(arena);
 
         final var expectedVal = new Random().nextInt();
-        final var nativeSeg = arena.allocate(ValueLayout.JAVA_INT, expectedVal);
+        final var nativeSeg = arena.allocateFrom(ValueLayout.JAVA_INT, expectedVal);
         final var underTestAsFfmSeg =
             underTest.address().reinterpret(ValueLayout.JAVA_LONG.byteSize(), arena, null);
         underTestAsFfmSeg.set(ValueLayout.JAVA_LONG, 0, nativeSeg.address());
