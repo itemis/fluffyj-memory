@@ -70,7 +70,7 @@
         resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
         <guava.version>33.1.0-jre</guava.version>
-        <mockito.version>5.11.0</mockito.version>
+        <mockito.version>5.12.0</mockito.version>
         <hamcrest.version>2.2</hamcrest.version>
         <spotbugs.plugin.version>4.8.4.0</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
