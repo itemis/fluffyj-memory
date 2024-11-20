@@ -5,7 +5,7 @@
             <pluginExecutionFilter>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
-                <versionRange>3.5.0</versionRange>
+                <versionRange>3.5.1</versionRange>
                 <goals>
                     <goal>active-profiles</goal>
                 </goals>
@@ -18,7 +18,7 @@
             <pluginExecutionFilter>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <versionRange>4.8.6.2</versionRange>
+                <versionRange>4.8.6.6</versionRange>
                 <goals>
                     <goal>check</goal>
                 </goals>
