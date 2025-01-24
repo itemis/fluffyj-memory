@@ -54,8 +54,8 @@
     </organization>
 
     <properties>
-        <java.version>22</java.version>
-        <maven.compiler.release>22</maven.compiler.release>
+        <java.version>23</java.version>
+        <maven.compiler.release>23</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -347,6 +347,17 @@
 
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
                 <executions>
@@ -376,22 +387,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- 
-                        When specifying
-                    <reuseForks>false</reuseForks>, 
-                        the
+                    <!--
+                    When specifying <reuseForks>false</reuseForks>, the
                     tests run directly in the mvn JVM. This means, the argLine
-                    cannot be 
-                        passed to some JVM,
-                    because it is already running. The solution is to use
-                    MAVEN_OPTS="\-\-add-modules .. mvn clean verify".
+                    cannot be passed to some JVM, because it is already running.
+                    The solution is to use MAVEN_OPTS="\-\-add-modules .. mvn clean verify".
                     -->
                     <reuseForks>true</reuseForks>
                     <forkCount>1</forkCount>
-                    <!-- $argLine is 'injected' by JaCoCo and contains
-                    instructions 
-                        to setup its agent -->
-                    <argLine>@{argLine} @{custom.jvm.options}</argLine>
+                    <!-- $argLine is 'injected' by JaCoCo and contains instructions to setup its agent -->
+                    <argLine>@{argLine} -javaagent:${org.mockito:mockito-core:jar} @{custom.jvm.options}</argLine>
                     <parallel>all</parallel>
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
