@@ -80,7 +80,7 @@
         <assertj.version>3.27.3</assertj.version>
         <logback.version>1.5.16</logback.version>
         <equalsverifier.version>3.19.1</equalsverifier.version>
-        <arch.unit.version>1.3.0</arch.unit.version>
+        <arch.unit.version>1.4.0</arch.unit.version>
         <apache.commons.lang.version>3.17.0</apache.commons.lang.version>
         <fluffyj.version>1.13.4</fluffyj.version>
         <fluffyj.tests.version>1.7.5</fluffyj.tests.version>
