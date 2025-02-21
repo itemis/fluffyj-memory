@@ -72,7 +72,7 @@
         <guava.version>33.4.0-jre</guava.version>
         <mockito.version>5.15.2</mockito.version>
         <hamcrest.version>3.0</hamcrest.version>
-        <spotbugs.plugin.version>4.8.6.6</spotbugs.plugin.version>
+        <spotbugs.plugin.version>4.9.1.0</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
         <junit.version>5.11.4</junit.version>
         <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
