@@ -3,8 +3,6 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "thursday"
-      time: "13:00"
+      interval: "monthly"
       timezone: "Europe/Berlin"
     target-branch: "develop"
