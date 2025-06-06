@@ -8,11 +8,11 @@
     <parent>
         <groupId>com.itemis</groupId>
         <artifactId>org-parent</artifactId>
-        <version>5.8.9</version>
+        <version>5.8.10</version>
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.9.1-SNAPSHOT</version>
+    <version>1.9.1</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -82,8 +82,8 @@
         <equalsverifier.version>3.19.4</equalsverifier.version>
         <arch.unit.version>1.4.1</arch.unit.version>
         <apache.commons.lang.version>3.17.0</apache.commons.lang.version>
-        <fluffyj.version>1.13.4</fluffyj.version>
-        <fluffyj.tests.version>1.7.5</fluffyj.tests.version>
+        <fluffyj.version>1.13.6</fluffyj.version>
+        <fluffyj.tests.version>1.7.6</fluffyj.tests.version>
         <jsr305-version>3.0.2</jsr305-version>
         <custom.jvm.options>
             --enable-native-access=ALL-UNNAMED
