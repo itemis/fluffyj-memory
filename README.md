@@ -2,13 +2,13 @@
 Adding some fluff to [Java's Foreign Function and Memory API](https://openjdk.org/jeps/424) ❤
 
 ## Prerequisites
-This software requires Java 22 and Maven >= 3.3.x. However, it is best to use a current Maven version, i. e. >= 3.9.x.
+This software requires Java 23 and Maven >= 3.3.x. However, it is best to use a current Maven version, i. e. >= 3.9.x.
 
 ## Build
 Usually a `mvn clean install` should be enough.
 
 ## IDE Setup
-Due to the usage of Java 22 code, the following special setup is required:  
+Due to the usage of Java 23 code, the following special setup is required:  
 * Add the following to the startup JVM options of your IDE (e. g. eclipse.ini):
 
 ```

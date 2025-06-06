@@ -8,11 +8,11 @@
     <parent>
         <groupId>com.itemis</groupId>
         <artifactId>org-parent</artifactId>
-        <version>5.8.4</version>
+        <version>5.8.10</version>
     </parent>
 
     <artifactId>fluffyj.memory</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.1</version>
 
     <name>FluffyJ Memory</name>
     <description>Adding some fluff to Java's foreign memory abstraction</description>
@@ -54,13 +54,13 @@
     </organization>
 
     <properties>
-        <java.version>22</java.version>
-        <maven.compiler.release>22</maven.compiler.release>
+        <java.version>23</java.version>
+        <maven.compiler.release>23</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <build.timestamp.formatted>${maven.build.timestamp}</build.timestamp.formatted>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm.ssZ</maven.build.timestamp.format>
         <!-- Make sure we can use variables like ${variable.name} in resource
@@ -69,21 +69,22 @@
             plugin processes all contents of the configured
         resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
-        <guava.version>33.1.0-jre</guava.version>
-        <mockito.version>5.11.0</mockito.version>
-        <hamcrest.version>2.2</hamcrest.version>
-        <spotbugs.plugin.version>4.8.4.0</spotbugs.plugin.version>
+        <guava.version>33.4.8-jre</guava.version>
+        <mockito.version>5.18.0</mockito.version>
+        <hamcrest.version>3.0</hamcrest.version>
+        <spotbugs.plugin.version>4.9.3.0</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
-        <junit.version>5.10.2</junit.version>
-        <jacoco.plugin.version>0.8.12</jacoco.plugin.version>
-        <git-commit-id-plugin.version>8.0.2</git-commit-id-plugin.version>
-        <assertj.version>3.25.3</assertj.version>
-        <logback.version>1.5.6</logback.version>
-        <equalsverifier.version>3.16.1</equalsverifier.version>
-        <arch.unit.version>1.2.1</arch.unit.version>
-        <apache.commons.lang.version>3.14.0</apache.commons.lang.version>
-        <fluffyj.version>1.13.4</fluffyj.version>
-        <fluffyj.tests.version>1.7.5</fluffyj.tests.version>
+        <junit.version>5.13.0</junit.version>
+        <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
+        <git-commit-id-plugin.version>9.0.2</git-commit-id-plugin.version>
+        <assertj.version>3.27.3</assertj.version>
+        <logback.version>1.5.18</logback.version>
+        <equalsverifier.version>3.19.4</equalsverifier.version>
+        <arch.unit.version>1.4.1</arch.unit.version>
+        <apache.commons.lang.version>3.17.0</apache.commons.lang.version>
+        <fluffyj.version>1.13.6</fluffyj.version>
+        <fluffyj.tests.version>1.7.6</fluffyj.tests.version>
+        <jsr305-version>3.0.2</jsr305-version>
         <custom.jvm.options>
             --enable-native-access=ALL-UNNAMED
         </custom.jvm.options>
@@ -177,6 +178,11 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${apache.commons.lang.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${jsr305-version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -192,6 +198,10 @@
         <dependency>
             <groupId>com.itemis</groupId>
             <artifactId>fluffyj</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
         </dependency>
 
         <!-- Test Dependencies -->
@@ -347,6 +357,17 @@
 
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>properties</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>io.github.git-commit-id</groupId>
                 <artifactId>git-commit-id-maven-plugin</artifactId>
                 <executions>
@@ -376,22 +397,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- 
-                        When specifying
-                    <reuseForks>false</reuseForks>, 
-                        the
+                    <!--
+                    When specifying <reuseForks>false</reuseForks>, the
                     tests run directly in the mvn JVM. This means, the argLine
-                    cannot be 
-                        passed to some JVM,
-                    because it is already running. The solution is to use
-                    MAVEN_OPTS="\-\-add-modules .. mvn clean verify".
+                    cannot be passed to some JVM, because it is already running.
+                    The solution is to use MAVEN_OPTS="\-\-add-modules .. mvn clean verify".
                     -->
                     <reuseForks>true</reuseForks>
                     <forkCount>1</forkCount>
                     <!-- $argLine is 'injected' by JaCoCo and contains
-                    instructions 
-                        to setup its agent -->
-                    <argLine>@{argLine} @{custom.jvm.options}</argLine>
+                    instructions to setup its agent -->
+                    <argLine>@{argLine}
+                        -javaagent:${org.mockito:mockito-core:jar}
+                        @{custom.jvm.options}</argLine>
                     <parallel>all</parallel>
                     <threadCount>1</threadCount>
                     <perCoreThreadCount>true</perCoreThreadCount>
