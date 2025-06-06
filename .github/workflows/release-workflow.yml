@@ -26,5 +26,5 @@ jobs:
         env:
           SIGN_KEY: ${{ secrets.ITEMIS_OSS_GPG_PRIVATE_KEY }}
           SIGN_KEY_PASS: ${{ secrets.ITEMIS_OSS_GPG_PRIVATE_KEY_PASSPHRASE }}
-          MAVEN_USERNAME: ${{ secrets.ITEMIS_OSS_SONATYPE_USER }}
-          MAVEN_PASSWORD: ${{ secrets.ITEMIS_OSS_SONATYPE_PW }}
+          MAVEN_USERNAME: ${{ secrets.ITEMIS_OSS_SONATYPE_TOKEN_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.ITEMIS_OSS_SONATYPE_TOKEN_PASSWORD }}
