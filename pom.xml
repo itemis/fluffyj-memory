@@ -446,6 +446,9 @@
                 </executions>
                 <configuration>
                     <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+                    <skipEmptyReport>true</skipEmptyReport>
+                    <xmlOutput>false</xmlOutput>
+                    <htmlOutput>false</htmlOutput>
                 </configuration>
             </plugin>
             <plugin>
