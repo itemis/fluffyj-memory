@@ -54,8 +54,8 @@
     </organization>
 
     <properties>
-        <java.version>23</java.version>
-        <maven.compiler.release>23</maven.compiler.release>
+        <java.version>25</java.version>
+        <maven.compiler.release>25</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
