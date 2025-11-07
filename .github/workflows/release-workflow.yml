@@ -14,9 +14,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-package: 'jdk'
-          java-version: '23'
+          java-version: '25'
           check-latest: true
-          server-id: 'ossrh'
+          server-id: 'central'
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
           cache: 'maven'
