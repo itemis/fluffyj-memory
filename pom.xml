@@ -60,7 +60,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
         <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
         <build.timestamp.formatted>${maven.build.timestamp}</build.timestamp.formatted>
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm.ssZ</maven.build.timestamp.format>
         <!-- Make sure we can use variables like ${variable.name} in resource
@@ -70,7 +70,7 @@
         resources directories. -->
         <resource.delimiter>${*}</resource.delimiter>
         <guava.version>33.4.8-jre</guava.version>
-        <mockito.version>5.19.0</mockito.version>
+        <mockito.version>5.20.0</mockito.version>
         <hamcrest.version>3.0</hamcrest.version>
         <spotbugs.plugin.version>4.9.4.0</spotbugs.plugin.version>
         <spotbugs.version>4.7.3</spotbugs.version>
@@ -78,7 +78,7 @@
         <jacoco.plugin.version>0.8.13</jacoco.plugin.version>
         <git-commit-id-plugin.version>9.0.2</git-commit-id-plugin.version>
         <assertj.version>3.27.6</assertj.version>
-        <logback.version>1.5.18</logback.version>
+        <logback.version>1.5.19</logback.version>
         <equalsverifier.version>4.0.9</equalsverifier.version>
         <arch.unit.version>1.4.1</arch.unit.version>
         <apache.commons.lang.version>3.18.0</apache.commons.lang.version>
